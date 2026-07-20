@@ -1,0 +1,121 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 30 33% 97%;
+    --foreground: 0 0% 13%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 13%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 13%;
+
+    --primary: 350 42% 56%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 30 25% 93%;
+    --secondary-foreground: 0 0% 13%;
+
+    --muted: 30 18% 92%;
+    --muted-foreground: 0 0% 40%;
+
+    --accent: 28 40% 88%;
+    --accent-foreground: 0 0% 13%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 30 18% 90%;
+    --input: 30 18% 88%;
+    --ring: 350 42% 56%;
+
+    --radius: 0.875rem;
+
+    --sidebar-background: 0 0% 99%;
+    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-primary: 240 5.9% 10%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 240 4.8% 95.9%;
+    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 350 42% 56%;
+
+    /* Brand tokens */
+    --brand-cream: 36 39% 96%;
+    --brand-blush: 350 40% 90%;
+    --brand-rose: 350 42% 56%;
+    --brand-warm: 28 45% 48%;
+    --brand-taupe: 20 12% 40%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Playfair Display', serif;
+    @apply tracking-tight;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+  .text-pretty {
+    text-wrap: pretty;
+  }
+}
+
+@layer components {
+  /* Card hover lift */
+  .card-lift {
+    @apply transition-all duration-300 ease-out;
+  }
+  .card-lift:hover {
+    @apply -translate-y-1;
+    box-shadow: 0 12px 32px -8px hsl(350 42% 56% / 0.10), 0 4px 12px -4px hsl(20 12% 22% / 0.05);
+  }
+
+  /* Scarcity banner */
+  .scarcity-line {
+    @apply text-center py-2.5 text-xs font-body font-medium tracking-wide;
+    background: linear-gradient(90deg, hsl(var(--brand-blush)), hsl(var(--brand-cream)), hsl(var(--brand-blush)));
+    color: hsl(var(--brand-rose));
+  }
+
+  /* Luxury shadow presets */
+  .shadow-luxury-sm {
+    box-shadow: 0 1px 3px 0 hsl(20 12% 22% / 0.04), 0 1px 2px -1px hsl(20 12% 22% / 0.04);
+  }
+  .shadow-luxury {
+    box-shadow: 0 4px 16px -4px hsl(20 12% 22% / 0.08), 0 2px 6px -2px hsl(20 12% 22% / 0.04);
+  }
+  .shadow-luxury-lg {
+    box-shadow: 0 10px 40px -8px hsl(20 12% 22% / 0.10), 0 4px 16px -4px hsl(20 12% 22% / 0.05);
+  }
+}
+
+/* Reduced motion: disable all transitions and animations */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
