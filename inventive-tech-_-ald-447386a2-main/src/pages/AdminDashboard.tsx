@@ -3,18 +3,25 @@ import { Link, useLocation } from "react-router-dom";
 import {
   CalendarCheck,
   Clock,
+  Eye,
+  EyeOff,
+  ImagePlus,
   IndianRupee,
   Package,
+  Plus,
+  RefreshCw,
   Save,
   ShieldCheck,
   ShoppingBag,
+  Trash2,
 } from "lucide-react";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
 import { AdminSidebar } from "@/components/admin/AdminSidebar";
 import { StatCard } from "@/components/admin/StatCard";
 import { useAuth } from "@/lib/auth";
-import { products } from "@/lib/products";
+import { categories, type Product, type ProductType } from "@/lib/products";
+import { useProducts } from "@/lib/cms-products";
 import { isSupabaseConfigured, supabase, type DbOrder, type OrderStatus } from "@/lib/supabase";
 
 const statuses: OrderStatus[] = [
@@ -34,6 +41,87 @@ const statusColor: Record<OrderStatus, string> = {
   delivered: "bg-emerald-100 text-emerald-700",
   cancelled: "bg-stone-100 text-stone-700",
 };
+
+const productTypes: ProductType[] = ["keychain", "teddy", "bouquet", "bookmark"];
+
+interface ProductDraft {
+  id: string;
+  name: string;
+  price: string;
+  type: ProductType;
+  tagline: string;
+  description: string;
+  imagesText: string;
+  isActive: boolean;
+  sortOrder: number;
+  isCmsProduct: boolean;
+  isNew?: boolean;
+  colors?: Product["colors"];
+  flowers?: Product["flowers"];
+  flowerColors?: Product["flowerColors"];
+}
+
+function makeSlug(value: string) {
+  return value
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
+function toDraft(product: Product): ProductDraft {
+  return {
+    id: product.id,
+    name: product.name,
+    price: product.price,
+    type: product.type,
+    tagline: product.tagline,
+    description: product.description,
+    imagesText: product.images.join("\n"),
+    isActive: product.isActive !== false,
+    sortOrder: product.sortOrder ?? 0,
+    isCmsProduct: Boolean(product.isCmsProduct),
+    colors: product.colors,
+    flowers: product.flowers,
+    flowerColors: product.flowerColors,
+  };
+}
+
+function draftToProduct(draft: ProductDraft): Product {
+  return {
+    id: makeSlug(draft.id || draft.name),
+    name: draft.name.trim(),
+    price: draft.price.trim(),
+    type: draft.type,
+    tagline: draft.tagline.trim(),
+    description: draft.description.trim(),
+    images: draft.imagesText
+      .split(/\r?\n/)
+      .map((image) => image.trim())
+      .filter(Boolean),
+    colors: draft.colors,
+    flowers: draft.flowers,
+    flowerColors: draft.flowerColors,
+    isActive: draft.isActive,
+    sortOrder: Number.isFinite(Number(draft.sortOrder)) ? Number(draft.sortOrder) : 0,
+  };
+}
+
+function newProductDraft(): ProductDraft {
+  return {
+    id: `new-product-${Date.now()}`,
+    name: "New Product",
+    price: "Rs. 199",
+    type: "keychain",
+    tagline: "Handmade with love",
+    description: "Add the product description here.",
+    imagesText: "",
+    isActive: true,
+    sortOrder: 99,
+    isCmsProduct: false,
+    isNew: true,
+  };
+}
 
 export default function AdminDashboard() {
   const location = useLocation();
@@ -286,20 +374,253 @@ function OrdersAdmin({
 }
 
 function ProductsAdmin() {
+  const { adminProducts, loading, error, refreshProducts, saveProduct, deleteProduct, uploadProductImage } = useProducts();
+  const [drafts, setDrafts] = useState<ProductDraft[]>([]);
+  const [savingId, setSavingId] = useState("");
+  const [notice, setNotice] = useState("");
+
+  useEffect(() => {
+    setDrafts(adminProducts.map(toDraft));
+  }, [adminProducts]);
+
+  const updateDraft = (id: string, patch: Partial<ProductDraft>) => {
+    setDrafts((current) => current.map((draft) => (draft.id === id ? { ...draft, ...patch } : draft)));
+  };
+
+  const handleSave = async (draft: ProductDraft) => {
+    const product = draftToProduct(draft);
+    if (!product.id || !product.name || !product.price || !product.description) {
+      setNotice("Please fill product id, name, price, and description before saving.");
+      return;
+    }
+    if (product.images.length === 0 && product.isActive !== false) {
+      setNotice("Add at least one image URL or upload an image before making the product visible.");
+      return;
+    }
+
+    setSavingId(draft.id);
+    try {
+      await saveProduct(product);
+      setNotice(`Saved ${product.name}.`);
+    } catch (saveError) {
+      setNotice(saveError instanceof Error ? saveError.message : "Could not save product.");
+    } finally {
+      setSavingId("");
+    }
+  };
+
+  const handleToggleActive = async (draft: ProductDraft) => {
+    await handleSave({ ...draft, isActive: !draft.isActive });
+  };
+
+  const handleDelete = async (draft: ProductDraft) => {
+    if (draft.isNew) {
+      setDrafts((current) => current.filter((item) => item.id !== draft.id));
+      return;
+    }
+    if (!draft.isCmsProduct) {
+      setNotice("This starter product has no CMS row yet. Use Hide if you do not want it visible.");
+      return;
+    }
+
+    setSavingId(draft.id);
+    try {
+      await deleteProduct(draft.id);
+      setNotice(`Deleted CMS override for ${draft.name}.`);
+    } catch (deleteError) {
+      setNotice(deleteError instanceof Error ? deleteError.message : "Could not delete product.");
+    } finally {
+      setSavingId("");
+    }
+  };
+
+  const handleUpload = async (draft: ProductDraft, file: File | null) => {
+    if (!file) return;
+    setSavingId(draft.id);
+    try {
+      const imageUrl = await uploadProductImage(makeSlug(draft.id || draft.name), file);
+      const nextImages = [draft.imagesText, imageUrl].filter(Boolean).join("\n");
+      updateDraft(draft.id, { imagesText: nextImages });
+      setNotice("Image uploaded. Save the product to use it on the website.");
+    } catch (uploadError) {
+      setNotice(uploadError instanceof Error ? uploadError.message : "Could not upload image.");
+    } finally {
+      setSavingId("");
+    }
+  };
+
   return (
-    <section className="bg-card rounded-2xl p-4 shadow-sm">
-      <h2 className="font-display text-xl text-foreground mb-4">Products</h2>
-      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {products.map((product) => (
-          <article key={product.id} className="rounded-2xl border border-border/60 bg-background overflow-hidden">
-            <img src={product.images[0]} alt={product.name} className="w-full aspect-square object-cover" />
-            <div className="p-4">
-              <p className="font-body text-sm font-semibold text-foreground line-clamp-1">{product.name}</p>
-              <p className="font-display text-primary font-bold">{product.price}</p>
-              <p className="mt-1 text-xs text-muted-foreground capitalize">{product.type}</p>
-            </div>
-          </article>
-        ))}
+    <section className="bg-card rounded-2xl p-4 shadow-sm space-y-4">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <div>
+          <h2 className="font-display text-xl text-foreground">Products CMS</h2>
+          <p className="text-sm text-muted-foreground">
+            Edit product names, prices, photos, descriptions, visibility, and add new items.
+          </p>
+        </div>
+        <div className="flex gap-2">
+          <Button variant="outline" className="rounded-xl" onClick={refreshProducts} disabled={loading}>
+            <RefreshCw size={15} />
+            Refresh
+          </Button>
+          <Button className="rounded-xl" onClick={() => setDrafts((current) => [newProductDraft(), ...current])}>
+            <Plus size={15} />
+            Add Product
+          </Button>
+        </div>
+      </div>
+
+      {(notice || error) && (
+        <div className="rounded-xl border border-border bg-background px-4 py-3 text-sm text-muted-foreground">
+          {notice || error}
+        </div>
+      )}
+
+      <div className="space-y-4">
+        {drafts.map((draft) => {
+          const imagePreview = draft.imagesText.split(/\r?\n/).find(Boolean);
+          const category = categories.find((item) => item.slug === draft.type);
+
+          return (
+            <article key={draft.id} className="rounded-2xl border border-border/60 bg-background p-4">
+              <div className="grid lg:grid-cols-[180px_1fr] gap-4">
+                <div className="space-y-3">
+                  <div className="aspect-square rounded-2xl overflow-hidden bg-muted border border-border/60">
+                    {imagePreview ? (
+                      <img src={imagePreview} alt={draft.name} className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-muted-foreground">
+                        <ImagePlus className="w-8 h-8" />
+                      </div>
+                    )}
+                  </div>
+                  <label className="w-full inline-flex items-center justify-center gap-2 rounded-xl border border-border bg-card px-3 py-2 text-sm font-body font-medium text-foreground hover:bg-brand-blush/20 cursor-pointer transition-colors">
+                    <ImagePlus size={15} />
+                    Upload Image
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={(event) => handleUpload(draft, event.target.files?.[0] ?? null)}
+                    />
+                  </label>
+                </div>
+
+                <div className="space-y-4">
+                  <div className="grid md:grid-cols-2 gap-3">
+                    <AdminInput
+                      label="Product ID"
+                      value={draft.id}
+                      onChange={(value) => updateDraft(draft.id, { id: makeSlug(value) })}
+                    />
+                    <AdminInput
+                      label="Name"
+                      value={draft.name}
+                      onChange={(value) => updateDraft(draft.id, { name: value })}
+                    />
+                    <AdminInput
+                      label="Price"
+                      value={draft.price}
+                      onChange={(value) => updateDraft(draft.id, { price: value })}
+                    />
+                    <div className="space-y-2">
+                      <label className="font-body text-xs font-semibold uppercase tracking-[0.1em] text-muted-foreground">
+                        Category
+                      </label>
+                      <select
+                        value={draft.type}
+                        onChange={(event) => updateDraft(draft.id, { type: event.target.value as ProductType })}
+                        className="w-full rounded-xl border border-border bg-card px-3 py-2 text-sm font-body text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30"
+                      >
+                        {productTypes.map((type) => (
+                          <option key={type} value={type}>
+                            {categories.find((item) => item.slug === type)?.title ?? type}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+
+                  <AdminInput
+                    label="Tagline"
+                    value={draft.tagline}
+                    onChange={(value) => updateDraft(draft.id, { tagline: value })}
+                  />
+
+                  <AdminTextarea
+                    label="Description"
+                    value={draft.description}
+                    rows={3}
+                    onChange={(value) => updateDraft(draft.id, { description: value })}
+                  />
+
+                  <AdminTextarea
+                    label="Image URLs"
+                    value={draft.imagesText}
+                    rows={3}
+                    onChange={(value) => updateDraft(draft.id, { imagesText: value })}
+                  />
+
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pt-2">
+                    <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+                      <span className="rounded-full bg-secondary px-2.5 py-1 capitalize">{category?.title ?? draft.type}</span>
+                      <label className="inline-flex items-center gap-2 rounded-full bg-secondary px-2.5 py-1">
+                        <input
+                          type="checkbox"
+                          checked={draft.isActive}
+                          onChange={(event) => updateDraft(draft.id, { isActive: event.target.checked })}
+                          className="accent-primary"
+                        />
+                        Visible
+                      </label>
+                      <label className="inline-flex items-center gap-2">
+                        Sort
+                        <input
+                          type="number"
+                          value={draft.sortOrder}
+                          onChange={(event) => updateDraft(draft.id, { sortOrder: Number(event.target.value) })}
+                          className="w-20 rounded-lg border border-border bg-card px-2 py-1 text-xs text-foreground"
+                        />
+                      </label>
+                    </div>
+
+                    <div className="flex gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="rounded-xl"
+                        onClick={() => handleToggleActive(draft)}
+                        disabled={savingId === draft.id}
+                      >
+                        {draft.isActive ? <EyeOff size={14} /> : <Eye size={14} />}
+                        {draft.isActive ? "Hide" : "Show"}
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="rounded-xl"
+                        onClick={() => handleDelete(draft)}
+                        disabled={savingId === draft.id || (!draft.isCmsProduct && !draft.isNew)}
+                      >
+                        <Trash2 size={14} />
+                        {draft.isNew ? "Remove" : "Delete CMS"}
+                      </Button>
+                      <Button
+                        size="sm"
+                        className="rounded-xl"
+                        onClick={() => handleSave(draft)}
+                        disabled={savingId === draft.id}
+                      >
+                        <Save size={14} />
+                        {savingId === draft.id ? "Saving..." : "Save"}
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </article>
+          );
+        })}
       </div>
     </section>
   );
@@ -317,10 +638,59 @@ function SettingsAdmin() {
         Add a signed-in user's id to that table to let them manage orders.
       </p>
       <p className="text-sm text-muted-foreground leading-relaxed">
-        Product content currently comes from the website code in <span className="font-semibold text-foreground">src/lib/products.ts</span>.
-        Orders, customers, payment ids, statuses, and admin notes are stored in Supabase.
+        Product content is editable from the Products section. Saved CMS edits live in Supabase and override the
+        built-in starter catalog automatically.
       </p>
     </section>
+  );
+}
+
+function AdminInput({
+  label,
+  value,
+  onChange,
+}: {
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+}) {
+  return (
+    <div className="space-y-2">
+      <label className="font-body text-xs font-semibold uppercase tracking-[0.1em] text-muted-foreground">
+        {label}
+      </label>
+      <input
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+        className="w-full rounded-xl border border-border bg-card px-3 py-2 text-sm font-body text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30"
+      />
+    </div>
+  );
+}
+
+function AdminTextarea({
+  label,
+  value,
+  rows,
+  onChange,
+}: {
+  label: string;
+  value: string;
+  rows: number;
+  onChange: (value: string) => void;
+}) {
+  return (
+    <div className="space-y-2">
+      <label className="font-body text-xs font-semibold uppercase tracking-[0.1em] text-muted-foreground">
+        {label}
+      </label>
+      <textarea
+        value={value}
+        rows={rows}
+        onChange={(event) => onChange(event.target.value)}
+        className="w-full rounded-xl border border-border bg-card px-3 py-2 text-sm font-body text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 resize-y"
+      />
+    </div>
   );
 }
 

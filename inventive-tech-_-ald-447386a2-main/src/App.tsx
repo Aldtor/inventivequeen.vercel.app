@@ -5,6 +5,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/lib/auth";
+import { ProductsProvider } from "@/lib/cms-products";
 import Index from "./pages/Index.tsx";
 
 /* Code-split non-critical routes for smaller initial bundle */
@@ -35,28 +36,30 @@ const App = () => (
       <Toaster />
       <Sonner />
       <AuthProvider>
-        <BrowserRouter>
-          <Suspense fallback={<PageLoader />}>
-            <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="/product/:id" element={<ProductPage />} />
-              <Route path="/cart" element={<CartPage />} />
-              <Route path="/checkout" element={<CheckoutPage />} />
-              <Route path="/success" element={<SuccessPage />} />
-              <Route path="/login" element={<LoginPage />} />
-              <Route path="/orders" element={<OrdersPage />} />
-              <Route path="/admin" element={<AdminDashboard />} />
-              <Route path="/admin/orders" element={<AdminDashboard />} />
-              <Route path="/admin/products" element={<AdminDashboard />} />
-              <Route path="/admin/settings" element={<AdminDashboard />} />
-              <Route path="/policy/:slug" element={<PolicyPage />} />
-              <Route path="/custom-orders" element={<CustomOrdersPage />} />
-              <Route path="/category/:slug" element={<CategoryPage />} />
-              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </Suspense>
-        </BrowserRouter>
+        <ProductsProvider>
+          <BrowserRouter>
+            <Suspense fallback={<PageLoader />}>
+              <Routes>
+                <Route path="/" element={<Index />} />
+                <Route path="/product/:id" element={<ProductPage />} />
+                <Route path="/cart" element={<CartPage />} />
+                <Route path="/checkout" element={<CheckoutPage />} />
+                <Route path="/success" element={<SuccessPage />} />
+                <Route path="/login" element={<LoginPage />} />
+                <Route path="/orders" element={<OrdersPage />} />
+                <Route path="/admin" element={<AdminDashboard />} />
+                <Route path="/admin/orders" element={<AdminDashboard />} />
+                <Route path="/admin/products" element={<AdminDashboard />} />
+                <Route path="/admin/settings" element={<AdminDashboard />} />
+                <Route path="/policy/:slug" element={<PolicyPage />} />
+                <Route path="/custom-orders" element={<CustomOrdersPage />} />
+                <Route path="/category/:slug" element={<CategoryPage />} />
+                {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </Suspense>
+          </BrowserRouter>
+        </ProductsProvider>
       </AuthProvider>
     </TooltipProvider>
   </QueryClientProvider>

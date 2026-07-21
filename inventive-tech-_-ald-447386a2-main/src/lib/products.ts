@@ -48,6 +48,9 @@ export interface Product {
   colors?: { name: string; value: string }[];
   flowers?: string[];
   flowerColors?: { name: string; value: string }[];
+  isActive?: boolean;
+  sortOrder?: number;
+  isCmsProduct?: boolean;
 }
 
 export const categories = [

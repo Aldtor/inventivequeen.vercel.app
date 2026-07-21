@@ -4,7 +4,7 @@ import { Clock, MessageCircle, Palette, Package, HelpCircle, ChevronRight, Check
 import { motion, AnimatePresence } from "framer-motion";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { products } from "@/lib/products";
+import { useProducts } from "@/lib/cms-products";
 import { addCartItem } from "@/lib/cart";
 import { FadeIn } from "@/components/motion/FadeIn";
 import { StaggerChildren, StaggerItem } from "@/components/motion/StaggerChildren";
@@ -44,6 +44,7 @@ const faqs = [
 
 const CustomOrdersPage = () => {
   const navigate = useNavigate();
+  const { products } = useProducts();
   const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
   const [details, setDetails] = useState("");
   const [openFaq, setOpenFaq] = useState<number | null>(null);

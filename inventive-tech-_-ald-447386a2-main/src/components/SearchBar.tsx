@@ -1,7 +1,8 @@
 import { useState, useRef, useEffect, useMemo } from "react";
 import { Search, X, Clock, TrendingUp } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { products, categories } from "@/lib/products";
+import { categories, type Product } from "@/lib/products";
+import { useProducts } from "@/lib/cms-products";
 import { getRecentlyViewed, clearRecentlyViewed, TRENDING_SEARCHES } from "@/lib/recentlyViewed";
 
 interface SearchBarProps {
@@ -15,6 +16,7 @@ const SearchBar = ({ onNavigate, variant = "desktop" }: SearchBarProps) => {
   const [recentIds, setRecentIds] = useState<string[]>([]);
   const containerRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
+  const { products } = useProducts();
 
   useEffect(() => {
     const refresh = () => setRecentIds(getRecentlyViewed());
@@ -31,9 +33,9 @@ const SearchBar = ({ onNavigate, variant = "desktop" }: SearchBarProps) => {
     () =>
       recentIds
         .map((id) => products.find((p) => p.id === id))
-        .filter((p): p is (typeof products)[number] => Boolean(p))
+        .filter((p): p is Product => Boolean(p))
         .slice(0, 4),
-    [recentIds],
+    [products, recentIds],
   );
 
   const results = useMemo(() => {
@@ -51,7 +53,7 @@ const SearchBar = ({ onNavigate, variant = "desktop" }: SearchBarProps) => {
       )
       .slice(0, 6);
     return { products: matchedProducts, categories: matchedCategories };
-  }, [query]);
+  }, [products, query]);
 
   useEffect(() => {
     const handleClick = (e: MouseEvent) => {

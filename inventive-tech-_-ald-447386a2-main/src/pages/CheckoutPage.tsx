@@ -1,6 +1,6 @@
 import { useState, useMemo, useRef } from "react";
 import { Link, useSearchParams, useNavigate } from "react-router-dom";
-import { products } from "@/lib/products";
+import { useProducts } from "@/lib/cms-products";
 import { clearCart, getCartItems, getCartTotal, parsePrice, type CartItem } from "@/lib/cart";
 import { Heart, Package, Clock, Shield, Gift, Lock, Truck, ChevronLeft, Check } from "lucide-react";
 import { FadeIn } from "@/components/motion/FadeIn";
@@ -129,6 +129,7 @@ export default function CheckoutPage() {
   const [params] = useSearchParams();
   const navigate = useNavigate();
   const { user, loading: authLoading } = useAuth();
+  const { products } = useProducts();
   const productId = params.get("product");
   const selectedColor = params.get("color");
   const selectedFlowers = params.get("flowers");

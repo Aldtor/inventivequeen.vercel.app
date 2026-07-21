@@ -21,7 +21,8 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { products, categories, type Product } from "@/lib/products";
+import { categories, type Product } from "@/lib/products";
+import { useProducts } from "@/lib/cms-products";
 import { addCartItem } from "@/lib/cart";
 import { addRecentlyViewed } from "@/lib/recentlyViewed";
 import { Button } from "@/components/ui/button";
@@ -294,6 +295,7 @@ const defaultBouquetColors = [
 const ProductPage = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { products } = useProducts();
   const product = products.find((p) => p.id === id);
   const stickyRef = useRef<HTMLDivElement>(null);
 

@@ -3,7 +3,8 @@ import { Link, useParams } from "react-router-dom";
 import { ChevronLeft, ChevronRight, SlidersHorizontal } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { products, categories } from "@/lib/products";
+import { categories } from "@/lib/products";
+import { useProducts } from "@/lib/cms-products";
 import { FadeIn } from "@/components/motion/FadeIn";
 import { StaggerChildren, StaggerItem } from "@/components/motion/StaggerChildren";
 
@@ -16,6 +17,7 @@ function parsePrice(priceStr: string): number {
 
 const CategoryPage = () => {
   const { slug } = useParams<{ slug: string }>();
+  const { products } = useProducts();
   const category = categories.find((c) => c.slug === slug);
   const items = products.filter((p) => p.type === slug);
   const [sort, setSort] = useState<SortOption>("default");

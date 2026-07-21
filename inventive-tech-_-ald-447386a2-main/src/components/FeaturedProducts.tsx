@@ -1,7 +1,7 @@
 import { useState, useCallback } from "react";
 import { Link } from "react-router-dom";
 import { Heart } from "lucide-react";
-import { products } from "@/lib/products";
+import { useProducts } from "@/lib/cms-products";
 import { FadeIn } from "@/components/motion/FadeIn";
 import { StaggerChildren, StaggerItem } from "@/components/motion/StaggerChildren";
 
@@ -27,6 +27,7 @@ function toggleWishlistItem(id: string) {
 
 const FeaturedProducts = () => {
   const [wishlist, setWishlist] = useState(getWishlist);
+  const { products } = useProducts();
   const featured = products.slice(0, FEATURED_COUNT);
 
   const handleWishlist = useCallback((e: React.MouseEvent, id: string) => {

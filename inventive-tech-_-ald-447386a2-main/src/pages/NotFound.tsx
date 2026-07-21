@@ -2,12 +2,12 @@ import { useLocation, Link } from "react-router-dom";
 import { useEffect } from "react";
 import { Search, ArrowRight } from "lucide-react";
 import { motion } from "framer-motion";
-import { products } from "@/lib/products";
-
-const popularProducts = products.slice(0, 4);
+import { useProducts } from "@/lib/cms-products";
 
 const NotFound = () => {
   const location = useLocation();
+  const { products } = useProducts();
+  const popularProducts = products.slice(0, 4);
 
   useEffect(() => {
     console.error("404 Error: User attempted to access non-existent route:", location.pathname);
