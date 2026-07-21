@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef } from "react";
 import { Link, useSearchParams, useNavigate } from "react-router-dom";
 import { products } from "@/lib/products";
 import { clearCart, getCartItems, getCartTotal, parsePrice, type CartItem } from "@/lib/cart";
@@ -169,15 +169,20 @@ export default function CheckoutPage() {
   });
   const [isPaying, setIsPaying] = useState(false);
   const [paymentError, setPaymentError] = useState("");
+  const [attempted, setAttempted] = useState(false);
 
-  const isFormValid = useMemo(
-    () =>
-      form.name.trim().length >= 2 &&
-      /^[6-9]\d{9}$/.test(form.phone.trim()) &&
-      form.address.trim().length >= 10 &&
-      /^\d{6}$/.test(form.pincode.trim()),
-    [form]
-  );
+  const formRef = useRef<HTMLElement>(null);
+
+  const formErrors = useMemo(() => {
+    const errors: Record<string, string> = {};
+    if (form.name.trim().length < 2) errors.name = "Please enter your full name.";
+    if (!/^[6-9]\d{9}$/.test(form.phone.trim())) errors.phone = "Enter a valid 10-digit mobile number.";
+    if (form.address.trim().length < 10) errors.address = "Please enter your complete address.";
+    if (!/^\d{6}$/.test(form.pincode.trim())) errors.pincode = "Enter a valid 6-digit pincode.";
+    return errors;
+  }, [form]);
+
+  const isFormValid = Object.keys(formErrors).length === 0;
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
@@ -235,7 +240,14 @@ export default function CheckoutPage() {
   };
 
   const handlePayNow = async () => {
-    if (!isFormValid || checkoutItems.length === 0) return;
+    if (checkoutItems.length === 0) return;
+
+    if (!isFormValid) {
+      setAttempted(true);
+      // Scroll to the form section so user sees the errors
+      formRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+      return;
+    }
     if (!isSupabaseConfigured) {
       setPaymentError("Supabase is not configured. Add the publishable key before taking orders.");
       return;
@@ -503,7 +515,7 @@ export default function CheckoutPage() {
 
         {/* Customer Details */}
         <FadeIn delay={0.1}>
-          <section className="bg-card rounded-2xl p-5 shadow-luxury-sm space-y-4">
+          <section ref={formRef} className="bg-card rounded-2xl p-5 shadow-luxury-sm space-y-4">
             <h2 className="font-display text-base text-foreground">Your Details</h2>
 
             <InputField
@@ -512,6 +524,7 @@ export default function CheckoutPage() {
               placeholder="Enter your full name"
               value={form.name}
               onChange={handleChange}
+              error={attempted ? formErrors.name : undefined}
             />
             <InputField
               label="Phone Number"
@@ -521,6 +534,7 @@ export default function CheckoutPage() {
               value={form.phone}
               onChange={handleChange}
               maxLength={10}
+              error={attempted ? formErrors.phone : undefined}
             />
             <div className="space-y-2">
               <label className="font-body text-sm font-medium text-foreground">Address</label>
@@ -530,8 +544,13 @@ export default function CheckoutPage() {
                 value={form.address}
                 onChange={handleChange}
                 rows={3}
-                className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm font-body text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/40 transition-all duration-200 resize-none"
+                className={`w-full rounded-xl border bg-background px-4 py-3 text-sm font-body text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/40 transition-all duration-200 resize-none ${
+                  attempted && formErrors.address ? "border-destructive" : "border-border"
+                }`}
               />
+              {attempted && formErrors.address && (
+                <p className="text-xs text-destructive font-body">{formErrors.address}</p>
+              )}
             </div>
             <InputField
               label="Pincode"
@@ -540,6 +559,7 @@ export default function CheckoutPage() {
               value={form.pincode}
               onChange={handleChange}
               maxLength={6}
+              error={attempted ? formErrors.pincode : undefined}
             />
           </section>
         </FadeIn>
@@ -618,7 +638,7 @@ export default function CheckoutPage() {
         <div className="space-y-3 pb-8">
           <button
             onClick={handlePayNow}
-            disabled={!isFormValid || isPaying}
+            disabled={isPaying}
             className="w-full py-4 rounded-2xl font-body font-semibold text-base text-primary-foreground bg-primary shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:shadow-none transition-all duration-200"
           >
             {isPaying ? "Opening Razorpay..." : `Pay Now ${payLabel}`}
@@ -665,6 +685,7 @@ function InputField({
   onChange,
   type = "text",
   maxLength,
+  error,
 }: {
   label: string;
   name: string;
@@ -673,6 +694,7 @@ function InputField({
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   type?: string;
   maxLength?: number;
+  error?: string;
 }) {
   return (
     <div className="space-y-2">
@@ -684,8 +706,13 @@ function InputField({
         value={value}
         onChange={onChange}
         maxLength={maxLength}
-        className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm font-body text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/40 transition-all duration-200"
+        className={`w-full rounded-xl border bg-background px-4 py-3 text-sm font-body text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/40 transition-all duration-200 ${
+          error ? "border-destructive" : "border-border"
+        }`}
       />
+      {error && (
+        <p className="text-xs text-destructive font-body">{error}</p>
+      )}
     </div>
   );
 }
