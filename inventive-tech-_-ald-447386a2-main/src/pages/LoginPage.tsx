@@ -1,18 +1,19 @@
 import { useState } from "react";
 import type { ReactNode } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Lock, Mail, UserRound } from "lucide-react";
+import { KeyRound, Lock, Mail, UserRound } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/lib/auth";
+import { getAuthRedirectUrl } from "@/lib/auth-redirect";
 import { isSupabaseConfigured, supabase } from "@/lib/supabase";
 
 const LoginPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { user, refreshUserData } = useAuth();
-  const [mode, setMode] = useState<"signin" | "signup">("signin");
+  const [mode, setMode] = useState<"signin" | "signup" | "forgot">("signin");
   const [form, setForm] = useState({
     name: "",
     phone: "",
@@ -57,6 +58,7 @@ const LoginPage = () => {
             full_name: form.name.trim(),
             phone: form.phone.trim(),
           },
+          emailRedirectTo: getAuthRedirectUrl("/auth/verified"),
         },
       });
 
@@ -93,6 +95,28 @@ const LoginPage = () => {
     }
 
     navigate(redirectTo);
+  };
+
+  const handleResetPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!isSupabaseConfigured) {
+      setMessage("Supabase key is missing. Add VITE_SUPABASE_PUBLISHABLE_KEY to your environment.");
+      return;
+    }
+    if (!form.email.trim()) {
+      setMessage("Enter your email address first.");
+      return;
+    }
+
+    setLoading(true);
+    setMessage("");
+
+    const { error } = await supabase.auth.resetPasswordForEmail(form.email.trim(), {
+      redirectTo: getAuthRedirectUrl("/auth/reset-password"),
+    });
+
+    setLoading(false);
+    setMessage(error ? error.message : "Password reset link sent. Please check your email.");
   };
 
   const handleSignOut = async () => {
@@ -132,17 +156,22 @@ const LoginPage = () => {
                     <Lock className="w-6 h-6 text-primary" />
                   </div>
                   <h1 className="mt-4 font-display text-2xl font-bold text-foreground">
-                    {mode === "signin" ? "Sign In" : "Create Account"}
+                    {mode === "signin" ? "Sign In" : mode === "signup" ? "Create Account" : "Reset Password"}
                   </h1>
                   <p className="mt-2 text-sm text-muted-foreground">
-                    Login to place orders and track handmade pieces.
+                    {mode === "forgot"
+                      ? "Enter your email and we'll send a secure reset link."
+                      : "Login to place orders and track handmade pieces."}
                   </p>
                 </div>
 
                 <div className="mt-6 grid grid-cols-2 rounded-xl bg-secondary p-1">
                   <button
                     type="button"
-                    onClick={() => setMode("signin")}
+                    onClick={() => {
+                      setMode("signin");
+                      setMessage("");
+                    }}
                     className={`py-2 rounded-lg text-sm font-body font-medium transition-all ${
                       mode === "signin" ? "bg-card text-foreground shadow-sm" : "text-muted-foreground"
                     }`}
@@ -151,7 +180,10 @@ const LoginPage = () => {
                   </button>
                   <button
                     type="button"
-                    onClick={() => setMode("signup")}
+                    onClick={() => {
+                      setMode("signup");
+                      setMessage("");
+                    }}
                     className={`py-2 rounded-lg text-sm font-body font-medium transition-all ${
                       mode === "signup" ? "bg-card text-foreground shadow-sm" : "text-muted-foreground"
                     }`}
@@ -160,6 +192,39 @@ const LoginPage = () => {
                   </button>
                 </div>
 
+                {mode === "forgot" ? (
+                  <form onSubmit={handleResetPassword} className="mt-6 space-y-4">
+                    <InputField
+                      label="Email"
+                      name="email"
+                      type="email"
+                      value={form.email}
+                      onChange={handleChange}
+                      placeholder="you@example.com"
+                      icon={<Mail size={15} />}
+                    />
+
+                    {message && (
+                      <p className="text-sm text-muted-foreground bg-secondary/70 rounded-xl px-4 py-3">
+                        {message}
+                      </p>
+                    )}
+
+                    <Button disabled={loading} className="w-full rounded-xl h-11">
+                      {loading ? "Sending..." : "Send Reset Link"}
+                    </Button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setMode("signin");
+                        setMessage("");
+                      }}
+                      className="w-full text-sm font-body font-medium text-primary hover:text-primary/80"
+                    >
+                      Back to sign in
+                    </button>
+                  </form>
+                ) : (
                 <form onSubmit={handleSubmit} className="mt-6 space-y-4">
                   {mode === "signup" && (
                     <>
@@ -208,7 +273,20 @@ const LoginPage = () => {
                   <Button disabled={loading} className="w-full rounded-xl h-11">
                     {loading ? "Please wait..." : mode === "signin" ? "Sign In" : "Create Account"}
                   </Button>
+                  {mode === "signin" && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setMode("forgot");
+                        setMessage("");
+                      }}
+                      className="w-full text-sm font-body font-medium text-primary hover:text-primary/80"
+                    >
+                      Forgot password?
+                    </button>
+                  )}
                 </form>
+                )}
               </>
             )}
           </div>

@@ -39,7 +39,7 @@ const Navbar = () => {
   const links = [
     { label: "Home", onClick: () => navigate("/") },
     { label: "Shop", onClick: handleShop },
-    { label: "Custom Orders", onClick: () => navigate("/custom-orders") },
+    { label: "Orders", onClick: () => navigate(user ? "/orders" : "/login?redirect=/orders") },
     { label: "Contact", onClick: () => setContactOpen(true) },
   ];
 
@@ -90,9 +90,9 @@ const Navbar = () => {
               </button>
             )}
             <button
-              onClick={() => navigate(user ? "/orders" : "/login")}
+              onClick={() => navigate(user ? "/account" : "/login")}
               className="hidden sm:flex w-10 h-10 rounded-full text-foreground hover:text-primary hover:bg-brand-blush/30 items-center justify-center transition-all active:scale-95"
-              aria-label={user ? "Open my orders" : "Sign in"}
+              aria-label={user ? "Open my account" : "Sign in"}
             >
               <UserRound size={20} />
             </button>
@@ -164,11 +164,11 @@ const Navbar = () => {
                   <button
                     onClick={() => {
                       setOpen(false);
-                      navigate(user ? "/orders" : "/login");
+                      navigate(user ? "/account" : "/login");
                     }}
                     className="block w-full text-left py-2.5 px-3 rounded-xl font-body text-sm font-medium text-muted-foreground hover:text-primary hover:bg-brand-blush/30 transition-all duration-200"
                   >
-                    {user ? "My Orders" : "Sign In"}
+                    {user ? "My Account" : "Sign In"}
                   </button>
                 </li>
               </ul>

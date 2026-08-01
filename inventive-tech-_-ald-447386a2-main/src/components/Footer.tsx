@@ -83,7 +83,10 @@ const Footer = () => {
               Shop
             </h4>
             <Link to="/category/bouquet" className="text-sm text-muted-foreground hover:text-primary transition-colors duration-200">
-              Crochet Bouquets
+              Crochet Flowers
+            </Link>
+            <Link to="/category/doll" className="text-sm text-muted-foreground hover:text-primary transition-colors duration-200">
+              Dolls
             </Link>
             <Link to="/category/keychain" className="text-sm text-muted-foreground hover:text-primary transition-colors duration-200">
               Keychains
@@ -94,8 +97,8 @@ const Footer = () => {
             <Link to="/category/bookmark" className="text-sm text-muted-foreground hover:text-primary transition-colors duration-200">
               Bookmarks
             </Link>
-            <Link to="/custom-orders" className="text-sm text-muted-foreground hover:text-primary transition-colors duration-200">
-              Custom Orders
+            <Link to="/orders" className="text-sm text-muted-foreground hover:text-primary transition-colors duration-200">
+              My Orders
             </Link>
           </div>
 
@@ -166,9 +169,6 @@ const Footer = () => {
                 </span>
                 <span className="px-2.5 py-1 rounded bg-background border border-border text-[10px] font-body font-semibold text-foreground/70">
                   Razorpay
-                </span>
-                <span className="px-2.5 py-1 rounded bg-background border border-border text-[10px] font-body font-semibold text-foreground/70">
-                  COD
                 </span>
               </div>
             </div>

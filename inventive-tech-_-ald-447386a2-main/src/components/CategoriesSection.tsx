@@ -10,6 +10,7 @@ import { StaggerChildren, StaggerItem } from "@/components/motion/StaggerChildre
 const imageBySlug: Record<string, string> = {
   bouquet: catBouquets,
   teddy: catPlush,
+  doll: catPlush,
   keychain: catKeychains,
   bookmark: catGifts,
 };
@@ -34,7 +35,7 @@ const CategoriesSection = () => {
           </p>
         </FadeIn>
 
-        <StaggerChildren className="mt-12 md:mt-16 grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+        <StaggerChildren className="mt-12 md:mt-16 grid grid-cols-2 lg:grid-cols-5 gap-4 md:gap-6">
           {catData.map((cat) => (
             <StaggerItem key={cat.slug}>
               <Link

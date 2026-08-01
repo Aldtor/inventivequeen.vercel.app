@@ -15,6 +15,7 @@ const SuccessPage = lazy(() => import("./pages/SuccessPage.tsx"));
 const CartPage = lazy(() => import("./pages/CartPage.tsx"));
 const LoginPage = lazy(() => import("./pages/LoginPage.tsx"));
 const OrdersPage = lazy(() => import("./pages/OrdersPage.tsx"));
+const AuthActionPage = lazy(() => import("./pages/AuthActionPage.tsx"));
 const AdminDashboard = lazy(() => import("./pages/AdminDashboard.tsx"));
 const PolicyPage = lazy(() => import("./pages/PolicyPage.tsx"));
 const CustomOrdersPage = lazy(() => import("./pages/CustomOrdersPage.tsx"));
@@ -46,6 +47,9 @@ const App = () => (
                 <Route path="/checkout" element={<CheckoutPage />} />
                 <Route path="/success" element={<SuccessPage />} />
                 <Route path="/login" element={<LoginPage />} />
+                <Route path="/auth/verified" element={<AuthActionPage mode="verified" />} />
+                <Route path="/auth/reset-password" element={<AuthActionPage mode="reset-password" />} />
+                <Route path="/account" element={<OrdersPage />} />
                 <Route path="/orders" element={<OrdersPage />} />
                 <Route path="/admin" element={<AdminDashboard />} />
                 <Route path="/admin/orders" element={<AdminDashboard />} />
