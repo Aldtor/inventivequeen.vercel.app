@@ -1,3 +1,3 @@
-# Welcome to your Lovable project
+INVENTIVE QUEEN WEBSITE
 
 TODO: Document your project here
