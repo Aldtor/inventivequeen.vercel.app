@@ -91,12 +91,6 @@ const Footer = () => {
             <Link to="/category/keychain" className="text-sm text-muted-foreground hover:text-primary transition-colors duration-200">
               Keychains
             </Link>
-            <Link to="/category/teddy" className="text-sm text-muted-foreground hover:text-primary transition-colors duration-200">
-              Plush Toys
-            </Link>
-            <Link to="/category/bookmark" className="text-sm text-muted-foreground hover:text-primary transition-colors duration-200">
-              Bookmarks
-            </Link>
             <Link to="/orders" className="text-sm text-muted-foreground hover:text-primary transition-colors duration-200">
               My Orders
             </Link>

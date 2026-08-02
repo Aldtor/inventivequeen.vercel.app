@@ -42,7 +42,7 @@ const statusColor: Record<OrderStatus, string> = {
   cancelled: "bg-stone-100 text-stone-700",
 };
 
-const productTypes: ProductType[] = ["keychain", "teddy", "bouquet", "doll", "bookmark"];
+const productTypes: ProductType[] = ["keychain", "bouquet", "doll"];
 
 interface ProductDraft {
   id: string;

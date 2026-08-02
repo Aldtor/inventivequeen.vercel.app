@@ -55,10 +55,8 @@ export interface Product {
 
 export const categories = [
   { slug: "keychain", title: "Keychains", emoji: "🔑", description: "Tiny handmade companions for your bag, keys, or to gift someone special." },
-  { slug: "teddy", title: "Plush Toys", emoji: "🧸", description: "Cuddly crochet friends made with love and the softest yarn." },
   { slug: "bouquet", title: "Crochet Flowers", emoji: "💐", description: "Everlasting handmade flowers — bloom forever, never wilt." },
   { slug: "doll", title: "Dolls", emoji: "🪆", description: "Soft handmade dolls and keepsake characters made for gifting." },
-  { slug: "bookmark", title: "Bookmarks", emoji: "🔖", description: "Delicate page-keepers handcrafted for book lovers." },
 ] as const;
 
 export const products: Product[] = [];

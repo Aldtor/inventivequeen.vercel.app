@@ -1,7 +1,6 @@
 import { Link } from "react-router-dom";
 import catBouquets from "@/assets/cat-bouquets.jpg";
 import catPlush from "@/assets/cat-plush.jpg";
-import catGifts from "@/assets/cat-gifts.jpg";
 import catKeychains from "@/assets/product-panda.jpeg";
 import { categories as catData } from "@/lib/products";
 import { FadeIn } from "@/components/motion/FadeIn";
@@ -9,10 +8,8 @@ import { StaggerChildren, StaggerItem } from "@/components/motion/StaggerChildre
 
 const imageBySlug: Record<string, string> = {
   bouquet: catBouquets,
-  teddy: catPlush,
   doll: catPlush,
   keychain: catKeychains,
-  bookmark: catGifts,
 };
 
 const CategoriesSection = () => {
@@ -35,7 +32,7 @@ const CategoriesSection = () => {
           </p>
         </FadeIn>
 
-        <StaggerChildren className="mt-12 md:mt-16 grid grid-cols-2 lg:grid-cols-5 gap-4 md:gap-6">
+        <StaggerChildren className="mt-12 md:mt-16 grid grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
           {catData.map((cat) => (
             <StaggerItem key={cat.slug}>
               <Link
