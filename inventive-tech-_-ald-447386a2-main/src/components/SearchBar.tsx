@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { categories, type Product } from "@/lib/products";
 import { useProducts } from "@/lib/cms-products";
 import { getRecentlyViewed, clearRecentlyViewed, TRENDING_SEARCHES } from "@/lib/recentlyViewed";
+import { getProductPricing } from "@/lib/product-display";
 
 interface SearchBarProps {
   onNavigate?: () => void;
@@ -99,7 +100,7 @@ const SearchBar = ({ onNavigate, variant = "desktop" }: SearchBarProps) => {
             setOpen(true);
           }}
           onFocus={() => setOpen(true)}
-          placeholder="Search keychains, bouquets…"
+          placeholder="Search keychains, bouquets..."
           className="w-full h-10 pl-9 pr-9 rounded-full bg-brand-blush/30 border border-border/60 text-sm font-body placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 focus:bg-background transition-all"
         />
         {query && (
@@ -143,12 +144,12 @@ const SearchBar = ({ onNavigate, variant = "desktop" }: SearchBarProps) => {
                       <img
                         src={p.images[0]}
                         alt={p.name}
-                        className="w-10 h-10 rounded-lg object-cover ring-1 ring-border/60"
+                        className="w-10 h-10 rounded-lg object-contain bg-white ring-1 ring-border/60"
                       />
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium text-foreground truncate">{p.name}</p>
                         <p className="text-xs text-muted-foreground truncate capitalize">
-                          {p.type} · {p.price}
+                          {p.type} - {getProductPricing(p).sellingPrice}
                         </p>
                       </div>
                     </button>
@@ -177,7 +178,7 @@ const SearchBar = ({ onNavigate, variant = "desktop" }: SearchBarProps) => {
             </div>
           ) : !hasResults ? (
             <div className="p-4 text-sm text-muted-foreground text-center">
-              No results for "{query}" 💭
+              No results for "{query}" 
             </div>
           ) : (
             <div className="max-h-[60vh] overflow-y-auto py-2">
@@ -212,12 +213,12 @@ const SearchBar = ({ onNavigate, variant = "desktop" }: SearchBarProps) => {
                       <img
                         src={p.images[0]}
                         alt={p.name}
-                        className="w-10 h-10 rounded-lg object-cover ring-1 ring-border/60"
+                        className="w-10 h-10 rounded-lg object-contain bg-white ring-1 ring-border/60"
                       />
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium text-foreground truncate">{p.name}</p>
                         <p className="text-xs text-muted-foreground truncate capitalize">
-                          {p.type} · {p.price}
+                          {p.type} - {getProductPricing(p).sellingPrice}
                         </p>
                       </div>
                     </button>
@@ -233,3 +234,4 @@ const SearchBar = ({ onNavigate, variant = "desktop" }: SearchBarProps) => {
 };
 
 export default SearchBar;
+

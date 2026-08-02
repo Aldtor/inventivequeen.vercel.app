@@ -143,7 +143,7 @@ function OrderCard({ order }: { order: DbOrder }) {
               <img
                 src={item.image_url}
                 alt={item.product_name}
-                className="w-16 h-16 rounded-xl object-cover flex-shrink-0"
+                className="w-16 h-16 rounded-xl object-contain bg-white flex-shrink-0"
               />
             )}
             <div className="min-w-0 flex-1">

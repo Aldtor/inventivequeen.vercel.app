@@ -41,10 +41,16 @@ export interface Product {
   id: string;
   name: string;
   price: string;
+  originalPrice?: string;
+  sellingPrice?: string;
+  discountPercent?: number;
   type: ProductType;
   tagline: string;
   description: string;
   images: string[];
+  isNewArrival?: boolean;
+  newArrivalDays?: number;
+  newArrivalStartedAt?: string | null;
   colors?: { name: string; value: string }[];
   flowers?: string[];
   flowerColors?: { name: string; value: string }[];

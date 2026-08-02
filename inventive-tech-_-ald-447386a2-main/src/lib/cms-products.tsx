@@ -6,10 +6,16 @@ export interface CmsProductRow {
   id: string;
   name: string;
   price: string;
+  original_price: string | null;
+  selling_price: string | null;
+  discount_percent: number | null;
   type: ProductType;
   tagline: string;
   description: string;
   images: string[];
+  is_new_arrival: boolean;
+  new_arrival_days: number;
+  new_arrival_started_at: string | null;
   colors: { name: string; value: string }[] | null;
   flowers: string[] | null;
   flower_colors: { name: string; value: string }[] | null;
@@ -31,6 +37,7 @@ interface ProductsContextValue {
   saveProduct: (product: ProductInput) => Promise<void>;
   deleteProduct: (id: string) => Promise<void>;
   uploadProductImage: (productId: string, file: File) => Promise<string>;
+  generateProductId: (type: ProductType) => Promise<string>;
 }
 
 const ProductsContext = createContext<ProductsContextValue | null>(null);
@@ -62,15 +69,22 @@ function rowToProduct(row: CmsProductRow): Product {
   const fallback = fallbackById.get(row.id);
   const fallbackProduct = fallback?.product;
   const images = row.images?.filter(Boolean) ?? [];
+  const sellingPrice = row.selling_price || row.price;
 
   return {
     id: row.id,
     name: row.name,
-    price: row.price,
+    price: sellingPrice,
+    originalPrice: row.original_price ?? undefined,
+    sellingPrice,
+    discountPercent: row.discount_percent ?? undefined,
     type: row.type,
     tagline: row.tagline,
     description: row.description,
-    images: images.length > 0 ? images : fallbackProduct?.images ?? [],
+    images: images.length > 0 ? images.slice(0, 10) : fallbackProduct?.images ?? [],
+    isNewArrival: row.is_new_arrival,
+    newArrivalDays: row.new_arrival_days,
+    newArrivalStartedAt: row.new_arrival_started_at,
     colors: normalizeOptionList(row.colors) ?? fallbackProduct?.colors,
     flowers: normalizeTextArray(row.flowers) ?? fallbackProduct?.flowers,
     flowerColors: normalizeOptionList(row.flower_colors) ?? fallbackProduct?.flowerColors,
@@ -81,14 +95,22 @@ function rowToProduct(row: CmsProductRow): Product {
 }
 
 function productToRow(product: ProductInput): CmsProductRow {
+  const sellingPrice = product.sellingPrice || product.price;
+
   return {
     id: product.id,
     name: product.name,
-    price: product.price,
+    price: sellingPrice,
+    original_price: product.originalPrice ?? null,
+    selling_price: sellingPrice,
+    discount_percent: product.discountPercent ?? null,
     type: product.type,
     tagline: product.tagline,
     description: product.description,
-    images: product.images.filter(Boolean),
+    images: product.images.filter(Boolean).slice(0, 10),
+    is_new_arrival: product.isNewArrival ?? false,
+    new_arrival_days: product.newArrivalDays ?? 30,
+    new_arrival_started_at: product.isNewArrival ? product.newArrivalStartedAt ?? new Date().toISOString() : null,
     colors: product.colors ?? null,
     flowers: product.flowers ?? null,
     flower_colors: product.flowerColors ?? null,
@@ -170,6 +192,12 @@ export function ProductsProvider({ children }: { children: React.ReactNode }) {
     await refreshProducts();
   }, [refreshProducts]);
 
+  const generateProductId = useCallback(async (type: ProductType) => {
+    const { data, error: idError } = await supabase.rpc("reserve_product_id", { product_type: type });
+    if (idError || typeof data !== "string") throw new Error(idError?.message ?? "Could not generate product id.");
+    return data;
+  }, []);
+
   const uploadProductImage = useCallback(async (productId: string, file: File) => {
     const extension = file.name.split(".").pop()?.toLowerCase() || "jpg";
     const cleanId = productId.replace(/[^a-z0-9-]/gi, "-").toLowerCase();
@@ -195,8 +223,9 @@ export function ProductsProvider({ children }: { children: React.ReactNode }) {
       saveProduct,
       deleteProduct,
       uploadProductImage,
+      generateProductId,
     }),
-    [adminProducts, deleteProduct, error, loading, products, refreshProducts, saveProduct, uploadProductImage]
+    [adminProducts, deleteProduct, error, generateProductId, loading, products, refreshProducts, saveProduct, uploadProductImage]
   );
 
   return <ProductsContext.Provider value={value}>{children}</ProductsContext.Provider>;
@@ -224,6 +253,9 @@ export function useProducts() {
       },
       uploadProductImage: async () => {
         throw new Error("Product image uploads are not ready.");
+      },
+      generateProductId: async () => {
+        throw new Error("Product ID generation is not ready.");
       },
     } satisfies ProductsContextValue;
   }

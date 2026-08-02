@@ -5,15 +5,12 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { categories } from "@/lib/products";
 import { useProducts } from "@/lib/cms-products";
+import { getProductPricing, isNewArrival, parsePriceValue } from "@/lib/product-display";
 import { FadeIn } from "@/components/motion/FadeIn";
 import { StaggerChildren, StaggerItem } from "@/components/motion/StaggerChildren";
 
 type SortOption = "default" | "price-low" | "price-high" | "name-az";
 
-/** Extract numeric price from string like "₹699" */
-function parsePrice(priceStr: string): number {
-  return parseInt(priceStr.replace(/[^\d]/g, ""), 10) || 0;
-}
 
 const CategoryPage = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -26,9 +23,9 @@ const CategoryPage = () => {
     const copy = [...items];
     switch (sort) {
       case "price-low":
-        return copy.sort((a, b) => parsePrice(a.price) - parsePrice(b.price));
+        return copy.sort((a, b) => parsePriceValue(a.sellingPrice || a.price) - parsePriceValue(b.sellingPrice || b.price));
       case "price-high":
-        return copy.sort((a, b) => parsePrice(b.price) - parsePrice(a.price));
+        return copy.sort((a, b) => parsePriceValue(b.sellingPrice || b.price) - parsePriceValue(a.sellingPrice || a.price));
       case "name-az":
         return copy.sort((a, b) => a.name.localeCompare(b.name));
       default:
@@ -106,7 +103,7 @@ const CategoryPage = () => {
                   Coming Soon
                 </p>
                 <p className="text-muted-foreground max-w-sm mx-auto leading-relaxed">
-                  No products in this category yet — we're crafting something special. Check back soon!
+                  No products in this category yet - we're crafting something special. Check back soon!
                 </p>
                 <Link
                   to="/"
@@ -118,33 +115,54 @@ const CategoryPage = () => {
             </FadeIn>
           ) : (
             <StaggerChildren className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-              {sortedItems.map((p) => (
-                <StaggerItem key={p.id}>
-                  <Link
-                    to={`/product/${p.id}`}
-                    className="group card-lift overflow-hidden rounded-2xl bg-card shadow-luxury-sm block"
-                  >
-                    <div className="aspect-square overflow-hidden relative">
-                      <img
-                        src={p.images[0]}
-                        alt={p.name}
-                        loading="lazy"
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
-                      />
-                      {/* Hover overlay */}
-                      <div className="absolute inset-0 bg-foreground/0 group-hover:bg-foreground/5 transition-colors duration-500" />
-                    </div>
-                    <div className="p-4 md:p-5">
-                      <h3 className="font-body text-sm md:text-base font-medium text-foreground leading-snug line-clamp-1">
-                        {p.name}
-                      </h3>
-                      <p className="mt-1.5 font-display text-base md:text-lg font-semibold text-primary">
-                        {p.price}
-                      </p>
-                    </div>
-                  </Link>
-                </StaggerItem>
-              ))}
+              {sortedItems.map((p) => {
+                const pricing = getProductPricing(p);
+                const newArrival = isNewArrival(p);
+
+                return (
+                  <StaggerItem key={p.id}>
+                    <Link
+                      to={`/product/${p.id}`}
+                      className="group card-lift overflow-hidden rounded-2xl bg-card shadow-luxury-sm block"
+                    >
+                      <div className="aspect-square overflow-hidden relative bg-white">
+                        <img
+                          src={p.images[0]}
+                          alt={p.name}
+                          loading="lazy"
+                          className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-700 ease-out"
+                        />
+                        <div className="absolute left-2 top-2 flex flex-col gap-1">
+                          {newArrival && (
+                            <span className="rounded-full bg-primary text-primary-foreground px-2 py-0.5 text-[10px] font-body font-semibold shadow-sm">
+                              NEW
+                            </span>
+                          )}
+                          {pricing.hasDiscount && (
+                            <span className="rounded-full bg-foreground text-background px-2 py-0.5 text-[10px] font-body font-semibold shadow-sm">
+                              {pricing.discountPercent}% OFF
+                            </span>
+                          )}
+                        </div>
+                        <div className="absolute inset-0 bg-foreground/0 group-hover:bg-foreground/5 transition-colors duration-500" />
+                      </div>
+                      <div className="p-4 md:p-5">
+                        <h3 className="font-body text-sm md:text-base font-medium text-foreground leading-snug line-clamp-1">
+                          {p.name}
+                        </h3>
+                        <div className="mt-1.5 flex flex-wrap items-baseline gap-2">
+                          <p className="font-display text-base md:text-lg font-semibold text-primary">
+                            {pricing.sellingPrice}
+                          </p>
+                          {pricing.hasDiscount && (
+                            <p className="text-xs text-muted-foreground line-through">{pricing.originalPrice}</p>
+                          )}
+                        </div>
+                      </div>
+                    </Link>
+                  </StaggerItem>
+                );
+              })}
             </StaggerChildren>
           )}
         </div>
@@ -156,3 +174,5 @@ const CategoryPage = () => {
 };
 
 export default CategoryPage;
+
+

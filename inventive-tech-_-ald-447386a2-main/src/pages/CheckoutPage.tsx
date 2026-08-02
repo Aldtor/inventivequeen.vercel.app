@@ -19,7 +19,7 @@ const steps = [
 
 const trustItems = [
   { icon: Heart, label: "100% Handmade" },
-  { icon: Clock, label: "Made in 2–3 days" },
+  { icon: Clock, label: "Made in 2-3 days" },
   { icon: Shield, label: "Secure payment via Razorpay" },
   { icon: Gift, label: "Perfect gift" },
 ];
@@ -479,7 +479,7 @@ export default function CheckoutPage() {
                   <img
                     src={item.image}
                     alt={item.name}
-                    className="w-20 h-20 rounded-xl object-cover flex-shrink-0 shadow-sm"
+                    className="w-20 h-20 rounded-xl object-contain bg-white flex-shrink-0 shadow-sm"
                   />
                   <div className="flex-1 min-w-0 space-y-1.5">
                     <div className="flex items-start justify-between gap-3">
@@ -631,7 +631,7 @@ export default function CheckoutPage() {
         <div className="flex items-center justify-center gap-2 py-2">
           <Lock className="w-3.5 h-3.5 text-muted-foreground" />
           <p className="font-body text-xs text-muted-foreground">
-            Secure payment via Razorpay · Made after order
+            Secure payment via Razorpay - Made after order
           </p>
         </div>
 
@@ -717,3 +717,4 @@ function InputField({
     </div>
   );
 }
+

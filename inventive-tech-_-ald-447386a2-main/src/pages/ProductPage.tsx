@@ -25,11 +25,12 @@ import { categories, type Product } from "@/lib/products";
 import { useProducts } from "@/lib/cms-products";
 import { addCartItem } from "@/lib/cart";
 import { addRecentlyViewed } from "@/lib/recentlyViewed";
+import { getProductPricing, isNewArrival } from "@/lib/product-display";
 import { Button } from "@/components/ui/button";
 import { FadeIn } from "@/components/motion/FadeIn";
 import { StaggerChildren, StaggerItem } from "@/components/motion/StaggerChildren";
 
-/* ─── Zoom Modal ─── */
+/* Zoom Modal */
 const ZoomModal = ({
   src,
   alt,
@@ -58,7 +59,7 @@ const ZoomModal = ({
   </div>
 );
 
-/* ─── Image Gallery ─── */
+/* Image Gallery */
 const ImageGallery = ({ images, name }: { images: string[]; name: string }) => {
   const [active, setActive] = useState(0);
   const [zoomed, setZoomed] = useState(false);
@@ -74,7 +75,7 @@ const ImageGallery = ({ images, name }: { images: string[]; name: string }) => {
       )}
       <div className="flex flex-col gap-3">
         <div
-          className="aspect-square overflow-hidden rounded-2xl bg-card shadow-luxury cursor-zoom-in group"
+          className="aspect-square overflow-hidden rounded-2xl bg-white shadow-luxury cursor-zoom-in group"
           onClick={() => setZoomed(true)}
         >
           <AnimatePresence mode="wait">
@@ -86,7 +87,7 @@ const ImageGallery = ({ images, name }: { images: string[]; name: string }) => {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0.6 }}
               transition={{ duration: 0.3 }}
-              className="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-500 ease-out"
+              className="w-full h-full object-contain group-hover:scale-[1.03] transition-transform duration-500 ease-out"
             />
           </AnimatePresence>
         </div>
@@ -105,7 +106,7 @@ const ImageGallery = ({ images, name }: { images: string[]; name: string }) => {
                 <img
                   src={img}
                   alt={`${name} ${i + 1}`}
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-contain bg-white"
                 />
               </button>
             ))}
@@ -116,7 +117,7 @@ const ImageGallery = ({ images, name }: { images: string[]; name: string }) => {
   );
 };
 
-/* ─── Color Picker ─── */
+/* Color Picker */
 const ColorPicker = ({
   colors,
   selected,
@@ -160,7 +161,7 @@ const ColorPicker = ({
   </div>
 );
 
-/* ─── Flower Picker (multi-select) ─── */
+/* Flower Picker (multi-select) */
 const FlowerPicker = ({
   flowers,
   selected,
@@ -196,7 +197,7 @@ const FlowerPicker = ({
   </div>
 );
 
-/* ─── Bouquet Color Dropdown ─── */
+/* Bouquet Color Dropdown */
 const BouquetColorDropdown = ({
   colors,
   selected,
@@ -216,7 +217,7 @@ const BouquetColorDropdown = ({
       className="w-full rounded-xl border border-border bg-card px-4 py-3 text-sm font-body text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 transition-shadow"
     >
       <option value="" disabled>
-        Choose a color…
+        Choose a color...
       </option>
       {colors.map((c) => (
         <option key={c.name} value={c.name}>
@@ -227,7 +228,7 @@ const BouquetColorDropdown = ({
   </div>
 );
 
-/* ─── Expandable Section ─── */
+/* Expandable Section */
 const ExpandableSection = ({
   title,
   children,
@@ -275,15 +276,15 @@ const ExpandableSection = ({
   );
 };
 
-/* ─── Trust Badges ─── */
+/* Trust Badges */
 const trustItems = [
   { icon: Heart, label: "Handmade Item" },
-  { icon: Clock, label: "Made in 2–3 Days" },
-  { icon: Truck, label: "Delivery in 3–7 Days" },
+  { icon: Clock, label: "Made in 2-3 Days" },
+  { icon: Truck, label: "Delivery in 3-7 Days" },
   { icon: Gift, label: "Perfect for Gifting" },
 ];
 
-/* ─── Default bouquet options ─── */
+/* Default bouquet options */
 const defaultFlowers = ["Rose", "Sunflower", "Tulip"];
 const defaultBouquetColors = [
   { name: "Red", value: "hsl(0 70% 55%)" },
@@ -291,7 +292,7 @@ const defaultBouquetColors = [
   { name: "Pink", value: "hsl(350 60% 75%)" },
 ];
 
-/* ─── Product Page ─── */
+/* Product Page */
 const ProductPage = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -356,6 +357,8 @@ const ProductPage = () => {
   const categoryInfo = product
     ? categories.find((c) => c.slug === product.type)
     : null;
+  const pricing = product ? getProductPricing(product) : null;
+  const newArrival = product ? isNewArrival(product) : false;
 
   if (!product) {
     return (
@@ -413,17 +416,28 @@ const ProductPage = () => {
             <ImageGallery images={product.images} name={product.name} />
           </FadeIn>
 
-          {/* Details — sticky on desktop */}
+          {/* Details - sticky on desktop */}
           <div ref={stickyRef}>
             <div className="md:sticky md:top-24 flex flex-col gap-6">
               <FadeIn delay={0.1}>
                 <div>
-                  <h1 className="font-display text-2xl md:text-3xl font-bold text-foreground leading-tight">
+                  <div className="flex flex-wrap items-center gap-2">
+                    {newArrival && (
+                      <span className="rounded-full bg-primary text-primary-foreground px-2.5 py-1 text-[10px] font-body font-semibold">NEW</span>
+                    )}
+                    {pricing?.hasDiscount && (
+                      <span className="rounded-full bg-foreground text-background px-2.5 py-1 text-[10px] font-body font-semibold">{pricing.discountPercent}% OFF</span>
+                    )}
+                  </div>
+                  <h1 className="mt-3 font-display text-2xl md:text-3xl font-bold text-foreground leading-tight">
                     {product.name}
                   </h1>
-                  <p className="mt-3 font-display text-xl md:text-2xl font-semibold text-primary">
-                    {product.price}
-                  </p>
+                  <div className="mt-3 flex flex-wrap items-baseline gap-3">
+                    <p className="font-display text-xl md:text-2xl font-semibold text-primary">
+                      {pricing?.sellingPrice ?? product.price}
+                    </p>
+                    {pricing?.hasDiscount && <p className="text-sm text-muted-foreground line-through">{pricing.originalPrice}</p>}
+                  </div>
                   <p className="mt-3 text-muted-foreground font-body italic text-pretty">
                     {product.tagline}
                   </p>
@@ -579,15 +593,15 @@ const ProductPage = () => {
                         <span>Spot clean gently with mild soap and water</span>
                       </li>
                       <li className="flex items-start gap-2">
-                        <span className="text-primary mt-0.5 flex-shrink-0 text-sm">✦</span>
+                        <span className="text-primary mt-0.5 flex-shrink-0 text-sm">*</span>
                         <span>Avoid machine washing or tumble drying</span>
                       </li>
                       <li className="flex items-start gap-2">
-                        <span className="text-primary mt-0.5 flex-shrink-0 text-sm">✦</span>
+                        <span className="text-primary mt-0.5 flex-shrink-0 text-sm">*</span>
                         <span>Keep away from direct sunlight for prolonged periods</span>
                       </li>
                       <li className="flex items-start gap-2">
-                        <span className="text-primary mt-0.5 flex-shrink-0 text-sm">✦</span>
+                        <span className="text-primary mt-0.5 flex-shrink-0 text-sm">*</span>
                         <span>Store in a cool, dry place when not on display</span>
                       </li>
                     </ul>
@@ -601,7 +615,7 @@ const ProductPage = () => {
                       </li>
                       <li className="flex items-start gap-2">
                         <Clock size={14} className="text-primary mt-0.5 flex-shrink-0" />
-                        <span>Crafting: 2–3 days · Delivery: 3–7 business days</span>
+                        <span>Crafting: 2-3 days - Delivery: 3-7 business days</span>
                       </li>
                       <li className="flex items-start gap-2">
                         <Gift size={14} className="text-primary mt-0.5 flex-shrink-0" />
@@ -634,12 +648,12 @@ const ProductPage = () => {
                     to={`/product/${p.id}`}
                     className="group card-lift overflow-hidden rounded-2xl bg-card shadow-luxury-sm block"
                   >
-                    <div className="aspect-square overflow-hidden">
+                    <div className="aspect-square overflow-hidden bg-white relative">
                       <img
                         src={p.images[0]}
                         alt={p.name}
                         loading="lazy"
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+                        className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-700 ease-out"
                       />
                     </div>
                     <div className="p-4 md:p-5">
@@ -664,3 +678,5 @@ const ProductPage = () => {
 };
 
 export default ProductPage;
+
+

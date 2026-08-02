@@ -17,7 +17,7 @@ import productPanda from "@/assets/product-panda.jpeg";
 const timelineSteps = [
   { icon: MessageCircle, title: "Discuss", desc: "Share your custom requirements" },
   { icon: Palette, title: "Design", desc: "We sketch out your custom creation" },
-  { icon: Clock, title: "Craft", desc: "Handmade with love in 3–7 days" },
+  { icon: Clock, title: "Craft", desc: "Handmade with love in 3-7 days" },
   { icon: Package, title: "Deliver", desc: "Carefully packed and shipped to you" },
 ];
 
@@ -26,7 +26,7 @@ const exampleImages = [bouquetRose, bouquetPastel, productPenguin, productPanda]
 const faqs = [
   {
     q: "How long does a custom order take?",
-    a: "Most custom orders take 3–7 days to craft depending on complexity. We'll give you an estimated timeline once we understand your requirements.",
+    a: "Most custom orders take 3-7 days to craft depending on complexity. We'll give you an estimated timeline once we understand your requirements.",
   },
   {
     q: "Can I choose specific colors and sizes?",
@@ -34,7 +34,7 @@ const faqs = [
   },
   {
     q: "What's the price range for custom orders?",
-    a: "Prices vary depending on complexity and size. Keychains start from ₹199, bouquets from ₹399. We'll confirm the price before starting.",
+    a: "Prices vary depending on complexity and size. Keychains start from Rs. 199, bouquets from Rs. 399. We'll confirm the price before starting.",
   },
   {
     q: "Can I see a preview before you start?",
@@ -75,7 +75,7 @@ const CustomOrdersPage = () => {
       <Navbar />
 
       <main className="flex-1">
-        {/* 1. Hero Section — Heading & Description */}
+        {/* 1. Hero Section - Heading & Description */}
         <div className="bg-secondary/30 border-b border-border/40">
           <div className="container py-14 md:py-20 text-center">
             <FadeIn>
@@ -90,14 +90,14 @@ const CustomOrdersPage = () => {
             </FadeIn>
             <FadeIn delay={0.15}>
               <p className="mt-4 text-muted-foreground max-w-lg mx-auto text-pretty leading-relaxed">
-                Pick a product and tell us how you'd like it customised — colour, size, name, anything!
+                Pick a product and tell us how you'd like it customised - colour, size, name, anything!
                 We'll bring your vision to life, stitch by stitch.
               </p>
             </FadeIn>
           </div>
         </div>
 
-        {/* 2. SELECT YOUR CUSTOM ORDER SECTION — Immediately after Heading and Description */}
+        {/* 2. SELECT YOUR CUSTOM ORDER SECTION - Immediately after Heading and Description */}
         <div className="container py-12 md:py-16">
           <FadeIn>
             <div className="max-w-3xl mx-auto">
@@ -135,7 +135,7 @@ const CustomOrdersPage = () => {
                         <img
                           src={selectedProduct.images[0]}
                           alt={selectedProduct.name}
-                          className="w-10 h-10 rounded-xl object-cover flex-shrink-0 border border-border/60"
+                          className="w-10 h-10 rounded-xl object-contain bg-white flex-shrink-0 border border-border/60"
                         />
                         <div className="min-w-0">
                           <p className="font-body text-sm font-semibold text-foreground truncate">
@@ -187,7 +187,7 @@ const CustomOrdersPage = () => {
                               <img
                                 src={p.images[0]}
                                 alt={p.name}
-                                className="w-12 h-12 rounded-lg object-cover flex-shrink-0 border border-border/40"
+                                className="w-12 h-12 rounded-lg object-contain bg-white flex-shrink-0 border border-border/40"
                               />
                               <div className="flex-1 min-w-0">
                                 <p className="font-body text-sm font-semibold text-foreground truncate">
@@ -239,7 +239,7 @@ const CustomOrdersPage = () => {
                               src={p.images[0]}
                               alt={p.name}
                               loading="lazy"
-                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                              className="w-full h-full object-contain bg-white group-hover:scale-105 transition-transform duration-500"
                             />
                           </div>
                           <div className="p-3">
@@ -271,7 +271,7 @@ const CustomOrdersPage = () => {
                 />
               </div>
 
-              {/* Submit buttons — Cart or Direct Website Order */}
+              {/* Submit buttons - Cart or Direct Website Order */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <button
                   onClick={handleAddToCart}
@@ -304,7 +304,7 @@ const CustomOrdersPage = () => {
           </FadeIn>
         </div>
 
-        {/* 3. Timeline — How It Works */}
+        {/* 3. Timeline - How It Works */}
         <div className="bg-secondary/20 py-12 md:py-16">
           <div className="container">
             <FadeIn>
@@ -354,7 +354,7 @@ const CustomOrdersPage = () => {
                       src={img}
                       alt={`Custom creation example ${i + 1}`}
                       loading="lazy"
-                      className="w-full h-full object-cover hover:scale-105 transition-transform duration-700"
+                      className="w-full h-full object-contain bg-white hover:scale-105 transition-transform duration-700"
                     />
                   </div>
                 </StaggerItem>
@@ -421,9 +421,9 @@ const CustomOrdersPage = () => {
                 What to Expect
               </h3>
               <p className="mt-3 text-sm text-muted-foreground leading-relaxed max-w-md mx-auto">
-                Custom orders typically take 3–7 business days to craft depending on complexity.
-                Prices start from ₹199 for keychains and ₹399 for bouquets.
-                Once production begins, custom orders cannot be cancelled — please review your details carefully.
+                Custom orders typically take 3-7 business days to craft depending on complexity.
+                Prices start from Rs. 199 for keychains and Rs. 399 for bouquets.
+                Once production begins, custom orders cannot be cancelled - please review your details carefully.
               </p>
             </div>
           </FadeIn>
@@ -436,3 +436,4 @@ const CustomOrdersPage = () => {
 };
 
 export default CustomOrdersPage;
+

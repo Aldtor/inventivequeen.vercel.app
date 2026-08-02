@@ -88,7 +88,7 @@ const CartPage = () => {
                           <img
                             src={item.image}
                             alt={item.name}
-                            className="w-24 h-24 md:w-28 md:h-28 rounded-xl object-cover shadow-sm"
+                            className="w-24 h-24 md:w-28 md:h-28 rounded-xl object-contain bg-white shadow-sm"
                           />
                         </Link>
 
@@ -223,3 +223,4 @@ function ItemDetails({ item }: { item: CartItem }) {
 }
 
 export default CartPage;
+

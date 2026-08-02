@@ -5,6 +5,8 @@ import {
   Clock,
   Eye,
   EyeOff,
+  ArrowDown,
+  ArrowUp,
   ImagePlus,
   IndianRupee,
   Package,
@@ -13,7 +15,12 @@ import {
   Save,
   ShieldCheck,
   ShoppingBag,
+  Sparkles,
+  BadgePercent,
+  Lock,
+  Unlock,
   Trash2,
+  X,
 } from "lucide-react";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
@@ -23,6 +30,7 @@ import { useAuth } from "@/lib/auth";
 import { categories, type Product, type ProductType } from "@/lib/products";
 import { useProducts } from "@/lib/cms-products";
 import { isSupabaseConfigured, supabase, type DbOrder, type OrderStatus } from "@/lib/supabase";
+import { calculateDiscountPercent, formatPrice, parsePriceValue } from "@/lib/product-display";
 
 const statuses: OrderStatus[] = [
   "pending",
@@ -43,19 +51,27 @@ const statusColor: Record<OrderStatus, string> = {
 };
 
 const productTypes: ProductType[] = ["keychain", "bouquet", "doll"];
+const MAX_PRODUCT_IMAGES = 10;
 
 interface ProductDraft {
   id: string;
   name: string;
   price: string;
+  originalPrice: string;
+  sellingPrice: string;
+  discountPercent: string;
   type: ProductType;
   tagline: string;
   description: string;
   imagesText: string;
+  isNewArrival: boolean;
+  newArrivalDays: string;
+  newArrivalStartedAt: string | null;
   isActive: boolean;
   sortOrder: number;
   isCmsProduct: boolean;
   isNew?: boolean;
+  isIdLocked: boolean;
   colors?: Product["colors"];
   flowers?: Product["flowers"];
   flowerColors?: Product["flowerColors"];
@@ -69,18 +85,42 @@ function makeSlug(value: string) {
     .replace(/^-+|-+$/g, "");
 }
 
+function imageLines(value: string) {
+  return value
+    .split(/\r?\n/)
+    .map((image) => image.trim())
+    .filter(Boolean)
+    .slice(0, MAX_PRODUCT_IMAGES);
+}
+
+function formatPercent(value: number) {
+  return value > 0 ? String(value) : "";
+}
+
 function toDraft(product: Product): ProductDraft {
+  const sellingPrice = product.sellingPrice || product.price;
+  const calculatedDiscount = product.originalPrice
+    ? calculateDiscountPercent(product.originalPrice, sellingPrice)
+    : 0;
+
   return {
     id: product.id,
     name: product.name,
-    price: product.price,
+    price: sellingPrice,
+    originalPrice: product.originalPrice ?? "",
+    sellingPrice,
+    discountPercent: formatPercent(product.discountPercent ?? calculatedDiscount),
     type: product.type,
     tagline: product.tagline,
     description: product.description,
-    imagesText: product.images.join("\n"),
+    imagesText: product.images.slice(0, MAX_PRODUCT_IMAGES).join("\n"),
+    isNewArrival: Boolean(product.isNewArrival),
+    newArrivalDays: String(product.newArrivalDays ?? 30),
+    newArrivalStartedAt: product.newArrivalStartedAt ?? null,
     isActive: product.isActive !== false,
     sortOrder: product.sortOrder ?? 0,
     isCmsProduct: Boolean(product.isCmsProduct),
+    isIdLocked: true,
     colors: product.colors,
     flowers: product.flowers,
     flowerColors: product.flowerColors,
@@ -88,17 +128,25 @@ function toDraft(product: Product): ProductDraft {
 }
 
 function draftToProduct(draft: ProductDraft): Product {
+  const sellingPrice = draft.sellingPrice.trim() || draft.price.trim();
+  const originalPrice = draft.originalPrice.trim();
+  const discountPercent = Number(draft.discountPercent);
+  const newArrivalDays = Number(draft.newArrivalDays);
+
   return {
-    id: makeSlug(draft.id || draft.name),
+    id: draft.id.trim() || makeSlug(draft.name),
     name: draft.name.trim(),
-    price: draft.price.trim(),
+    price: sellingPrice,
+    originalPrice: originalPrice || undefined,
+    sellingPrice,
+    discountPercent: Number.isFinite(discountPercent) && discountPercent > 0 ? discountPercent : undefined,
     type: draft.type,
     tagline: draft.tagline.trim(),
     description: draft.description.trim(),
-    images: draft.imagesText
-      .split(/\r?\n/)
-      .map((image) => image.trim())
-      .filter(Boolean),
+    images: imageLines(draft.imagesText),
+    isNewArrival: draft.isNewArrival,
+    newArrivalDays: Number.isFinite(newArrivalDays) && newArrivalDays > 0 ? newArrivalDays : 30,
+    newArrivalStartedAt: draft.isNewArrival ? draft.newArrivalStartedAt ?? new Date().toISOString() : null,
     colors: draft.colors,
     flowers: draft.flowers,
     flowerColors: draft.flowerColors,
@@ -107,19 +155,26 @@ function draftToProduct(draft: ProductDraft): Product {
   };
 }
 
-function newProductDraft(): ProductDraft {
+function newProductDraft(id = ""): ProductDraft {
   return {
-    id: `new-product-${Date.now()}`,
+    id,
     name: "New Product",
     price: "Rs. 199",
+    originalPrice: "",
+    sellingPrice: "Rs. 199",
+    discountPercent: "",
     type: "keychain",
     tagline: "Handmade with love",
     description: "Add the product description here.",
     imagesText: "",
+    isNewArrival: false,
+    newArrivalDays: "30",
+    newArrivalStartedAt: null,
     isActive: true,
     sortOrder: 99,
     isCmsProduct: false,
     isNew: true,
+    isIdLocked: true,
   };
 }
 
@@ -306,7 +361,7 @@ function OrdersAdmin({
                     </span>
                   </div>
                   <p className="mt-1 text-sm text-muted-foreground">
-                    {order.customer_name} · {order.phone} · {order.pincode}
+                    {order.customer_name} - {order.phone} - {order.pincode}
                   </p>
                   <p className="mt-1 text-xs text-muted-foreground">
                     {new Date(order.created_at).toLocaleString("en-IN", {
@@ -338,7 +393,7 @@ function OrdersAdmin({
                   {(order.order_items ?? []).map((item) => (
                     <div key={item.id} className="flex gap-3">
                       {item.image_url && (
-                        <img src={item.image_url} alt={item.product_name} className="w-14 h-14 rounded-xl object-cover" />
+                        <img src={item.image_url} alt={item.product_name} className="w-14 h-14 rounded-xl object-contain bg-white" />
                       )}
                       <div className="min-w-0">
                         <p className="text-sm font-body font-semibold text-foreground">
@@ -374,7 +429,16 @@ function OrdersAdmin({
 }
 
 function ProductsAdmin() {
-  const { adminProducts, loading, error, refreshProducts, saveProduct, deleteProduct, uploadProductImage } = useProducts();
+  const {
+    adminProducts,
+    loading,
+    error,
+    refreshProducts,
+    saveProduct,
+    deleteProduct,
+    uploadProductImage,
+    generateProductId,
+  } = useProducts();
   const [drafts, setDrafts] = useState<ProductDraft[]>([]);
   const [savingId, setSavingId] = useState("");
   const [notice, setNotice] = useState("");
@@ -387,10 +451,68 @@ function ProductsAdmin() {
     setDrafts((current) => current.map((draft) => (draft.id === id ? { ...draft, ...patch } : draft)));
   };
 
+  const updateDraftByKey = (draftKey: string, patch: Partial<ProductDraft>) => {
+    setDrafts((current) => current.map((draft) => (draft.id === draftKey ? { ...draft, ...patch } : draft)));
+  };
+
+  const updatePricingDraft = (id: string, field: "originalPrice" | "sellingPrice" | "discountPercent", value: string) => {
+    setDrafts((current) =>
+      current.map((draft) => {
+        if (draft.id !== id) return draft;
+        const next = { ...draft, [field]: value };
+        const original = parsePriceValue(next.originalPrice);
+        const selling = parsePriceValue(next.sellingPrice);
+
+        if (field === "discountPercent") {
+          const percent = Math.max(0, Math.min(99, Number(value) || 0));
+          next.discountPercent = percent > 0 ? String(percent) : "";
+          if (original > 0 && percent > 0) {
+            next.sellingPrice = formatPrice(Math.max(1, Math.round(original - (original * percent) / 100)));
+          }
+        } else {
+          next.discountPercent = formatPercent(calculateDiscountPercent(next.originalPrice, next.sellingPrice));
+        }
+
+        next.price = next.sellingPrice || (selling > 0 ? formatPrice(selling) : draft.price);
+        return next;
+      })
+    );
+  };
+
+  const handleAddProduct = async () => {
+    setSavingId("new-product");
+    setNotice("");
+    try {
+      const id = await generateProductId("keychain");
+      setDrafts((current) => [newProductDraft(id), ...current]);
+    } catch (idError) {
+      const fallbackId = `IQ-KCH-${Date.now().toString().slice(-3)}`;
+      setDrafts((current) => [newProductDraft(fallbackId), ...current]);
+      setNotice(idError instanceof Error ? idError.message : "Could not reserve a product ID. Using a temporary ID.");
+    } finally {
+      setSavingId("");
+    }
+  };
+
+  const handleTypeChange = async (draft: ProductDraft, type: ProductType) => {
+    updateDraft(draft.id, { type });
+    if (!draft.isNew || !draft.isIdLocked) return;
+
+    setSavingId(draft.id);
+    try {
+      const nextId = await generateProductId(type);
+      updateDraftByKey(draft.id, { id: nextId, type });
+    } catch (idError) {
+      setNotice(idError instanceof Error ? idError.message : "Could not reserve product ID for that category.");
+    } finally {
+      setSavingId("");
+    }
+  };
+
   const handleSave = async (draft: ProductDraft) => {
     const product = draftToProduct(draft);
     if (!product.id || !product.name || !product.price || !product.description) {
-      setNotice("Please fill product id, name, price, and description before saving.");
+      setNotice("Please fill product id, name, selling price, and description before saving.");
       return;
     }
     if (product.images.length === 0 && product.isActive !== false) {
@@ -434,13 +556,32 @@ function ProductsAdmin() {
     }
   };
 
-  const handleUpload = async (draft: ProductDraft, file: File | null) => {
-    if (!file) return;
+  const setImages = (draft: ProductDraft, images: string[]) => {
+    updateDraft(draft.id, { imagesText: images.filter(Boolean).slice(0, MAX_PRODUCT_IMAGES).join("\n") });
+  };
+
+  const moveImage = (draft: ProductDraft, index: number, direction: -1 | 1) => {
+    const images = imageLines(draft.imagesText);
+    const nextIndex = index + direction;
+    if (nextIndex < 0 || nextIndex >= images.length) return;
+    [images[index], images[nextIndex]] = [images[nextIndex], images[index]];
+    setImages(draft, images);
+  };
+
+  const removeImage = (draft: ProductDraft, index: number) => {
+    setImages(draft, imageLines(draft.imagesText).filter((_, imageIndex) => imageIndex !== index));
+  };
+
+  const handleUpload = async (draft: ProductDraft, files: FileList | null) => {
+    const selectedFiles = Array.from(files ?? []).slice(0, MAX_PRODUCT_IMAGES - imageLines(draft.imagesText).length);
+    if (selectedFiles.length === 0) return;
     setSavingId(draft.id);
     try {
-      const imageUrl = await uploadProductImage(makeSlug(draft.id || draft.name), file);
-      const nextImages = [draft.imagesText, imageUrl].filter(Boolean).join("\n");
-      updateDraft(draft.id, { imagesText: nextImages });
+      const uploadedUrls: string[] = [];
+      for (const file of selectedFiles) {
+        uploadedUrls.push(await uploadProductImage(draft.id || makeSlug(draft.name), file));
+      }
+      setImages(draft, [...imageLines(draft.imagesText), ...uploadedUrls]);
       setNotice("Image uploaded. Save the product to use it on the website.");
     } catch (uploadError) {
       setNotice(uploadError instanceof Error ? uploadError.message : "Could not upload image.");
@@ -455,7 +596,7 @@ function ProductsAdmin() {
         <div>
           <h2 className="font-display text-xl text-foreground">Products CMS</h2>
           <p className="text-sm text-muted-foreground">
-            Edit product names, prices, photos, descriptions, visibility, and add new items.
+            Edit product names, IDs, prices, badges, photos, descriptions, visibility, and add new items.
           </p>
         </div>
         <div className="flex gap-2">
@@ -463,9 +604,9 @@ function ProductsAdmin() {
             <RefreshCw size={15} />
             Refresh
           </Button>
-          <Button className="rounded-xl" onClick={() => setDrafts((current) => [newProductDraft(), ...current])}>
+          <Button className="rounded-xl" onClick={handleAddProduct} disabled={savingId === "new-product"}>
             <Plus size={15} />
-            Add Product
+            {savingId === "new-product" ? "Creating..." : "Add Product"}
           </Button>
         </div>
       </div>
@@ -478,139 +619,137 @@ function ProductsAdmin() {
 
       <div className="space-y-4">
         {drafts.map((draft) => {
-          const imagePreview = draft.imagesText.split(/\r?\n/).find(Boolean);
+          const images = imageLines(draft.imagesText);
+          const imagePreview = images[0];
           const category = categories.find((item) => item.slug === draft.type);
+          const discount = Number(draft.discountPercent) || 0;
 
           return (
             <article key={draft.id} className="rounded-2xl border border-border/60 bg-background p-4">
-              <div className="grid lg:grid-cols-[180px_1fr] gap-4">
+              <div className="grid lg:grid-cols-[220px_1fr] gap-4">
                 <div className="space-y-3">
-                  <div className="aspect-square rounded-2xl overflow-hidden bg-muted border border-border/60">
+                  <div className="aspect-square rounded-2xl overflow-hidden bg-white border border-border/60 relative">
                     {imagePreview ? (
-                      <img src={imagePreview} alt={draft.name} className="w-full h-full object-cover" />
+                      <img src={imagePreview} alt={draft.name} className="w-full h-full object-contain" />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center text-muted-foreground">
                         <ImagePlus className="w-8 h-8" />
                       </div>
                     )}
+                    <div className="absolute left-2 top-2 flex flex-col gap-1">
+                      {draft.isNewArrival && (
+                        <span className="inline-flex items-center gap-1 rounded-full bg-primary text-primary-foreground px-2 py-0.5 text-[10px] font-semibold">
+                          <Sparkles size={11} /> NEW
+                        </span>
+                      )}
+                      {discount > 0 && (
+                        <span className="inline-flex items-center gap-1 rounded-full bg-foreground text-background px-2 py-0.5 text-[10px] font-semibold">
+                          <BadgePercent size={11} /> {discount}% OFF
+                        </span>
+                      )}
+                    </div>
                   </div>
                   <label className="w-full inline-flex items-center justify-center gap-2 rounded-xl border border-border bg-card px-3 py-2 text-sm font-body font-medium text-foreground hover:bg-brand-blush/20 cursor-pointer transition-colors">
                     <ImagePlus size={15} />
-                    Upload Image
-                    <input
-                      type="file"
-                      accept="image/*"
-                      className="hidden"
-                      onChange={(event) => handleUpload(draft, event.target.files?.[0] ?? null)}
-                    />
+                    Upload Images
+                    <input type="file" accept="image/*" multiple className="hidden" onChange={(event) => handleUpload(draft, event.target.files)} />
                   </label>
+                  {images.length > 0 && (
+                    <div className="space-y-2">
+                      {images.map((image, index) => (
+                        <div key={`${image}-${index}`} className="flex items-center gap-2 rounded-xl border border-border/60 bg-card p-2">
+                          <img src={image} alt={`${draft.name} ${index + 1}`} className="w-10 h-10 rounded-lg object-contain bg-white" />
+                          <span className="text-xs text-muted-foreground flex-1 truncate">{index === 0 ? "Thumbnail" : `Image ${index + 1}`}</span>
+                          <button type="button" onClick={() => moveImage(draft, index, -1)} className="p-1 text-muted-foreground hover:text-primary" aria-label="Move image up"><ArrowUp size={14} /></button>
+                          <button type="button" onClick={() => moveImage(draft, index, 1)} className="p-1 text-muted-foreground hover:text-primary" aria-label="Move image down"><ArrowDown size={14} /></button>
+                          <button type="button" onClick={() => removeImage(draft, index)} className="p-1 text-muted-foreground hover:text-destructive" aria-label="Remove image"><X size={14} /></button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
 
                 <div className="space-y-4">
                   <div className="grid md:grid-cols-2 gap-3">
-                    <AdminInput
-                      label="Product ID"
-                      value={draft.id}
-                      onChange={(value) => updateDraft(draft.id, { id: makeSlug(value) })}
-                    />
-                    <AdminInput
-                      label="Name"
-                      value={draft.name}
-                      onChange={(value) => updateDraft(draft.id, { name: value })}
-                    />
-                    <AdminInput
-                      label="Price"
-                      value={draft.price}
-                      onChange={(value) => updateDraft(draft.id, { price: value })}
-                    />
                     <div className="space-y-2">
-                      <label className="font-body text-xs font-semibold uppercase tracking-[0.1em] text-muted-foreground">
-                        Category
-                      </label>
-                      <select
-                        value={draft.type}
-                        onChange={(event) => updateDraft(draft.id, { type: event.target.value as ProductType })}
-                        className="w-full rounded-xl border border-border bg-card px-3 py-2 text-sm font-body text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30"
-                      >
+                      <label className="font-body text-xs font-semibold uppercase tracking-[0.1em] text-muted-foreground">Product ID</label>
+                      <div className="flex gap-2">
+                        <input
+                          value={draft.id}
+                          disabled={draft.isIdLocked}
+                          onChange={(event) => updateDraft(draft.id, { id: event.target.value.trim() })}
+                          className="w-full rounded-xl border border-border bg-card px-3 py-2 text-sm font-body text-foreground disabled:bg-secondary/50 disabled:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30"
+                        />
+                        <Button type="button" variant="outline" className="rounded-xl shrink-0" onClick={() => updateDraft(draft.id, { isIdLocked: !draft.isIdLocked })} title={draft.isIdLocked ? "Unlock product ID" : "Lock product ID"}>
+                          {draft.isIdLocked ? <Lock size={15} /> : <Unlock size={15} />}
+                        </Button>
+                      </div>
+                    </div>
+                    <AdminInput label="Name" value={draft.name} onChange={(value) => updateDraft(draft.id, { name: value })} />
+                    <AdminInput label="Original Price" value={draft.originalPrice} onChange={(value) => updatePricingDraft(draft.id, "originalPrice", value)} />
+                    <AdminInput label="Selling Price" value={draft.sellingPrice} onChange={(value) => updatePricingDraft(draft.id, "sellingPrice", value)} />
+                    <AdminInput label="Discount %" value={draft.discountPercent} onChange={(value) => updatePricingDraft(draft.id, "discountPercent", value)} />
+                    <div className="space-y-2">
+                      <label className="font-body text-xs font-semibold uppercase tracking-[0.1em] text-muted-foreground">Category</label>
+                      <select value={draft.type} onChange={(event) => handleTypeChange(draft, event.target.value as ProductType)} className="w-full rounded-xl border border-border bg-card px-3 py-2 text-sm font-body text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30">
                         {productTypes.map((type) => (
-                          <option key={type} value={type}>
-                            {categories.find((item) => item.slug === type)?.title ?? type}
-                          </option>
+                          <option key={type} value={type}>{categories.find((item) => item.slug === type)?.title ?? type}</option>
                         ))}
                       </select>
                     </div>
                   </div>
 
-                  <AdminInput
-                    label="Tagline"
-                    value={draft.tagline}
-                    onChange={(value) => updateDraft(draft.id, { tagline: value })}
-                  />
+                  <div className="grid md:grid-cols-2 gap-3 rounded-2xl border border-border/60 bg-card p-3">
+                    <label className="inline-flex items-center gap-2 text-sm font-body font-medium text-foreground">
+                      <input
+                        type="checkbox"
+                        checked={draft.isNewArrival}
+                        onChange={(event) => updateDraft(draft.id, {
+                          isNewArrival: event.target.checked,
+                          newArrivalStartedAt: event.target.checked ? draft.newArrivalStartedAt ?? new Date().toISOString() : null,
+                        })}
+                        className="accent-primary"
+                      />
+                      <Sparkles size={15} className="text-primary" />
+                      Mark as New Arrival
+                    </label>
+                    <AdminInput label="New Badge Days" value={draft.newArrivalDays} onChange={(value) => updateDraft(draft.id, { newArrivalDays: value })} />
+                  </div>
 
-                  <AdminTextarea
-                    label="Description"
-                    value={draft.description}
-                    rows={3}
-                    onChange={(value) => updateDraft(draft.id, { description: value })}
-                  />
+                  <AdminInput label="Tagline" value={draft.tagline} onChange={(value) => updateDraft(draft.id, { tagline: value })} />
+                  <AdminTextarea label="Description" value={draft.description} rows={3} onChange={(value) => updateDraft(draft.id, { description: value })} />
+                  <AdminTextarea label={`Image URLs (${images.length}/${MAX_PRODUCT_IMAGES})`} value={draft.imagesText} rows={3} onChange={(value) => updateDraft(draft.id, { imagesText: imageLines(value).join("\n") })} />
 
-                  <AdminTextarea
-                    label="Image URLs"
-                    value={draft.imagesText}
-                    rows={3}
-                    onChange={(value) => updateDraft(draft.id, { imagesText: value })}
-                  />
+                  <div className="rounded-2xl bg-secondary/40 px-4 py-3 flex flex-wrap items-center gap-3 text-sm">
+                    <span className="font-body font-semibold text-foreground">Preview:</span>
+                    {draft.originalPrice && discount > 0 && <span className="text-muted-foreground line-through">{formatPrice(draft.originalPrice)}</span>}
+                    <span className="font-display text-lg text-primary font-bold">{formatPrice(draft.sellingPrice || draft.price)}</span>
+                    {discount > 0 && <span className="text-xs font-semibold text-primary">{discount}% off</span>}
+                  </div>
 
                   <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pt-2">
                     <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
                       <span className="rounded-full bg-secondary px-2.5 py-1 capitalize">{category?.title ?? draft.type}</span>
                       <label className="inline-flex items-center gap-2 rounded-full bg-secondary px-2.5 py-1">
-                        <input
-                          type="checkbox"
-                          checked={draft.isActive}
-                          onChange={(event) => updateDraft(draft.id, { isActive: event.target.checked })}
-                          className="accent-primary"
-                        />
+                        <input type="checkbox" checked={draft.isActive} onChange={(event) => updateDraft(draft.id, { isActive: event.target.checked })} className="accent-primary" />
                         Visible
                       </label>
                       <label className="inline-flex items-center gap-2">
                         Sort
-                        <input
-                          type="number"
-                          value={draft.sortOrder}
-                          onChange={(event) => updateDraft(draft.id, { sortOrder: Number(event.target.value) })}
-                          className="w-20 rounded-lg border border-border bg-card px-2 py-1 text-xs text-foreground"
-                        />
+                        <input type="number" value={draft.sortOrder} onChange={(event) => updateDraft(draft.id, { sortOrder: Number(event.target.value) })} className="w-20 rounded-lg border border-border bg-card px-2 py-1 text-xs text-foreground" />
                       </label>
                     </div>
 
                     <div className="flex gap-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="rounded-xl"
-                        onClick={() => handleToggleActive(draft)}
-                        disabled={savingId === draft.id}
-                      >
+                      <Button variant="outline" size="sm" className="rounded-xl" onClick={() => handleToggleActive(draft)} disabled={savingId === draft.id}>
                         {draft.isActive ? <EyeOff size={14} /> : <Eye size={14} />}
                         {draft.isActive ? "Hide" : "Show"}
                       </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="rounded-xl"
-                        onClick={() => handleDelete(draft)}
-                        disabled={savingId === draft.id || (!draft.isCmsProduct && !draft.isNew)}
-                      >
+                      <Button variant="outline" size="sm" className="rounded-xl" onClick={() => handleDelete(draft)} disabled={savingId === draft.id || (!draft.isCmsProduct && !draft.isNew)}>
                         <Trash2 size={14} />
                         {draft.isNew ? "Remove" : "Delete CMS"}
                       </Button>
-                      <Button
-                        size="sm"
-                        className="rounded-xl"
-                        onClick={() => handleSave(draft)}
-                        disabled={savingId === draft.id}
-                      >
+                      <Button size="sm" className="rounded-xl" onClick={() => handleSave(draft)} disabled={savingId === draft.id}>
                         <Save size={14} />
                         {savingId === draft.id ? "Saving..." : "Save"}
                       </Button>
@@ -718,3 +857,9 @@ function AdminNotice({
     </div>
   );
 }
+
+
+
+
+
+
