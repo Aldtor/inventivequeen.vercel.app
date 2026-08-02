@@ -279,27 +279,29 @@ const ProductPage = () => {
 
   const isTeddy = product?.type === "teddy";
   const isBouquet = product?.type === "bouquet";
+  const customRequest = customChanges.trim();
+  const hasCustomColourRequest = isBouquet && customRequest.length > 0;
   const needsSelection = isTeddy || isBouquet;
 
   const canBuy =
     !needsSelection ||
     (isTeddy && selectedColor !== null) ||
-    (isBouquet && bouquetColor !== null);
+    (isBouquet && (bouquetColor !== null || hasCustomColourRequest));
 
   const handleBuyNow = () => {
     if (!product || !canBuy) return;
     const params = new URLSearchParams({ product: product.id });
-    const chosenColor = isBouquet ? bouquetColor : selectedColor;
+    const chosenColor = isBouquet ? bouquetColor ?? (hasCustomColourRequest ? "Custom colour requested" : null) : selectedColor;
     if (chosenColor) params.set("color", chosenColor);
-    if (customChanges.trim()) params.set("custom", customChanges.trim());
+    if (customRequest) params.set("custom", customRequest);
     navigate(`/checkout?${params.toString()}`);
   };
 
   const handleAddToCart = () => {
     if (!product || !canBuy) return;
     addCartItem(product, {
-      color: isBouquet ? bouquetColor : selectedColor,
-      custom: customChanges,
+      color: isBouquet ? bouquetColor ?? (hasCustomColourRequest ? "Custom colour requested" : null) : selectedColor,
+      custom: customRequest,
     });
     setCartFeedback("Added to cart");
     window.setTimeout(() => setCartFeedback(""), 1600);
@@ -431,7 +433,7 @@ const ProductPage = () => {
                         onSelect={setBouquetColor}
                       />
                       <p className="text-xs text-muted-foreground">
-                        If you want any other colour, write it in the customise order box below.
+                        If your colour is not listed, write your colour in the customise order box below.
                       </p>
                       {bouquetColor && (
                         <p className="text-xs text-muted-foreground">
@@ -502,7 +504,7 @@ const ProductPage = () => {
                   <p className="text-xs text-destructive font-body mt-3">
                     {isTeddy
                       ? "Please select a colour before buying."
-                      : "Please select a colour before buying."}
+                      : "Please select a colour or write your colour in the custom box before buying."}
                   </p>
                 )}
               </FadeIn>

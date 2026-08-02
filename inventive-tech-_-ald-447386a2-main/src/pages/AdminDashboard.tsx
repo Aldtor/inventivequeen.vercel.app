@@ -97,25 +97,6 @@ function formatPercent(value: number) {
   return value > 0 ? String(value) : "";
 }
 
-function formatColorOptions(colors: Product["flowerColors"]) {
-  return (colors ?? []).map((color) => color.name + " | " + color.value).join("\n");
-}
-
-function parseColorOptions(value: string): Product["flowerColors"] {
-  const colors = value
-    .split(/\r?\n/)
-    .map((line) => line.trim())
-    .filter(Boolean)
-    .map((line) => {
-      const [rawName, rawValue] = line.split(/\s*[|,]\s*/);
-      const name = rawName?.trim() ?? "";
-      const colorValue = rawValue?.trim() || name;
-      return name ? { name, value: colorValue } : null;
-    })
-    .filter(Boolean) as { name: string; value: string }[];
-
-  return colors.length > 0 ? colors : undefined;
-}
 
 function toDraft(product: Product): ProductDraft {
   const sellingPrice = product.sellingPrice || product.price;
@@ -738,12 +719,9 @@ function ProductsAdmin() {
 
                   <AdminInput label="Tagline" value={draft.tagline} onChange={(value) => updateDraft(draft.id, { tagline: value })} />
                   {draft.type === "bouquet" && (
-                    <AdminTextarea
-                      label="Flower colour options"
-                      value={formatColorOptions(draft.flowerColors)}
-                      rows={4}
-                      onChange={(value) => updateDraft(draft.id, { flowerColors: parseColorOptions(value) })}
-                      helper="One colour per line: Red | #dc2626 or Pastel Pink | #f8b4c8"
+                    <FlowerColorEditor
+                      colors={draft.flowerColors ?? []}
+                      onChange={(flowerColors) => updateDraft(draft.id, { flowerColors })}
                     />
                   )}
                   <AdminTextarea label="Description" value={draft.description} rows={3} onChange={(value) => updateDraft(draft.id, { description: value })} />
@@ -832,6 +810,90 @@ function AdminInput({
         onChange={(event) => onChange(event.target.value)}
         className="w-full rounded-xl border border-border bg-card px-3 py-2 text-sm font-body text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30"
       />
+    </div>
+  );
+}
+
+function FlowerColorEditor({
+  colors,
+  onChange,
+}: {
+  colors: { name: string; value: string }[];
+  onChange: (colors: Product["flowerColors"]) => void;
+}) {
+  const normalizedColors = colors.length > 0 ? colors : [{ name: "", value: "" }];
+
+  const updateColor = (index: number, patch: Partial<{ name: string; value: string }>) => {
+    const next = normalizedColors.map((color, colorIndex) =>
+      colorIndex === index ? { ...color, ...patch } : color
+    );
+    onChange(next.filter((color) => color.name.trim() || color.value.trim()));
+  };
+
+  const addColor = () => {
+    onChange([...normalizedColors.filter((color) => color.name.trim() || color.value.trim()), { name: "", value: "" }]);
+  };
+
+  const removeColor = (index: number) => {
+    const next = normalizedColors.filter((_, colorIndex) => colorIndex !== index);
+    onChange(next.length > 0 ? next : undefined);
+  };
+
+  return (
+    <div className="rounded-2xl border border-border/60 bg-card p-3 space-y-3">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+        <div>
+          <label className="font-body text-xs font-semibold uppercase tracking-[0.1em] text-muted-foreground">
+            Flower Colour Options
+          </label>
+          <p className="mt-1 text-xs text-muted-foreground">
+            Add the colours customers can choose. If a colour is missing, they can write it in the custom box.
+          </p>
+        </div>
+        <Button type="button" variant="outline" size="sm" className="rounded-xl" onClick={addColor}>
+          <Plus size={14} />
+          Add Colour
+        </Button>
+      </div>
+
+      <div className="space-y-2">
+        {normalizedColors.map((color, index) => {
+          const swatchValue = color.value.trim() || color.name.trim() || "#ffffff";
+
+          return (
+            <div key={index} className="grid md:grid-cols-[1fr_1fr_auto] gap-2 items-center rounded-xl bg-background p-2 border border-border/50">
+              <div className="flex items-center gap-2">
+                <span
+                  className="w-8 h-8 rounded-full border border-border shadow-sm flex-shrink-0"
+                  style={{ backgroundColor: swatchValue }}
+                />
+                <input
+                  value={color.name}
+                  onChange={(event) => updateColor(index, { name: event.target.value })}
+                  placeholder="Colour name, e.g. Purple"
+                  className="w-full rounded-xl border border-border bg-card px-3 py-2 text-sm font-body text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30"
+                />
+              </div>
+              <input
+                value={color.value}
+                onChange={(event) => updateColor(index, { value: event.target.value })}
+                placeholder="Colour value, e.g. #8b5cf6"
+                className="w-full rounded-xl border border-border bg-card px-3 py-2 text-sm font-body text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30"
+              />
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="rounded-xl text-muted-foreground hover:text-destructive"
+                onClick={() => removeColor(index)}
+              >
+                <Trash2 size={14} />
+                Remove
+              </Button>
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }
