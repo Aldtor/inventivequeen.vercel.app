@@ -97,6 +97,26 @@ function formatPercent(value: number) {
   return value > 0 ? String(value) : "";
 }
 
+function formatColorOptions(colors: Product["flowerColors"]) {
+  return (colors ?? []).map((color) => color.name + " | " + color.value).join("\n");
+}
+
+function parseColorOptions(value: string): Product["flowerColors"] {
+  const colors = value
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .map((line) => {
+      const [rawName, rawValue] = line.split(/\s*[|,]\s*/);
+      const name = rawName?.trim() ?? "";
+      const colorValue = rawValue?.trim() || name;
+      return name ? { name, value: colorValue } : null;
+    })
+    .filter(Boolean) as { name: string; value: string }[];
+
+  return colors.length > 0 ? colors : undefined;
+}
+
 function toDraft(product: Product): ProductDraft {
   const sellingPrice = product.sellingPrice || product.price;
   const calculatedDiscount = product.originalPrice
@@ -717,6 +737,15 @@ function ProductsAdmin() {
                   </div>
 
                   <AdminInput label="Tagline" value={draft.tagline} onChange={(value) => updateDraft(draft.id, { tagline: value })} />
+                  {draft.type === "bouquet" && (
+                    <AdminTextarea
+                      label="Flower colour options"
+                      value={formatColorOptions(draft.flowerColors)}
+                      rows={4}
+                      onChange={(value) => updateDraft(draft.id, { flowerColors: parseColorOptions(value) })}
+                      helper="One colour per line: Red | #dc2626 or Pastel Pink | #f8b4c8"
+                    />
+                  )}
                   <AdminTextarea label="Description" value={draft.description} rows={3} onChange={(value) => updateDraft(draft.id, { description: value })} />
                   <AdminTextarea label={`Image URLs (${images.length}/${MAX_PRODUCT_IMAGES})`} value={draft.imagesText} rows={3} onChange={(value) => updateDraft(draft.id, { imagesText: imageLines(value).join("\n") })} />
 

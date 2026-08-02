@@ -1,5 +1,5 @@
 import { useParams, Link, useNavigate } from "react-router-dom";
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   Heart,
   Clock,
@@ -129,7 +129,7 @@ const ColorPicker = ({
 }) => (
   <div>
     <p className="font-body text-sm font-medium text-foreground mb-2.5">
-      Select Color
+      Select Colour
     </p>
     <div className="flex gap-3">
       {colors.map((c) => (
@@ -161,42 +161,6 @@ const ColorPicker = ({
   </div>
 );
 
-/* Flower Picker (multi-select) */
-const FlowerPicker = ({
-  flowers,
-  selected,
-  onToggle,
-}: {
-  flowers: string[];
-  selected: string[];
-  onToggle: (f: string) => void;
-}) => (
-  <div>
-    <p className="font-body text-sm font-medium text-foreground mb-2.5">
-      Choose Flowers
-    </p>
-    <div className="flex flex-wrap gap-2">
-      {flowers.map((f) => {
-        const isActive = selected.includes(f);
-        return (
-          <button
-            key={f}
-            onClick={() => onToggle(f)}
-            className={`px-5 py-2.5 rounded-full text-sm font-body font-medium border transition-all duration-200 active:scale-95 ${
-              isActive
-                ? "bg-primary text-primary-foreground border-primary shadow-sm shadow-primary/20"
-                : "bg-card text-foreground border-border hover:border-primary/50 hover:bg-brand-blush/20"
-            }`}
-          >
-            {isActive && <Check size={14} className="inline mr-1.5 -mt-0.5" />}
-            {f}
-          </button>
-        );
-      })}
-    </div>
-  </div>
-);
-
 /* Bouquet Color Dropdown */
 const BouquetColorDropdown = ({
   colors,
@@ -209,7 +173,7 @@ const BouquetColorDropdown = ({
 }) => (
   <div>
     <label className="font-body text-sm font-medium text-foreground block mb-2.5">
-      Select Color
+      Select Colour
     </label>
     <select
       value={selected ?? ""}
@@ -217,7 +181,7 @@ const BouquetColorDropdown = ({
       className="w-full rounded-xl border border-border bg-card px-4 py-3 text-sm font-body text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 transition-shadow"
     >
       <option value="" disabled>
-        Choose a color...
+        Choose a colour...
       </option>
       {colors.map((c) => (
         <option key={c.name} value={c.name}>
@@ -285,7 +249,6 @@ const trustItems = [
 ];
 
 /* Default bouquet options */
-const defaultFlowers = ["Rose", "Sunflower", "Tulip"];
 const defaultBouquetColors = [
   { name: "Red", value: "hsl(0 70% 55%)" },
   { name: "Yellow", value: "hsl(45 90% 60%)" },
@@ -309,16 +272,10 @@ const ProductPage = () => {
   }, [id]);
 
   const [selectedColor, setSelectedColor] = useState<string | null>(null);
-  const [selectedFlowers, setSelectedFlowers] = useState<string[]>([]);
   const [bouquetColor, setBouquetColor] = useState<string | null>(null);
   const [customChanges, setCustomChanges] = useState("");
   const [cartFeedback, setCartFeedback] = useState("");
 
-  const toggleFlower = useCallback((f: string) => {
-    setSelectedFlowers((prev) =>
-      prev.includes(f) ? prev.filter((x) => x !== f) : [...prev, f]
-    );
-  }, []);
 
   const isTeddy = product?.type === "teddy";
   const isBouquet = product?.type === "bouquet";
@@ -327,13 +284,13 @@ const ProductPage = () => {
   const canBuy =
     !needsSelection ||
     (isTeddy && selectedColor !== null) ||
-    (isBouquet && selectedFlowers.length > 0 && bouquetColor !== null);
+    (isBouquet && bouquetColor !== null);
 
   const handleBuyNow = () => {
     if (!product || !canBuy) return;
     const params = new URLSearchParams({ product: product.id });
-    if (selectedColor) params.set("color", selectedColor);
-    if (selectedFlowers.length > 0) params.set("flowers", selectedFlowers.join(","));
+    const chosenColor = isBouquet ? bouquetColor : selectedColor;
+    if (chosenColor) params.set("color", chosenColor);
     if (customChanges.trim()) params.set("custom", customChanges.trim());
     navigate(`/checkout?${params.toString()}`);
   };
@@ -341,8 +298,7 @@ const ProductPage = () => {
   const handleAddToCart = () => {
     if (!product || !canBuy) return;
     addCartItem(product, {
-      color: selectedColor,
-      flowers: selectedFlowers,
+      color: isBouquet ? bouquetColor : selectedColor,
       custom: customChanges,
     });
     setCartFeedback("Added to cart");
@@ -468,32 +424,21 @@ const ProductPage = () => {
                   )}
 
                   {isBouquet && (
-                    <>
-                      <FlowerPicker
-                        flowers={product.flowers ?? defaultFlowers}
-                        selected={selectedFlowers}
-                        onToggle={toggleFlower}
-                      />
+                    <div className="space-y-2">
                       <BouquetColorDropdown
                         colors={product.flowerColors ?? defaultBouquetColors}
                         selected={bouquetColor}
                         onSelect={setBouquetColor}
                       />
-                      {selectedFlowers.length > 0 && (
+                      <p className="text-xs text-muted-foreground">
+                        If you want any other colour, write it in the customise order box below.
+                      </p>
+                      {bouquetColor && (
                         <p className="text-xs text-muted-foreground">
-                          Selected:{" "}
-                          <span className="font-semibold text-foreground">
-                            {selectedFlowers.join(", ")}
-                          </span>
-                          {bouquetColor && (
-                            <>
-                              {" "}in{" "}
-                              <span className="font-semibold text-foreground">{bouquetColor}</span>
-                            </>
-                          )}
+                          Selected colour: <span className="font-semibold text-foreground">{bouquetColor}</span>
                         </p>
                       )}
-                    </>
+                    </div>
                   )}
                 </div>
               </FadeIn>
@@ -511,12 +456,12 @@ const ProductPage = () => {
                     </span>
                   </div>
                   <p className="text-xs text-muted-foreground font-body">
-                    Want specific colors, name stitching, or size adjustments? Describe them below:
+                    Want another flower colour, name stitching, or size adjustments? Describe them below:
                   </p>
                   <textarea
                     value={customChanges}
                     onChange={(e) => setCustomChanges(e.target.value)}
-                    placeholder="E.g. Change color to pastel blue, stitch name 'Priya', make it slightly larger..."
+                    placeholder="E.g. I want pastel blue flowers, stitch name 'Priya', make it slightly larger..."
                     rows={3}
                     className="w-full rounded-xl border border-border bg-card px-4 py-3 text-sm font-body text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/40 transition-all duration-200 resize-none"
                     aria-label="Write custom changes for this product"
@@ -556,8 +501,8 @@ const ProductPage = () => {
                 {needsSelection && !canBuy && (
                   <p className="text-xs text-destructive font-body mt-3">
                     {isTeddy
-                      ? "Please select a color before buying."
-                      : "Please select flowers and a color before buying."}
+                      ? "Please select a colour before buying."
+                      : "Please select a colour before buying."}
                   </p>
                 )}
               </FadeIn>
