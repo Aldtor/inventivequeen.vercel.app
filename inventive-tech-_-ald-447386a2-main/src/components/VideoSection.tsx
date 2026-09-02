@@ -12,7 +12,7 @@ const videos = [
 
 const VideoSection = () => {
   return (
-    <section className="py-20 md:py-28 bg-background border-t border-border/30 relative">
+    <section className="py-20 md:py-28 border-t border-purple-200/50 relative">
       <div className="container max-w-5xl relative z-10">
         <div className="text-center max-w-2xl mx-auto mb-12">
           <FadeIn>

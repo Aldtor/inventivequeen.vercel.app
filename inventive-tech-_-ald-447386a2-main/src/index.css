@@ -7,8 +7,8 @@
 /* ─── BASE LAYER ──────────────────────────────────────────────── */
 @layer base {
   :root {
-    /* Soft lilac/lavender canvas background matching the logo */
-    --background: 275 50% 98.5%;
+    /* Soft rich lilac/lavender canvas background matching the logo */
+    --background: 275 42% 94%;
     /* Deep plum/purple foreground text for high contrast & cozy warmth */
     --foreground: 275 65% 14%;
 
@@ -23,32 +23,32 @@
     --primary-foreground: 0 0% 100%;
 
     /* Soft lavender secondary */
-    --secondary: 275 45% 95%;
+    --secondary: 275 45% 92%;
     --secondary-foreground: 272 60% 28%;
 
-    --muted: 275 30% 94%;
-    --muted-foreground: 275 22% 46%;
+    --muted: 275 30% 90%;
+    --muted-foreground: 275 22% 44%;
 
-    --accent: 275 55% 93%;
+    --accent: 275 55% 91%;
     --accent-foreground: 272 70% 32%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
     /* Lavender subtle borders */
-    --border: 275 35% 90%;
-    --input: 275 35% 90%;
+    --border: 275 35% 86%;
+    --input: 275 35% 86%;
     --ring: 270 75% 58%;
 
     --radius: 1.25rem;
 
-    --sidebar-background: 275 45% 99%;
+    --sidebar-background: 275 42% 96%;
     --sidebar-foreground: 275 40% 25%;
     --sidebar-primary: 270 75% 58%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 275 45% 94%;
+    --sidebar-accent: 275 45% 92%;
     --sidebar-accent-foreground: 275 65% 14%;
-    --sidebar-border: 275 30% 91%;
+    --sidebar-border: 275 30% 88%;
     --sidebar-ring: 270 75% 58%;
 
     /* ── Brand Tokens Matching Logo ── */
@@ -79,10 +79,13 @@
   body {
     @apply bg-background text-foreground antialiased;
     font-family: 'Plus Jakarta Sans', 'Inter', system-ui, -apple-system, sans-serif;
-    background-color: #fbf8fe;
-    /* CyDoes Craft signature polka dot background */
-    background-image: radial-gradient(hsl(275 45% 85% / 0.65) 1.5px, transparent 1.5px);
-    background-size: 26px 26px;
+    background-color: #f2eaf9;
+    /* Rich purple craft texture matching logo */
+    background-image: 
+      radial-gradient(hsl(275 52% 68% / 0.55) 1.8px, transparent 1.8px),
+      radial-gradient(hsl(275 45% 82% / 0.45) 1.2px, transparent 1.2px);
+    background-size: 26px 26px, 13px 13px;
+    background-position: 0 0, 13px 13px;
     background-attachment: fixed;
   }
 
@@ -126,10 +129,13 @@
 /* ─── COMPONENTS ──────────────────────────────────────────────── */
 @layer components {
 
-  /* ── CyDoes Craft Polka Dot Grid ── */
+  /* ── CyDoes Craft Purple Texture Grid ── */
   .bg-craft-dots {
-    background-image: radial-gradient(hsl(275 45% 84% / 0.7) 1.5px, transparent 1.5px);
-    background-size: 26px 26px;
+    background-image: 
+      radial-gradient(hsl(275 52% 68% / 0.55) 1.8px, transparent 1.8px),
+      radial-gradient(hsl(275 45% 82% / 0.45) 1.2px, transparent 1.2px);
+    background-size: 26px 26px, 13px 13px;
+    background-position: 0 0, 13px 13px;
   }
 
   /* ── Card Hover Lift ── */

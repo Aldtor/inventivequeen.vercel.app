@@ -60,8 +60,8 @@ const PricelistSection = () => {
   const filteredItems = activeTab === "all" ? pricelistItems : pricelistItems.filter((i) => i.category === activeTab);
 
   return (
-    <section id="pricelist" className="py-20 md:py-28 bg-background relative">
-      <div className="absolute inset-0 bg-premium-mesh pointer-events-none opacity-50" />
+    <section id="pricelist" className="py-20 md:py-28 relative">
+      <div className="absolute inset-0 bg-premium-mesh pointer-events-none opacity-30" />
 
       <div className="container max-w-6xl relative z-10">
         <div className="text-center max-w-2xl mx-auto mb-12">

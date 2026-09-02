@@ -33,10 +33,6 @@ const steps = [
 const HowToOrderSection = () => {
   return (
     <section id="how-to-order" className="py-20 md:py-28 relative overflow-hidden">
-      {/* Background */}
-      <div className="absolute inset-0 bg-gradient-to-b from-purple-50/30 via-background to-background" />
-      <div className="absolute inset-0 bg-craft-dots opacity-[0.025] pointer-events-none" />
-
       <div className="container max-w-5xl relative z-10">
         <div className="text-center max-w-2xl mx-auto mb-14">
           <FadeIn>

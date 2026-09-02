@@ -37,8 +37,7 @@ const FeaturedProducts = () => {
   if (featured.length === 0) return null;
 
   return (
-    <section className="py-20 md:py-28 bg-secondary/15 relative">
-      <div className="absolute inset-0 bg-craft-dots opacity-[0.02] pointer-events-none" />
+    <section className="py-20 md:py-28 relative">
 
       <div className="container relative z-10">
         <FadeIn>

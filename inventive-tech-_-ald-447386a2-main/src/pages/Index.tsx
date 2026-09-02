@@ -14,7 +14,7 @@ import VideoSection from "@/components/VideoSection";
 import Footer from "@/components/Footer";
 
 const Index = () => (
-  <div className="min-h-screen bg-background text-foreground font-body selection:bg-primary/15 selection:text-primary">
+  <div className="min-h-screen bg-[#f2eaf9] bg-craft-dots text-foreground font-body selection:bg-primary/15 selection:text-primary">
     <Navbar />
     <HeroSection />
     <MarqueeTicker />

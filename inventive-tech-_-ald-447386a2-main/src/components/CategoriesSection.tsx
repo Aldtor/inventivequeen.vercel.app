@@ -66,9 +66,9 @@ const CategoriesSection = () => {
   };
 
   return (
-    <section id="categories" className="py-20 md:py-28 bg-background relative overflow-hidden">
+    <section id="categories" className="py-20 md:py-28 relative overflow-hidden">
       {/* Subtle ambient background */}
-      <div className="absolute inset-0 bg-premium-mesh pointer-events-none" />
+      <div className="absolute inset-0 bg-premium-mesh pointer-events-none opacity-40" />
 
       <div className="container max-w-6xl relative z-10">
         <div className="text-center max-w-2xl mx-auto mb-14">

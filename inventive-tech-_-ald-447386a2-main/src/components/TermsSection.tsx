@@ -36,7 +36,7 @@ const TermsSection = () => {
   const toggle = (i: number) => setOpenIndex(openIndex === i ? null : i);
 
   return (
-    <section id="terms" className="py-20 md:py-28 bg-background relative">
+    <section id="terms" className="py-20 md:py-28 relative">
       <div className="container max-w-3xl relative z-10">
         <div className="text-center mb-12">
           <FadeIn>
