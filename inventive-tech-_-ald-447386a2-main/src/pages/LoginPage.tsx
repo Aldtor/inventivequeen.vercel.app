@@ -1,13 +1,14 @@
 import { useState } from "react";
 import type { ReactNode } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { KeyRound, Lock, Mail, UserRound } from "lucide-react";
+import { KeyRound, Lock, Mail, UserRound, Sparkles, ArrowRight } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { Button } from "@/components/ui/button";
 import { useAuth } from "@/lib/auth";
 import { getAuthRedirectUrl } from "@/lib/auth-redirect";
 import { isSupabaseConfigured, supabase } from "@/lib/supabase";
+import logo from "@/assets/logo.png";
+import { FadeIn } from "@/components/motion/FadeIn";
 
 const LoginPage = () => {
   const navigate = useNavigate();
@@ -74,7 +75,7 @@ const LoginPage = () => {
         return;
       }
 
-      setMessage("Account created. Please check your email to confirm your login.");
+      setMessage("✨ Account created! Please check your inbox to confirm your royal login.");
       setLoading(false);
       return;
     }
@@ -104,7 +105,7 @@ const LoginPage = () => {
       return;
     }
     if (!form.email.trim()) {
-      setMessage("Enter your email address first.");
+      setMessage("Please enter your email address first.");
       return;
     }
 
@@ -116,7 +117,7 @@ const LoginPage = () => {
     });
 
     setLoading(false);
-    setMessage(error ? error.message : "Password reset link sent. Please check your email.");
+    setMessage(error ? error.message : "✨ Password reset link sent! Check your inbox.");
   };
 
   const handleSignOut = async () => {
@@ -125,171 +126,201 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-background selection:bg-primary/15 selection:text-primary">
       <Navbar />
 
-      <main className="flex-1 bg-secondary/20">
-        <div className="container py-12 md:py-16">
-          <div className="max-w-md mx-auto bg-card rounded-2xl shadow-luxury-sm border border-border/50 p-6 md:p-8">
-            {user ? (
-              <div className="text-center space-y-4">
-                <div className="mx-auto w-14 h-14 rounded-2xl bg-brand-blush/60 flex items-center justify-center">
-                  <UserRound className="w-6 h-6 text-primary" />
-                </div>
-                <div>
-                  <h1 className="font-display text-2xl font-bold text-foreground">
-                    You are signed in
-                  </h1>
-                  <p className="mt-2 text-sm text-muted-foreground">{user.email}</p>
-                </div>
-                <Button asChild className="w-full rounded-xl">
-                  <Link to="/orders">View My Orders</Link>
-                </Button>
-                <Button variant="outline" onClick={handleSignOut} className="w-full rounded-xl">
-                  Sign Out
-                </Button>
-              </div>
-            ) : (
-              <>
-                <div className="text-center">
-                  <div className="mx-auto w-14 h-14 rounded-2xl bg-brand-blush/60 flex items-center justify-center">
-                    <Lock className="w-6 h-6 text-primary" />
+      <main className="flex-1 bg-fairytale-mesh py-12 md:py-20 flex items-center justify-center relative overflow-hidden">
+        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-96 h-96 bg-primary/10 rounded-full blur-3xl pointer-events-none" />
+
+        <div className="container max-w-md px-4 relative z-10">
+          <FadeIn>
+            <div className="glass-card rounded-3xl shadow-luxury-lg border border-border/60 p-6 sm:p-9 backdrop-blur-xl">
+              {user ? (
+                <div className="text-center space-y-5">
+                  <div className="mx-auto w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center border border-primary/20 text-primary">
+                    <UserRound size={28} />
                   </div>
-                  <h1 className="mt-4 font-display text-2xl font-bold text-foreground">
-                    {mode === "signin" ? "Sign In" : mode === "signup" ? "Create Account" : "Reset Password"}
-                  </h1>
-                  <p className="mt-2 text-sm text-muted-foreground">
-                    {mode === "forgot"
-                      ? "Enter your email and we'll send a secure reset link."
-                      : "Login to place orders and track handmade pieces."}
-                  </p>
-                </div>
-
-                <div className="mt-6 grid grid-cols-2 rounded-xl bg-secondary p-1">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setMode("signin");
-                      setMessage("");
-                    }}
-                    className={`py-2 rounded-lg text-sm font-body font-medium transition-all ${
-                      mode === "signin" ? "bg-card text-foreground shadow-sm" : "text-muted-foreground"
-                    }`}
-                  >
-                    Sign In
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setMode("signup");
-                      setMessage("");
-                    }}
-                    className={`py-2 rounded-lg text-sm font-body font-medium transition-all ${
-                      mode === "signup" ? "bg-card text-foreground shadow-sm" : "text-muted-foreground"
-                    }`}
-                  >
-                    Sign Up
-                  </button>
-                </div>
-
-                {mode === "forgot" ? (
-                  <form onSubmit={handleResetPassword} className="mt-6 space-y-4">
-                    <InputField
-                      label="Email"
-                      name="email"
-                      type="email"
-                      value={form.email}
-                      onChange={handleChange}
-                      placeholder="you@example.com"
-                      icon={<Mail size={15} />}
-                    />
-
-                    {message && (
-                      <p className="text-sm text-muted-foreground bg-secondary/70 rounded-xl px-4 py-3">
-                        {message}
-                      </p>
-                    )}
-
-                    <Button disabled={loading} className="w-full rounded-xl h-11">
-                      {loading ? "Sending..." : "Send Reset Link"}
-                    </Button>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setMode("signin");
-                        setMessage("");
-                      }}
-                      className="w-full text-sm font-body font-medium text-primary hover:text-primary/80"
+                  <div>
+                    <h1 className="font-display text-2xl font-bold text-foreground">
+                      Welcome Back!
+                    </h1>
+                    <p className="mt-1 text-xs sm:text-sm text-muted-foreground">{user.email}</p>
+                  </div>
+                  <div className="space-y-2.5 pt-2">
+                    <Link
+                      to="/orders"
+                      className="w-full inline-flex items-center justify-center gap-2 py-3 px-4 rounded-2xl btn-gradient text-white text-sm font-bold shadow-royal-glow hover:shadow-luxury transition-all"
                     >
-                      Back to sign in
+                      <Sparkles size={15} className="text-amber-200" />
+                      View My Royal Orders 👑
+                    </Link>
+                    <button
+                      onClick={handleSignOut}
+                      className="w-full py-2.5 rounded-xl border border-border/60 text-xs font-semibold text-muted-foreground hover:text-foreground hover:bg-secondary/60 transition-colors"
+                    >
+                      Sign Out
                     </button>
-                  </form>
-                ) : (
-                <form onSubmit={handleSubmit} className="mt-6 space-y-4">
-                  {mode === "signup" && (
-                    <>
-                      <InputField
-                        label="Full Name"
-                        name="name"
-                        value={form.name}
-                        onChange={handleChange}
-                        placeholder="Your name"
-                      />
-                      <InputField
-                        label="Phone"
-                        name="phone"
-                        value={form.phone}
-                        onChange={handleChange}
-                        placeholder="10-digit mobile number"
-                        maxLength={10}
-                      />
-                    </>
-                  )}
-                  <InputField
-                    label="Email"
-                    name="email"
-                    type="email"
-                    value={form.email}
-                    onChange={handleChange}
-                    placeholder="you@example.com"
-                    icon={<Mail size={15} />}
-                  />
-                  <InputField
-                    label="Password"
-                    name="password"
-                    type="password"
-                    value={form.password}
-                    onChange={handleChange}
-                    placeholder="At least 6 characters"
-                    minLength={6}
-                  />
-
-                  {message && (
-                    <p className="text-sm text-muted-foreground bg-secondary/70 rounded-xl px-4 py-3">
-                      {message}
+                  </div>
+                </div>
+              ) : (
+                <>
+                  <div className="text-center">
+                    <div className="relative mx-auto w-18 h-18 w-20 h-20 rounded-full p-1.5 bg-gradient-to-tr from-primary via-pink-400 to-amber-300 shadow-royal flex items-center justify-center mb-4 animate-glow-pulse">
+                      <img src={logo} alt="Inventive Queen" className="w-full h-full rounded-full object-cover" />
+                      <span className="absolute -bottom-1 -right-1 text-base select-none">👑</span>
+                    </div>
+                    <h1 className="font-display text-2xl md:text-3xl font-bold text-foreground">
+                      {mode === "signin" ? "Royal Atelier Sign In" : mode === "signup" ? "Join the Royal Club" : "Reset Password"}
+                    </h1>
+                    <p className="mt-2 text-xs text-muted-foreground leading-relaxed">
+                      {mode === "forgot"
+                        ? "Enter your email and we'll send a secure reset link."
+                        : "Track bespoke creations, view order status & exclusive drops."}
                     </p>
+                  </div>
+
+                  {mode !== "forgot" && (
+                    <div className="mt-6 grid grid-cols-2 rounded-2xl bg-secondary/70 p-1 border border-border/40">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setMode("signin");
+                          setMessage("");
+                        }}
+                        className={`py-2 rounded-xl text-xs font-bold transition-all ${
+                          mode === "signin" ? "bg-card text-foreground shadow-sm shadow-black/5" : "text-muted-foreground hover:text-foreground"
+                        }`}
+                      >
+                        Sign In
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setMode("signup");
+                          setMessage("");
+                        }}
+                        className={`py-2 rounded-xl text-xs font-bold transition-all ${
+                          mode === "signup" ? "bg-card text-foreground shadow-sm shadow-black/5" : "text-muted-foreground hover:text-foreground"
+                        }`}
+                      >
+                        Create Account
+                      </button>
+                    </div>
                   )}
 
-                  <Button disabled={loading} className="w-full rounded-xl h-11">
-                    {loading ? "Please wait..." : mode === "signin" ? "Sign In" : "Create Account"}
-                  </Button>
-                  {mode === "signin" && (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setMode("forgot");
-                        setMessage("");
-                      }}
-                      className="w-full text-sm font-body font-medium text-primary hover:text-primary/80"
-                    >
-                      Forgot password?
-                    </button>
+                  {mode === "forgot" ? (
+                    <form onSubmit={handleResetPassword} className="mt-6 space-y-4">
+                      <InputField
+                        label="Email"
+                        name="email"
+                        type="email"
+                        value={form.email}
+                        onChange={handleChange}
+                        placeholder="you@example.com"
+                        icon={<Mail size={15} />}
+                      />
+
+                      {message && (
+                        <p className="text-xs text-primary font-medium bg-primary/8 border border-primary/15 rounded-xl px-4 py-3">
+                          {message}
+                        </p>
+                      )}
+
+                      <button
+                        type="submit"
+                        disabled={loading}
+                        className="w-full py-3.5 rounded-2xl btn-gradient text-white text-xs font-bold shadow-royal-glow hover:shadow-luxury active:scale-95 disabled:opacity-40 transition-all flex items-center justify-center gap-2"
+                      >
+                        <Sparkles size={14} className="text-amber-200" />
+                        <span>{loading ? "Sending link..." : "Send Reset Link"}</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setMode("signin");
+                          setMessage("");
+                        }}
+                        className="w-full text-xs font-semibold text-primary hover:underline"
+                      >
+                        Back to sign in
+                      </button>
+                    </form>
+                  ) : (
+                    <form onSubmit={handleSubmit} className="mt-6 space-y-4">
+                      {mode === "signup" && (
+                        <>
+                          <InputField
+                            label="Full Name"
+                            name="name"
+                            value={form.name}
+                            onChange={handleChange}
+                            placeholder="Your full name"
+                          />
+                          <InputField
+                            label="Phone Number"
+                            name="phone"
+                            value={form.phone}
+                            onChange={handleChange}
+                            placeholder="10-digit mobile number"
+                            maxLength={10}
+                          />
+                        </>
+                      )}
+                      <InputField
+                        label="Email Address"
+                        name="email"
+                        type="email"
+                        value={form.email}
+                        onChange={handleChange}
+                        placeholder="you@example.com"
+                        icon={<Mail size={15} />}
+                      />
+                      <InputField
+                        label="Password"
+                        name="password"
+                        type="password"
+                        value={form.password}
+                        onChange={handleChange}
+                        placeholder="At least 6 characters"
+                        minLength={6}
+                        icon={<Lock size={15} />}
+                      />
+
+                      {message && (
+                        <p className="text-xs text-primary font-medium bg-primary/8 border border-primary/15 rounded-xl px-4 py-3">
+                          {message}
+                        </p>
+                      )}
+
+                      <button
+                        type="submit"
+                        disabled={loading}
+                        className="w-full py-3.5 rounded-2xl btn-gradient text-white text-xs font-bold shadow-royal-glow hover:shadow-luxury active:scale-95 disabled:opacity-40 transition-all flex items-center justify-center gap-2"
+                      >
+                        <Sparkles size={14} className="text-amber-200" />
+                        <span>{loading ? "Processing..." : mode === "signin" ? "Sign In to Atelier" : "Create Royal Account ✨"}</span>
+                      </button>
+
+                      {mode === "signin" && (
+                        <div className="text-center pt-1">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setMode("forgot");
+                              setMessage("");
+                            }}
+                            className="text-xs font-medium text-muted-foreground hover:text-primary transition-colors"
+                          >
+                            Forgot your password?
+                          </button>
+                        </div>
+                      )}
+                    </form>
                   )}
-                </form>
-                )}
-              </>
-            )}
-          </div>
+                </>
+              )}
+            </div>
+          </FadeIn>
         </div>
       </main>
 
@@ -320,10 +351,10 @@ function InputField({
   icon?: ReactNode;
 }) {
   return (
-    <div className="space-y-2">
-      <label className="font-body text-sm font-medium text-foreground">{label}</label>
+    <div className="space-y-1.5 text-left">
+      <label className="font-body text-xs font-semibold text-foreground uppercase tracking-wider">{label}</label>
       <div className="relative">
-        {icon && <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">{icon}</span>}
+        {icon && <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground">{icon}</span>}
         <input
           type={type}
           name={name}
@@ -333,8 +364,8 @@ function InputField({
           maxLength={maxLength}
           minLength={minLength}
           required
-          className={`w-full rounded-xl border border-border bg-background px-4 py-3 text-sm font-body text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/40 transition-all ${
-            icon ? "pl-9" : ""
+          className={`w-full rounded-2xl border border-border/70 bg-card px-4 py-3 text-sm font-body text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/30 transition-all ${
+            icon ? "pl-10" : ""
           }`}
         />
       </div>

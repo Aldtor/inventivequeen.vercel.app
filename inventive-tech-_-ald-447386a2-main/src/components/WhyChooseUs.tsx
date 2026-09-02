@@ -1,74 +1,112 @@
-import { Heart, Palette, Gem, Gift } from "lucide-react";
+import { ShieldCheck, Heart, Sparkles, Zap, Crown, Package } from "lucide-react";
 import { FadeIn } from "@/components/motion/FadeIn";
-import { StaggerChildren, StaggerItem } from "@/components/motion/StaggerChildren";
 
-const reasons = [
+const features = [
   {
     icon: Heart,
-    title: "Handmade with Care",
-    desc: "Every piece is crocheted by hand, stitch by stitch — no two are ever exactly alike.",
-    highlight: "100% handcrafted",
+    iconBg: "bg-rose-100 text-rose-600",
+    title: "Handmade with Love",
+    desc: "Every single stitch is crafted by hand with care, patience, and creative passion.",
   },
   {
-    icon: Palette,
-    title: "Customizable Gifts",
-    desc: "Pick your colours, flowers, and tiny details so your gift feels truly personal.",
-    highlight: "Made to order",
+    icon: ShieldCheck,
+    iconBg: "bg-emerald-100 text-emerald-600",
+    title: "Quality Promise",
+    desc: "Premium milk cotton yarn and secure stitching that lasts for years to come.",
   },
   {
-    icon: Gem,
-    title: "Premium Yarn Quality",
-    desc: "We use soft, durable yarn so your keepsake stays beautiful for years to come.",
-    highlight: "Lasts forever",
+    icon: Sparkles,
+    iconBg: "bg-amber-100 text-amber-600",
+    title: "100% Customizable",
+    desc: "Send any reference photo — anime, pet, loved one — and we'll bring it to life.",
   },
   {
-    icon: Gift,
-    title: "Perfect for Gifting",
-    desc: "Lovingly packed and ready to delight — birthdays, anniversaries, or just because.",
-    highlight: "Gift-ready packaging",
+    icon: Crown,
+    iconBg: "bg-purple-100 text-purple-600",
+    title: "Royal Packaging",
+    desc: "Gift-ready packaging with ribbons, tissue, and handwritten notes on every order.",
   },
+  {
+    icon: Package,
+    iconBg: "bg-blue-100 text-blue-600",
+    title: "Safe Pan-India Shipping",
+    desc: "Carefully bubble-wrapped and shipped securely to any pincode across India.",
+  },
+  {
+    icon: Zap,
+    iconBg: "bg-pink-100 text-pink-600",
+    title: "Fast Turnaround",
+    desc: "Most orders are handcrafted and shipped within 3–7 business days.",
+  },
+];
+
+const stats = [
+  { value: "1,200+", label: "Pieces Crafted" },
+  { value: "300+", label: "Happy Customers" },
+  { value: "4.9★", label: "Average Rating" },
+  { value: "3–7", label: "Days Delivery" },
 ];
 
 const WhyChooseUs = () => {
   return (
-    <section id="custom" className="py-20 md:py-28 lg:py-32">
-      <div className="container">
-        <FadeIn>
-          <p className="text-center text-xs uppercase tracking-[0.25em] text-primary font-body font-semibold">
-            Why Inventive Queen
-          </p>
-        </FadeIn>
-        <FadeIn delay={0.1}>
-          <h2 className="mt-3 font-display text-3xl md:text-4xl lg:text-[2.75rem] font-bold text-center text-foreground text-balance">
-            Crafted with Love, Made to Last
-          </h2>
-        </FadeIn>
-        <FadeIn delay={0.15}>
-          <p className="mt-4 text-center text-muted-foreground max-w-lg mx-auto text-pretty leading-relaxed">
-            What makes every Inventive Queen creation special — and worth gifting.
-          </p>
+    <section id="why-choose-us" className="py-20 md:py-28 bg-secondary/20 border-t border-border/30 relative overflow-hidden">
+      <div className="absolute inset-0 bg-craft-dots opacity-[0.025] pointer-events-none" />
+
+      <div className="container max-w-6xl relative z-10">
+        <div className="text-center max-w-2xl mx-auto mb-14">
+          <FadeIn>
+            <div className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-primary/8 border border-primary/15 text-primary text-xs uppercase tracking-[0.22em] font-semibold mb-4">
+              <span>👑</span> Why Inventive Queen
+            </div>
+          </FadeIn>
+          <FadeIn delay={0.1}>
+            <h2 className="font-display text-3xl md:text-4xl lg:text-[2.75rem] font-bold text-foreground text-balance">
+              Why Customers Choose Us
+            </h2>
+          </FadeIn>
+          <FadeIn delay={0.15}>
+            <p className="mt-4 text-sm md:text-base text-muted-foreground leading-relaxed">
+              Every piece leaving our atelier carries a promise of quality, care, and artisan craftsmanship.
+            </p>
+          </FadeIn>
+        </div>
+
+        {/* Stats Bar */}
+        <FadeIn delay={0.2}>
+          <div className="mb-14 grid grid-cols-2 md:grid-cols-4 gap-4">
+            {stats.map((s) => (
+              <div
+                key={s.label}
+                className="text-center py-6 px-4 rounded-2xl glass-card shadow-luxury-sm"
+              >
+                <p className="font-display text-2xl md:text-3xl font-bold text-gradient-royal">{s.value}</p>
+                <p className="text-xs text-muted-foreground font-medium mt-1">{s.label}</p>
+              </div>
+            ))}
+          </div>
         </FadeIn>
 
-        <StaggerChildren className="mt-12 md:mt-16 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 md:gap-6">
-          {reasons.map((r) => (
-            <StaggerItem key={r.title}>
-              <div className="group relative flex flex-col items-center text-center p-7 md:p-8 rounded-2xl bg-card shadow-luxury-sm border border-border/40 hover:border-primary/20 hover:shadow-luxury transition-all duration-300">
-                <div className="w-14 h-14 rounded-2xl bg-brand-blush/60 flex items-center justify-center mb-5 group-hover:scale-105 transition-transform duration-300">
-                  <r.icon className="w-6 h-6 text-primary" />
+        {/* Feature Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+          {features.map((f, i) => {
+            const Icon = f.icon;
+            return (
+              <FadeIn key={f.title} delay={0.1 + i * 0.05}>
+                <div className="h-full bg-card rounded-2xl p-6 border border-border/50 hover:border-primary/20 shadow-luxury-sm hover:shadow-luxury transition-all duration-400 group">
+                  <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-4 ${f.iconBg} group-hover:scale-110 transition-transform duration-300 shadow-sm`}>
+                    <Icon size={20} />
+                  </div>
+                  <h4 className="font-display text-base font-bold text-foreground group-hover:text-primary transition-colors duration-300">
+                    {f.title}
+                  </h4>
+                  <p className="mt-2 text-xs text-muted-foreground leading-relaxed">
+                    {f.desc}
+                  </p>
                 </div>
-                <h3 className="font-display text-lg font-semibold text-foreground">
-                  {r.title}
-                </h3>
-                <p className="mt-2.5 text-sm text-muted-foreground leading-relaxed text-pretty">
-                  {r.desc}
-                </p>
-                <span className="mt-5 inline-block text-[10px] uppercase tracking-wider font-semibold text-primary/80 bg-brand-blush/40 rounded-full px-3 py-1">
-                  {r.highlight}
-                </span>
-              </div>
-            </StaggerItem>
-          ))}
-        </StaggerChildren>
+              </FadeIn>
+            );
+          })}
+        </div>
       </div>
     </section>
   );

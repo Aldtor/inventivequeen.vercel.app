@@ -41,12 +41,12 @@ const ZoomModal = ({
   onClose: () => void;
 }) => (
   <div
-    className="fixed inset-0 z-[60] flex items-center justify-center bg-foreground/60 backdrop-blur-sm cursor-zoom-out"
+    className="fixed inset-0 z-[60] flex items-center justify-center bg-foreground/50 backdrop-blur-md cursor-zoom-out"
     onClick={onClose}
   >
     <button
       onClick={onClose}
-      className="absolute top-4 right-4 p-2 rounded-full bg-card text-foreground hover:bg-card/80 transition-colors active:scale-95"
+      className="absolute top-4 right-4 p-2.5 rounded-full glass-card text-foreground hover:bg-white transition-all active:scale-95 shadow-luxury"
       aria-label="Close zoom"
     >
       <X size={20} />
@@ -75,7 +75,7 @@ const ImageGallery = ({ images, name }: { images: string[]; name: string }) => {
       )}
       <div className="flex flex-col gap-3">
         <div
-          className="aspect-square overflow-hidden rounded-2xl bg-white shadow-luxury cursor-zoom-in group"
+          className="aspect-square overflow-hidden rounded-2xl bg-gradient-to-br from-purple-50/40 via-white to-pink-50/20 shadow-luxury-lg cursor-zoom-in group border border-border/30"
           onClick={() => setZoomed(true)}
         >
           <AnimatePresence mode="wait">
@@ -97,10 +97,10 @@ const ImageGallery = ({ images, name }: { images: string[]; name: string }) => {
               <button
                 key={i}
                 onClick={() => setActive(i)}
-                className={`w-16 h-16 md:w-20 md:h-20 rounded-xl overflow-hidden border-2 transition-all duration-200 active:scale-95 flex-shrink-0 ${
+                className={`w-16 h-16 md:w-20 md:h-20 rounded-xl overflow-hidden border-2 transition-all duration-200 active:scale-95 flex-shrink-0 bg-white ${
                   i === active
-                    ? "border-primary shadow-md"
-                    : "border-transparent opacity-60 hover:opacity-100"
+                    ? "border-primary shadow-luxury"
+                    : "border-border/40 opacity-60 hover:opacity-100"
                 }`}
               >
                 <img
@@ -138,8 +138,8 @@ const ColorPicker = ({
           onClick={() => onSelect(c.name)}
           className={`relative w-11 h-11 rounded-full border-2 transition-all duration-200 active:scale-90 ${
             selected === c.name
-              ? "border-primary scale-110 shadow-md shadow-primary/20"
-              : "border-border hover:scale-105 hover:border-primary/40"
+              ? "border-primary scale-110 shadow-royal"
+              : "border-border/50 hover:scale-105 hover:border-primary/30"
           }`}
           style={{ backgroundColor: c.value }}
           aria-label={c.name}
@@ -178,7 +178,7 @@ const BouquetColorDropdown = ({
     <select
       value={selected ?? ""}
       onChange={(e) => onSelect(e.target.value)}
-      className="w-full rounded-xl border border-border bg-card px-4 py-3 text-sm font-body text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 transition-shadow"
+      className="w-full rounded-xl border border-border/50 bg-card px-4 py-3 text-sm font-body text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/30 transition-all"
     >
       <option value="" disabled>
         Choose a colour...
@@ -447,25 +447,25 @@ const ProductPage = () => {
 
               {/* Custom Changes / Customisation */}
               <FadeIn delay={0.23}>
-                <div className="bg-brand-blush/20 rounded-2xl p-4 border border-primary/20 space-y-2">
+                <div className="glass-card rounded-2xl p-5 shadow-luxury-sm space-y-2.5">
                   <div className="flex items-center gap-2">
                     <Pencil size={15} className="text-primary" />
-                    <p className="font-body text-sm font-semibold text-foreground">
-                      Write Custom Changes for Product
+                    <p className="font-body text-sm font-bold text-foreground">
+                      Bespoke Customization Request
                     </p>
-                    <span className="text-[10px] uppercase tracking-wider text-primary font-body font-semibold ml-auto bg-primary/10 px-2 py-0.5 rounded-full">
+                    <span className="text-[10px] uppercase tracking-wider text-primary font-body font-bold ml-auto bg-purple-500/10 border border-purple-500/20 px-2.5 py-0.5 rounded-full">
                       Optional
                     </span>
                   </div>
-                  <p className="text-xs text-muted-foreground font-body">
-                    Want another flower colour, name stitching, or size adjustments? Describe them below:
+                  <p className="text-xs text-muted-foreground font-body leading-relaxed">
+                    Want another flower colour, name embroidery, custom outfit, or size change? Let us know:
                   </p>
                   <textarea
                     value={customChanges}
                     onChange={(e) => setCustomChanges(e.target.value)}
-                    placeholder="E.g. I want pastel blue flowers, stitch name 'Priya', make it slightly larger..."
+                    placeholder="E.g. I want lavender & cream roses, stitch name 'Aarav' on ribbon, wrap with gold paper..."
                     rows={3}
-                    className="w-full rounded-xl border border-border bg-card px-4 py-3 text-sm font-body text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/40 transition-all duration-200 resize-none"
+                    className="w-full rounded-xl border border-border/50 bg-card px-4 py-3 text-sm font-body text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/30 transition-all duration-200 resize-none"
                     aria-label="Write custom changes for this product"
                   />
                 </div>
@@ -473,24 +473,24 @@ const ProductPage = () => {
 
               {/* Buttons */}
               <FadeIn delay={0.25}>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 pt-2">
                   <Button
                     variant="outline"
                     size="lg"
                     disabled={!canBuy}
                     onClick={handleAddToCart}
-                    className="w-full rounded-xl text-base border-primary/30 hover:border-primary/60 active:scale-[0.97] transition-all duration-200"
+                    className="w-full rounded-2xl text-sm font-bold border-2 border-border/60 hover:border-primary hover:bg-primary/5 active:scale-[0.97] transition-all duration-200"
                   >
-                    <ShoppingCart size={18} />
-                    Add to Cart
+                    <ShoppingCart size={17} className="text-primary" />
+                    Add to Bag
                   </Button>
                   <Button
                     size="lg"
                     disabled={!canBuy}
                     onClick={handleBuyNow}
-                    className="w-full rounded-xl text-base shadow-md shadow-primary/15 hover:shadow-lg hover:shadow-primary/25 active:scale-[0.97] transition-all duration-200"
+                    className="w-full rounded-2xl text-sm font-bold btn-gradient text-white shadow-royal-glow hover:shadow-luxury-lg active:scale-[0.97] transition-all duration-200"
                   >
-                    Buy Now
+                    Instant Buy Now ✨
                   </Button>
                 </div>
 
@@ -593,9 +593,9 @@ const ProductPage = () => {
                 <StaggerItem key={p.id}>
                   <Link
                     to={`/product/${p.id}`}
-                    className="group card-lift overflow-hidden rounded-2xl bg-card shadow-luxury-sm block"
+                    className="group card-lift overflow-hidden rounded-2xl bg-card border border-border/40 shadow-luxury-sm block"
                   >
-                    <div className="aspect-square overflow-hidden bg-white relative">
+                    <div className="aspect-square overflow-hidden bg-gradient-to-br from-purple-50/30 via-white to-pink-50/15 relative">
                       <img
                         src={p.images[0]}
                         alt={p.name}

@@ -1,68 +1,168 @@
-import { Link } from "react-router-dom";
-import catBouquets from "@/assets/cat-bouquets.jpg";
-import catPlush from "@/assets/cat-plush.jpg";
-import catKeychains from "@/assets/product-panda.jpeg";
-import { categories as catData } from "@/lib/products";
+import { ArrowRight, Sparkles, Heart, Flower2, Gift, Palette } from "lucide-react";
 import { FadeIn } from "@/components/motion/FadeIn";
 import { StaggerChildren, StaggerItem } from "@/components/motion/StaggerChildren";
 
-const imageBySlug: Record<string, string> = {
-  bouquet: catBouquets,
-  doll: catPlush,
-  keychain: catKeychains,
-};
+import catPlush from "@/assets/cat-plush.jpg";
+import catBouquets from "@/assets/cat-bouquets.jpg";
+import productBunny from "@/assets/product-bunny-heart-keychain.png";
+
+const categories = [
+  {
+    title: "Crochet Dolls",
+    desc: "Mini chibi, classic amigurumi, seated plushies, and custom anime dolls — all made-to-order.",
+    image: catPlush,
+    targetId: "pricelist",
+    badge: "Most Popular",
+    price: "From ₹699",
+  },
+  {
+    title: "Characters & Plushies",
+    desc: "Cute mascots, adorable animals, and non-human bespoke creatures crafted lovingly in yarn.",
+    image: productBunny,
+    targetId: "pricelist",
+    badge: "Bespoke Requests",
+    price: "From ₹299",
+  },
+  {
+    title: "Crochet Flowers",
+    desc: "Everlasting floral arrangements and romantic bouquets that preserve moments forever.",
+    image: catBouquets,
+    targetId: "pricelist",
+    badge: "Forever Keepsake",
+    price: "From ₹499",
+  },
+];
+
+const values = [
+  {
+    icon: Palette,
+    iconBg: "bg-purple-100 text-purple-600",
+    title: "100% Customized",
+    desc: "Send reference photos of your favorite anime, game character, or loved one.",
+  },
+  {
+    icon: Flower2,
+    iconBg: "bg-pink-100 text-pink-600",
+    title: "Everlasting Blooms",
+    desc: "Crochet bouquets that keep their vibrant colors forever — zero watering needed.",
+  },
+  {
+    icon: Heart,
+    iconBg: "bg-rose-100 text-rose-600",
+    title: "Royal Atelier Care",
+    desc: "Stitch by stitch crafted with love using ultra-soft milk cotton yarn.",
+  },
+  {
+    icon: Gift,
+    iconBg: "bg-amber-100 text-amber-600",
+    title: "Aesthetic Gifting",
+    desc: "Packed with ribbons, wax seal notes, and delivered safely all over India.",
+  },
+];
 
 const CategoriesSection = () => {
-  return (
-    <section id="categories" className="py-20 md:py-28 lg:py-32">
-      <div className="container">
-        <FadeIn>
-          <p className="text-center text-xs uppercase tracking-[0.25em] text-primary font-body font-semibold">
-            Browse Collections
-          </p>
-        </FadeIn>
-        <FadeIn delay={0.1}>
-          <h2 className="mt-3 font-display text-3xl md:text-4xl lg:text-[2.75rem] font-bold text-center text-foreground text-balance">
-            Our Handmade Categories
-          </h2>
-        </FadeIn>
-        <FadeIn delay={0.15}>
-          <p className="mt-4 text-center text-muted-foreground max-w-lg mx-auto text-pretty leading-relaxed">
-            Explore our handcrafted collections — each piece made with love and premium yarn.
-          </p>
-        </FadeIn>
+  const handleScrollTo = (id: string) => {
+    document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
+  };
 
-        <StaggerChildren className="mt-12 md:mt-16 grid grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-          {catData.map((cat) => (
-            <StaggerItem key={cat.slug}>
-              <Link
-                to={`/category/${cat.slug}`}
-                className="group cursor-pointer block"
-              >
-                <div className="card-lift overflow-hidden rounded-2xl bg-card shadow-luxury-sm">
-                  <div className="aspect-square overflow-hidden relative">
-                    <img
-                      src={imageBySlug[cat.slug]}
-                      alt={cat.title}
-                      loading="lazy"
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
-                    />
-                    {/* Hover overlay */}
-                    <div className="absolute inset-0 bg-foreground/0 group-hover:bg-foreground/10 transition-colors duration-500" />
-                  </div>
-                  <div className="p-4 md:p-5 text-center">
-                    <h3 className="font-display text-base md:text-lg font-semibold text-foreground">
-                      {cat.title}
-                    </h3>
-                    <p className="mt-1.5 text-xs text-muted-foreground leading-relaxed line-clamp-2 hidden md:block">
-                      {cat.description}
-                    </p>
+  return (
+    <section id="categories" className="py-20 md:py-28 bg-background relative overflow-hidden">
+      {/* Subtle ambient background */}
+      <div className="absolute inset-0 bg-premium-mesh pointer-events-none" />
+
+      <div className="container max-w-6xl relative z-10">
+        <div className="text-center max-w-2xl mx-auto mb-14">
+          <FadeIn>
+            <div className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-primary/8 border border-primary/15 text-primary text-xs uppercase tracking-[0.22em] font-semibold mb-4">
+              <span>🛍️</span> Atelier Collections
+            </div>
+          </FadeIn>
+          <FadeIn delay={0.1}>
+            <h2 className="font-display text-3xl md:text-4xl lg:text-[2.75rem] font-bold text-foreground text-balance">
+              What I Craft For You
+            </h2>
+          </FadeIn>
+          <FadeIn delay={0.15}>
+            <p className="mt-4 text-sm md:text-base text-muted-foreground leading-relaxed">
+              Every creation is tailor-made to your vision. Choose a collection below to view designs and price guides.
+            </p>
+          </FadeIn>
+        </div>
+
+        {/* ── 3 Category Cards ── */}
+        <StaggerChildren className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {categories.map((c) => (
+            <StaggerItem key={c.title}>
+              <div className="h-full bg-card rounded-3xl overflow-hidden border border-border/60 hover:border-primary/30 shadow-luxury-sm hover:shadow-luxury-lg transition-all duration-500 flex flex-col group">
+                {/* Image */}
+                <div className="aspect-[4/3] overflow-hidden relative">
+                  <img
+                    src={c.image}
+                    alt={c.title}
+                    loading="lazy"
+                    className="w-full h-full object-cover group-hover:scale-[1.06] transition-transform duration-700"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/10 to-transparent" />
+
+                  <span className="absolute top-3.5 left-3.5 text-[10px] uppercase tracking-wider font-bold px-3 py-1 rounded-full bg-primary/90 text-white shadow-sm backdrop-blur-sm">
+                    {c.badge}
+                  </span>
+
+                  <span className="absolute bottom-3.5 right-3.5 text-xs font-bold px-3 py-1.5 rounded-full bg-white/90 text-foreground shadow-sm backdrop-blur-sm">
+                    {c.price}
+                  </span>
+                </div>
+
+                {/* Content */}
+                <div className="flex flex-col flex-1 p-6">
+                  <h3 className="font-display text-xl md:text-2xl font-bold text-foreground group-hover:text-primary transition-colors duration-300">
+                    {c.title}
+                  </h3>
+                  <p className="mt-2 text-xs md:text-sm text-muted-foreground leading-relaxed flex-1">
+                    {c.desc}
+                  </p>
+
+                  <div className="mt-5 pt-4 border-t border-border/40 flex items-center justify-between">
+                    <button
+                      onClick={() => handleScrollTo(c.targetId)}
+                      className="inline-flex items-center gap-1.5 text-xs font-bold text-primary transition-all group-hover:gap-2.5"
+                    >
+                      <span>Explore pricelist & gallery</span>
+                      <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform duration-300" />
+                    </button>
+                    <span className="text-sm select-none opacity-60">👑</span>
                   </div>
                 </div>
-              </Link>
+              </div>
             </StaggerItem>
           ))}
         </StaggerChildren>
+
+        {/* ── 4 Value Cards ── */}
+        <div className="mt-14 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {values.map((v) => {
+            const Icon = v.icon;
+            return (
+              <FadeIn key={v.title} delay={0.1}>
+                <div className="h-full glass-card rounded-2xl p-5 hover:shadow-luxury transition-all duration-300 flex flex-col group">
+                  <div className={`w-11 h-11 rounded-xl flex items-center justify-center mb-4 ${v.iconBg} group-hover:scale-110 transition-transform duration-300 shadow-sm`}>
+                    <Icon size={19} />
+                  </div>
+                  <h4 className="font-display text-base font-bold text-foreground">
+                    {v.title}
+                  </h4>
+                  <p className="mt-1.5 text-xs text-muted-foreground leading-relaxed flex-1">
+                    {v.desc}
+                  </p>
+                  <div className="mt-4 pt-2.5 border-t border-border/30 flex items-center gap-1.5 text-[11px] font-semibold text-primary">
+                    <Sparkles size={12} className="text-amber-500" />
+                    <span>Atelier Guarantee</span>
+                  </div>
+                </div>
+              </FadeIn>
+            );
+          })}
+        </div>
       </div>
     </section>
   );

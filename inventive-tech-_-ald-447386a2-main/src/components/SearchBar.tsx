@@ -1,237 +1,109 @@
-import { useState, useRef, useEffect, useMemo } from "react";
-import { Search, X, Clock, TrendingUp } from "lucide-react";
-import { useNavigate } from "react-router-dom";
-import { categories, type Product } from "@/lib/products";
+import { useState, useRef, useEffect } from "react";
+import { Search, X, ArrowRight } from "lucide-react";
+import { Link } from "react-router-dom";
 import { useProducts } from "@/lib/cms-products";
-import { getRecentlyViewed, clearRecentlyViewed, TRENDING_SEARCHES } from "@/lib/recentlyViewed";
-import { getProductPricing } from "@/lib/product-display";
+import { AnimatePresence, motion } from "framer-motion";
 
-interface SearchBarProps {
-  onNavigate?: () => void;
-  variant?: "desktop" | "mobile";
-}
-
-const SearchBar = ({ onNavigate, variant = "desktop" }: SearchBarProps) => {
+const SearchBar = () => {
   const [query, setQuery] = useState("");
-  const [open, setOpen] = useState(false);
-  const [recentIds, setRecentIds] = useState<string[]>([]);
-  const containerRef = useRef<HTMLDivElement>(null);
-  const navigate = useNavigate();
+  const [focused, setFocused] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const wrapperRef = useRef<HTMLDivElement>(null);
   const { products } = useProducts();
 
-  useEffect(() => {
-    const refresh = () => setRecentIds(getRecentlyViewed());
-    refresh();
-    window.addEventListener("recently-viewed-updated", refresh);
-    window.addEventListener("storage", refresh);
-    return () => {
-      window.removeEventListener("recently-viewed-updated", refresh);
-      window.removeEventListener("storage", refresh);
-    };
-  }, []);
-
-  const recentProducts = useMemo(
-    () =>
-      recentIds
-        .map((id) => products.find((p) => p.id === id))
-        .filter((p): p is Product => Boolean(p))
-        .slice(0, 4),
-    [products, recentIds],
-  );
-
-  const results = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    if (!q) return { products: [], categories: [] };
-    const matchedCategories = categories.filter(
-      (c) => c.title.toLowerCase().includes(q) || c.slug.includes(q),
-    );
-    const matchedProducts = products
-      .filter(
+  const trimmedQuery = query.trim().toLowerCase();
+  const results = trimmedQuery.length >= 2
+    ? products.filter(
         (p) =>
-          p.name.toLowerCase().includes(q) ||
-          p.type.toLowerCase().includes(q) ||
-          p.tagline.toLowerCase().includes(q),
-      )
-      .slice(0, 6);
-    return { products: matchedProducts, categories: matchedCategories };
-  }, [products, query]);
+          p.name.toLowerCase().includes(trimmedQuery) ||
+          p.type.toLowerCase().includes(trimmedQuery) ||
+          p.tagline?.toLowerCase().includes(trimmedQuery)
+      ).slice(0, 5)
+    : [];
+
+  const showDropdown = focused && trimmedQuery.length >= 2;
 
   useEffect(() => {
-    const handleClick = (e: MouseEvent) => {
-      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
-        setOpen(false);
+    const handleClickOutside = (e: MouseEvent) => {
+      if (wrapperRef.current && !wrapperRef.current.contains(e.target as Node)) {
+        setFocused(false);
       }
     };
-    document.addEventListener("mousedown", handleClick);
-    return () => document.removeEventListener("mousedown", handleClick);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const close = () => {
-    setOpen(false);
-    setQuery("");
-    onNavigate?.();
-  };
-
-  const goToProduct = (id: string) => {
-    navigate(`/product/${id}`);
-    close();
-  };
-
-  const goToCategory = (slug: string) => {
-    navigate(`/category/${slug}`);
-    close();
-  };
-
-  const hasResults = results.products.length > 0 || results.categories.length > 0;
-  const isEmpty = !query.trim();
-
   return (
-    <div ref={containerRef} className="relative w-full">
-      <div className="relative">
-        <Search
-          size={16}
-          className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none"
-        />
+    <div ref={wrapperRef} className="relative w-full">
+      <div
+        className={`flex items-center gap-2 px-4 py-2.5 rounded-full border transition-all duration-300 ${
+          focused
+            ? "bg-white border-primary/30 shadow-luxury ring-2 ring-primary/10"
+            : "bg-secondary/60 border-border/60 hover:bg-secondary/80"
+        }`}
+      >
+        <Search size={15} className={`flex-shrink-0 transition-colors ${focused ? "text-primary" : "text-muted-foreground"}`} />
         <input
-          type="text"
+          ref={inputRef}
           value={query}
-          onChange={(e) => {
-            setQuery(e.target.value);
-            setOpen(true);
-          }}
-          onFocus={() => setOpen(true)}
-          placeholder="Search keychains, bouquets..."
-          className="w-full h-10 pl-9 pr-9 rounded-full bg-brand-blush/30 border border-border/60 text-sm font-body placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 focus:bg-background transition-all"
+          onChange={(e) => setQuery(e.target.value)}
+          onFocus={() => setFocused(true)}
+          placeholder="Search dolls, bouquets, charms..."
+          className="flex-1 bg-transparent text-sm font-body text-foreground placeholder:text-muted-foreground/60 outline-none"
         />
         {query && (
           <button
-            onClick={() => setQuery("")}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-            aria-label="Clear search"
+            onClick={() => { setQuery(""); inputRef.current?.focus(); }}
+            className="p-0.5 rounded-full text-muted-foreground hover:text-foreground transition-colors"
           >
             <X size={14} />
           </button>
         )}
       </div>
 
-      {open && (
-        <div
-          className={`absolute ${
-            variant === "mobile" ? "left-0 right-0" : "left-0 right-0"
-          } mt-2 bg-background border border-border/60 rounded-2xl shadow-lg overflow-hidden z-50 animate-fade-up`}
-        >
-          {isEmpty ? (
-            <div className="max-h-[60vh] overflow-y-auto py-2">
-              {recentProducts.length > 0 && (
-                <div className="px-2 pb-1">
-                  <div className="flex items-center justify-between px-3 py-1.5">
-                    <p className="text-[11px] uppercase tracking-wider text-muted-foreground font-medium flex items-center gap-1.5">
-                      <Clock size={11} /> Recently viewed
-                    </p>
-                    <button
-                      onClick={clearRecentlyViewed}
-                      className="text-[11px] font-medium text-muted-foreground hover:text-primary transition-colors"
+      <AnimatePresence>
+        {showDropdown && (
+          <motion.div
+            initial={{ opacity: 0, y: 6, scale: 0.97 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 6, scale: 0.97 }}
+            transition={{ duration: 0.18 }}
+            className="absolute top-full left-0 right-0 mt-2 bg-card/95 backdrop-blur-xl border border-border/80 rounded-2xl shadow-luxury-lg z-50 overflow-hidden"
+          >
+            {results.length > 0 ? (
+              <ul className="py-2">
+                {results.map((p) => (
+                  <li key={p.id}>
+                    <Link
+                      to={`/product/${p.id}`}
+                      onClick={() => { setFocused(false); setQuery(""); }}
+                      className="flex items-center gap-3 px-4 py-2.5 hover:bg-primary/5 transition-colors group"
                     >
-                      Clear
-                    </button>
-                  </div>
-                  {recentProducts.map((p) => (
-                    <button
-                      key={p.id}
-                      onClick={() => goToProduct(p.id)}
-                      className="w-full flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-brand-blush/40 transition-colors text-left"
-                    >
-                      <img
-                        src={p.images[0]}
-                        alt={p.name}
-                        className="w-10 h-10 rounded-lg object-contain bg-white ring-1 ring-border/60"
-                      />
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-foreground truncate">{p.name}</p>
-                        <p className="text-xs text-muted-foreground truncate capitalize">
-                          {p.type} - {getProductPricing(p).sellingPrice}
-                        </p>
+                      <div className="w-10 h-10 rounded-xl bg-secondary/60 overflow-hidden flex-shrink-0">
+                        <img src={p.images[0]} alt={p.name} className="w-full h-full object-contain p-1" />
                       </div>
-                    </button>
-                  ))}
-                </div>
-              )}
-              <div className="px-2 pt-1">
-                <p className="px-3 py-1.5 text-[11px] uppercase tracking-wider text-muted-foreground font-medium flex items-center gap-1.5">
-                  <TrendingUp size={11} /> Trending searches
-                </p>
-                <div className="flex flex-wrap gap-2 px-3 py-2">
-                  {TRENDING_SEARCHES.map((term) => (
-                    <button
-                      key={term}
-                      onClick={() => {
-                        setQuery(term);
-                        setOpen(true);
-                      }}
-                      className="px-3 py-1.5 rounded-full bg-brand-blush/40 hover:bg-brand-blush/70 text-xs font-medium text-foreground transition-colors"
-                    >
-                      {term}
-                    </button>
-                  ))}
-                </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-foreground truncate group-hover:text-primary transition-colors">
+                          {p.name}
+                        </p>
+                        <p className="text-xs text-muted-foreground capitalize">{p.type}</p>
+                      </div>
+                      <ArrowRight size={14} className="text-muted-foreground/40 group-hover:text-primary transition-colors flex-shrink-0" />
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <div className="px-4 py-6 text-center">
+                <p className="text-sm text-muted-foreground">No results for "{query}"</p>
+                <p className="text-xs text-muted-foreground/60 mt-1">Try searching for "bouquet", "doll", or "keychain"</p>
               </div>
-            </div>
-          ) : !hasResults ? (
-            <div className="p-4 text-sm text-muted-foreground text-center">
-              No results for "{query}" 
-            </div>
-          ) : (
-            <div className="max-h-[60vh] overflow-y-auto py-2">
-              {results.categories.length > 0 && (
-                <div className="px-2 pb-1">
-                  <p className="px-3 py-1.5 text-[11px] uppercase tracking-wider text-muted-foreground font-medium">
-                    Categories
-                  </p>
-                  {results.categories.map((c) => (
-                    <button
-                      key={c.slug}
-                      onClick={() => goToCategory(c.slug)}
-                      className="w-full flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-brand-blush/40 transition-colors text-left"
-                    >
-                      <span className="text-lg">{c.emoji}</span>
-                      <span className="text-sm font-medium text-foreground">{c.title}</span>
-                    </button>
-                  ))}
-                </div>
-              )}
-              {results.products.length > 0 && (
-                <div className="px-2 pt-1">
-                  <p className="px-3 py-1.5 text-[11px] uppercase tracking-wider text-muted-foreground font-medium">
-                    Products
-                  </p>
-                  {results.products.map((p) => (
-                    <button
-                      key={p.id}
-                      onClick={() => goToProduct(p.id)}
-                      className="w-full flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-brand-blush/40 transition-colors text-left"
-                    >
-                      <img
-                        src={p.images[0]}
-                        alt={p.name}
-                        className="w-10 h-10 rounded-lg object-contain bg-white ring-1 ring-border/60"
-                      />
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-foreground truncate">{p.name}</p>
-                        <p className="text-xs text-muted-foreground truncate capitalize">
-                          {p.type} - {getProductPricing(p).sellingPrice}
-                        </p>
-                      </div>
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-          )}
-        </div>
-      )}
+            )}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
 
 export default SearchBar;
-

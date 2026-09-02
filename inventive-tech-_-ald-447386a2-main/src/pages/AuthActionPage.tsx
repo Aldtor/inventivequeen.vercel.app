@@ -1,11 +1,11 @@
 import { useMemo, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { AlertCircle, CheckCircle2, KeyRound, MailCheck } from "lucide-react";
+import { AlertCircle, CheckCircle2, KeyRound, MailCheck, Sparkles, ArrowRight } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { Button } from "@/components/ui/button";
 import { useAuth } from "@/lib/auth";
 import { supabase } from "@/lib/supabase";
+import { FadeIn } from "@/components/motion/FadeIn";
 
 function readAuthParams(search: string, hash: string) {
   const searchParams = new URLSearchParams(search);
@@ -50,88 +50,104 @@ export default function AuthActionPage({ mode }: { mode: "verified" | "reset-pas
       return;
     }
 
-    setMessage("Password changed successfully. You can now continue shopping.");
-    window.setTimeout(() => navigate("/orders"), 1000);
+    setMessage("✨ Password updated successfully! Redirecting...");
+    window.setTimeout(() => navigate("/orders"), 1200);
   };
 
   const title = hasError
     ? "Email link expired"
     : mode === "reset-password"
-      ? "Choose a New Password"
-      : "Email Verified";
+      ? "Choose New Password"
+      : "Email Verified!";
 
   const description = hasError
     ? "This link is invalid or has already expired. Please request a fresh link from the login page."
     : mode === "reset-password"
-      ? "Enter a new password for your Inventive Queen account."
-      : "Your email address has been verified. You can sign in and track your handmade orders.";
+      ? "Enter a fresh secure password for your Inventive Queen atelier account."
+      : "Your email address has been verified. You can now access your account and track your handmade orders.";
 
   const Icon = hasError ? AlertCircle : mode === "reset-password" ? KeyRound : MailCheck;
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-background selection:bg-primary/15 selection:text-primary">
       <Navbar />
-      <main className="flex-1 bg-secondary/20">
-        <div className="container py-12 md:py-16">
-          <div className="max-w-md mx-auto bg-card rounded-2xl shadow-luxury-sm border border-border/50 p-6 md:p-8 text-center">
-            <div className="mx-auto w-16 h-16 rounded-2xl bg-brand-blush/60 flex items-center justify-center">
-              <Icon className="w-7 h-7 text-primary" />
+      <main className="flex-1 bg-fairytale-mesh py-12 md:py-20 flex items-center justify-center relative overflow-hidden">
+        <div className="container max-w-md px-4 relative z-10">
+          <FadeIn>
+            <div className="glass-card rounded-3xl shadow-luxury-lg border border-border/60 p-6 sm:p-9 text-center backdrop-blur-xl">
+              <div className={`mx-auto w-16 h-16 rounded-2xl flex items-center justify-center mb-4 ${
+                hasError ? "bg-destructive/10 text-destructive" : "bg-primary/10 text-primary"
+              }`}>
+                <Icon size={28} />
+              </div>
+              <h1 className="font-display text-2xl font-bold text-foreground">{title}</h1>
+              <p className="mt-2 text-xs sm:text-sm text-muted-foreground leading-relaxed">{description}</p>
+
+              {hasError && (
+                <p className="mt-4 text-xs text-muted-foreground bg-secondary/60 rounded-xl px-4 py-3">
+                  {authParams.errorDescription?.replace(/\+/g, " ") || authParams.errorCode || authParams.error}
+                </p>
+              )}
+
+              {!hasError && mode === "reset-password" && (
+                <form onSubmit={handlePasswordUpdate} className="mt-6 space-y-4 text-left">
+                  {!user && (
+                    <p className="text-xs text-muted-foreground bg-secondary/60 rounded-xl px-4 py-3 text-center">
+                      Waiting for secure session to initialize...
+                    </p>
+                  )}
+                  <PasswordInput
+                    label="New Password"
+                    value={password}
+                    onChange={(event) => setPassword(event.target.value)}
+                  />
+                  <PasswordInput
+                    label="Confirm New Password"
+                    value={confirmPassword}
+                    onChange={(event) => setConfirmPassword(event.target.value)}
+                  />
+                  {message && (
+                    <p className="text-xs text-primary font-medium bg-primary/8 border border-primary/15 rounded-xl px-4 py-3">
+                      {message}
+                    </p>
+                  )}
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className="w-full py-3.5 rounded-2xl btn-gradient text-white text-xs font-bold shadow-royal-glow hover:shadow-luxury disabled:opacity-40 transition-all flex items-center justify-center gap-2"
+                  >
+                    <Sparkles size={14} className="text-amber-200" />
+                    <span>{loading ? "Saving..." : "Save New Password"}</span>
+                  </button>
+                </form>
+              )}
+
+              {(hasError || mode === "verified") && (
+                <div className="mt-6 flex flex-col gap-2.5">
+                  <Link
+                    to="/login"
+                    className="w-full py-3 rounded-2xl btn-gradient text-white text-xs font-bold shadow-royal-glow hover:shadow-luxury transition-all flex items-center justify-center gap-2"
+                  >
+                    <span>Go to Sign In</span>
+                    <ArrowRight size={14} />
+                  </Link>
+                  <Link
+                    to="/"
+                    className="w-full py-2.5 rounded-xl text-xs font-semibold text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    Back to Atelier
+                  </Link>
+                </div>
+              )}
+
+              {!hasError && mode === "verified" && (
+                <div className="mt-4 inline-flex items-center gap-1.5 text-xs text-emerald-600 font-semibold bg-emerald-500/10 px-3 py-1 rounded-full">
+                  <CheckCircle2 size={13} />
+                  Verified successfully
+                </div>
+              )}
             </div>
-            <h1 className="mt-5 font-display text-2xl font-bold text-foreground">{title}</h1>
-            <p className="mt-2 text-sm text-muted-foreground leading-relaxed">{description}</p>
-
-            {hasError && (
-              <p className="mt-4 text-xs text-muted-foreground bg-secondary/70 rounded-xl px-4 py-3">
-                {authParams.errorDescription?.replace(/\+/g, " ") || authParams.errorCode || authParams.error}
-              </p>
-            )}
-
-            {!hasError && mode === "reset-password" && (
-              <form onSubmit={handlePasswordUpdate} className="mt-6 space-y-4 text-left">
-                {!user && (
-                  <p className="text-xs text-muted-foreground bg-secondary/70 rounded-xl px-4 py-3">
-                    If this page just opened from your email, wait a second for the secure session to load before saving.
-                  </p>
-                )}
-                <PasswordInput
-                  label="New Password"
-                  value={password}
-                  onChange={(event) => setPassword(event.target.value)}
-                />
-                <PasswordInput
-                  label="Confirm Password"
-                  value={confirmPassword}
-                  onChange={(event) => setConfirmPassword(event.target.value)}
-                />
-                {message && (
-                  <p className="text-sm text-muted-foreground bg-secondary/70 rounded-xl px-4 py-3">
-                    {message}
-                  </p>
-                )}
-                <Button disabled={loading} className="w-full rounded-xl h-11">
-                  {loading ? "Saving..." : "Save New Password"}
-                </Button>
-              </form>
-            )}
-
-            {(hasError || mode === "verified") && (
-              <div className="mt-6 grid gap-3">
-                <Button asChild className="rounded-xl">
-                  <Link to="/login">Go to Login</Link>
-                </Button>
-                <Button asChild variant="outline" className="rounded-xl">
-                  <Link to="/">Back to Shop</Link>
-                </Button>
-              </div>
-            )}
-
-            {!hasError && mode === "verified" && (
-              <div className="mt-4 inline-flex items-center gap-2 text-xs text-primary font-body font-semibold">
-                <CheckCircle2 size={14} />
-                Verified successfully
-              </div>
-            )}
-          </div>
+          </FadeIn>
         </div>
       </main>
       <Footer />
@@ -149,15 +165,16 @@ function PasswordInput({
   onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
 }) {
   return (
-    <div className="space-y-2">
-      <label className="font-body text-sm font-medium text-foreground">{label}</label>
+    <div className="space-y-1.5">
+      <label className="font-body text-xs font-semibold text-foreground uppercase tracking-wider">{label}</label>
       <input
         type="password"
         value={value}
         onChange={onChange}
         minLength={6}
         required
-        className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm font-body text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/40 transition-all"
+        placeholder="At least 6 characters"
+        className="w-full rounded-2xl border border-border/70 bg-card px-4 py-3 text-sm font-body text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/30 transition-all"
       />
     </div>
   );

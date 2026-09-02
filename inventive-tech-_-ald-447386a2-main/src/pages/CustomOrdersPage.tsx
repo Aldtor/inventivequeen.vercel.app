@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Clock, MessageCircle, Palette, Package, HelpCircle, ChevronRight, Check, ShoppingBag, ShoppingCart, ChevronDown } from "lucide-react";
+import { Clock, MessageCircle, Palette, Package, HelpCircle, ChevronRight, Check, ShoppingBag, ShoppingCart, ChevronDown, Sparkles, Wand2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -15,31 +15,38 @@ import productPenguin from "@/assets/product-penguin-1.jpeg";
 import productPanda from "@/assets/product-panda.jpeg";
 
 const timelineSteps = [
-  { icon: MessageCircle, title: "Discuss", desc: "Share your custom requirements" },
-  { icon: Palette, title: "Design", desc: "We sketch out your custom creation" },
-  { icon: Clock, title: "Craft", desc: "Handmade with love in 3-7 days" },
-  { icon: Package, title: "Deliver", desc: "Carefully packed and shipped to you" },
+  { icon: MessageCircle, title: "1. Specify", desc: "Select base item & describe your dream colors/style" },
+  { icon: Palette, title: "2. Confirm", desc: "We review details & align before casting our yarn magic" },
+  { icon: Clock, title: "3. Craft", desc: "Handcrafted stitch by stitch in 3–7 business days" },
+  { icon: Package, title: "4. Deliver", desc: "Gift-wrapped with wax seal and shipped safely across India" },
 ];
 
 const exampleImages = [bouquetRose, bouquetPastel, productPenguin, productPanda];
 
 const faqs = [
   {
-    q: "How long does a custom order take?",
-    a: "Most custom orders take 3-7 days to craft depending on complexity. We'll give you an estimated timeline once we understand your requirements.",
+    q: "How long does a bespoke custom order take?",
+    a: "Most custom pieces take 3–7 business days to handcraft depending on complexity and current commission volume. We'll give you an exact estimated dispatch date upon review.",
   },
   {
-    q: "Can I choose specific colors and sizes?",
-    a: "Absolutely! That's the beauty of custom orders. You can pick colors, sizes, flower types, and even add names or initials.",
+    q: "Can I choose specific colors, sizes, or personalized tags?",
+    a: "Yes! That's the heart of our atelier. You can choose color combinations, hair/outfit styles, custom bouquet stem counts, and even request hand-embroidered initials or names.",
   },
   {
-    q: "What's the price range for custom orders?",
-    a: "Prices vary depending on complexity and size. Keychains start from Rs. 199, bouquets from Rs. 399. We'll confirm the price before starting.",
+    q: "Can I send reference photos from Pinterest or anime?",
+    a: "Absolutely! Feel free to describe it here and connect with us on WhatsApp or Instagram DM with your photos, character art, or real-life inspiration.",
   },
   {
-    q: "Can I see a preview before you start?",
-    a: "We'll share a description or reference image of the proposed design before beginning work so you're fully aligned.",
+    q: "How does payment work for custom commissions?",
+    a: "You can either check out directly through our website via secure Razorpay or place an initial inquiry. Orders are entered into production immediately after payment confirmation.",
   },
+];
+
+const promptSuggestions = [
+  "Lavender & cream roses with satin bow",
+  "Blue anime character with cat ears",
+  "Mini chibi doll wearing green dungarees",
+  "Name 'Aarav' stitched on keepsake tag",
 ];
 
 const CustomOrdersPage = () => {
@@ -65,77 +72,82 @@ const CustomOrdersPage = () => {
 
   const handleAddToCart = () => {
     if (!canSend || !selectedProduct) return;
-    addCartItem(selectedProduct, { custom: details });
-    setCartFeedback("Custom request added to cart");
-    window.setTimeout(() => setCartFeedback(""), 1600);
+    addCartItem(selectedProduct, { custom: details.trim() });
+    setCartFeedback("✨ Custom commission added to your royal bag!");
+    window.setTimeout(() => setCartFeedback(""), 2200);
   };
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-background selection:bg-primary/15 selection:text-primary">
       <Navbar />
 
       <main className="flex-1">
-        {/* 1. Hero Section - Heading & Description */}
-        <div className="bg-secondary/30 border-b border-border/40">
-          <div className="container py-14 md:py-20 text-center">
+        {/* Hero Section */}
+        <section className="bg-fairytale-mesh border-b border-border/40 relative overflow-hidden py-14 md:py-20">
+          <div className="absolute top-0 right-1/3 w-80 h-80 bg-primary/10 rounded-full blur-3xl pointer-events-none" />
+          <div className="container text-center relative z-10">
             <FadeIn>
-              <p className="text-xs uppercase tracking-[0.25em] text-primary font-body font-semibold">
-                Made Just for You
-              </p>
+              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full glass-card shadow-luxury-sm text-primary text-xs uppercase tracking-[0.22em] font-semibold mb-4">
+                <Sparkles size={13} className="text-amber-500" />
+                <span>BESPOKE ATELIER COMMISSIONS</span>
+              </div>
             </FadeIn>
             <FadeIn delay={0.1}>
-              <h1 className="mt-3 font-display text-3xl md:text-5xl font-bold text-foreground text-balance">
-                Custom Orders
+              <h1 className="font-display text-3xl md:text-5xl lg:text-6xl font-extrabold text-foreground tracking-tight text-balance">
+                Bespoke Royal Commissions
               </h1>
             </FadeIn>
             <FadeIn delay={0.15}>
-              <p className="mt-4 text-muted-foreground max-w-lg mx-auto text-pretty leading-relaxed">
-                Pick a product and tell us how you'd like it customised - colour, size, name, anything!
-                We'll bring your vision to life, stitch by stitch.
+              <p className="mt-4 text-muted-foreground max-w-xl mx-auto text-sm md:text-base leading-relaxed text-pretty">
+                Turn your imagination into soft yarn reality. Choose any base creation, customize the palette, size, or details, and we'll handcraft it stitch by stitch with royal care.
               </p>
             </FadeIn>
           </div>
-        </div>
+        </section>
 
-        {/* 2. SELECT YOUR CUSTOM ORDER SECTION - Immediately after Heading and Description */}
-        <div className="container py-12 md:py-16">
+        {/* Commission Builder Form */}
+        <section className="container py-12 md:py-18 max-w-4xl">
           <FadeIn>
-            <div className="max-w-3xl mx-auto">
-              <div className="text-center mb-10">
+            <div className="glass-card rounded-3xl p-6 sm:p-10 shadow-luxury-lg border border-border/60">
+              <div className="text-center mb-8 pb-6 border-b border-border/40">
+                <div className="inline-flex items-center justify-center w-11 h-11 rounded-2xl bg-primary/10 text-primary mb-2">
+                  <Wand2 size={20} />
+                </div>
                 <h2 className="font-display text-2xl md:text-3xl font-bold text-foreground">
-                  Start Your Custom Order
+                  Commission Studio
                 </h2>
-                <p className="mt-2 text-sm text-muted-foreground">
-                  Choose a product, write your custom changes, and place your order
+                <p className="mt-1.5 text-xs sm:text-sm text-muted-foreground">
+                  Select a template piece, describe your unique requirements & order directly.
                 </p>
               </div>
 
-              {/* Step 1: Choose a product with Image, Name, and Price */}
+              {/* Step 1: Base Product */}
               <div className="space-y-4 mb-8">
                 <div className="flex items-center justify-between">
-                  <label className="font-body text-sm font-semibold text-foreground uppercase tracking-[0.1em]">
-                    1. Choose a product
+                  <label className="font-display text-base font-bold text-foreground flex items-center gap-2">
+                    <span className="w-6 h-6 rounded-full bg-primary text-white text-xs flex items-center justify-center font-body">1</span>
+                    Choose Base Design
                   </label>
                   {selectedProduct && (
-                    <span className="text-xs text-primary font-body font-medium">
-                      Selected: {selectedProduct.name} ({selectedProduct.price})
+                    <span className="text-xs text-primary font-body font-semibold bg-primary/10 px-3 py-0.5 rounded-full">
+                      {selectedProduct.name} ({selectedProduct.price})
                     </span>
                   )}
                 </div>
 
-                {/* Custom Image-Rich Dropdown Picker */}
+                {/* Dropdown Selector */}
                 <div className="relative">
                   <button
                     type="button"
                     onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                    className="w-full flex items-center justify-between rounded-2xl border border-border bg-card px-4 py-3 text-left shadow-sm hover:border-primary/40 focus:outline-none focus:ring-2 focus:ring-primary/30 transition-all"
+                    className="w-full flex items-center justify-between rounded-2xl border border-border/70 bg-card px-4 py-3 text-left shadow-luxury-sm hover:border-primary/40 focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all"
                   >
                     {selectedProduct ? (
                       <div className="flex items-center gap-3 min-w-0">
                         <img
                           src={selectedProduct.images[0]}
                           alt={selectedProduct.name}
-                          className="w-10 h-10 rounded-xl object-contain bg-white flex-shrink-0 border border-border/60"
+                          className="w-11 h-11 rounded-xl object-contain bg-white flex-shrink-0 border border-border/40 p-1"
                         />
                         <div className="min-w-0">
                           <p className="font-body text-sm font-semibold text-foreground truncate">
@@ -148,13 +160,13 @@ const CustomOrdersPage = () => {
                       </div>
                     ) : (
                       <span className="font-body text-sm text-muted-foreground">
-                        Select a product to customise...
+                        Click to select a base product from our atelier...
                       </span>
                     )}
                     <ChevronDown
                       size={18}
                       className={`text-muted-foreground transition-transform duration-200 ml-2 flex-shrink-0 ${
-                        isDropdownOpen ? "rotate-180" : ""
+                        isDropdownOpen ? "rotate-180 text-primary" : ""
                       }`}
                     />
                   </button>
@@ -162,11 +174,11 @@ const CustomOrdersPage = () => {
                   <AnimatePresence>
                     {isDropdownOpen && (
                       <motion.div
-                        initial={{ opacity: 0, y: -10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -10 }}
+                        initial={{ opacity: 0, y: -8, scale: 0.98 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{ opacity: 0, y: -8, scale: 0.98 }}
                         transition={{ duration: 0.15 }}
-                        className="absolute z-30 left-0 right-0 mt-2 max-h-72 overflow-y-auto rounded-2xl border border-border bg-card shadow-2xl p-2 space-y-1"
+                        className="absolute z-40 left-0 right-0 mt-2 max-h-72 overflow-y-auto rounded-2xl border border-border/70 bg-card/95 backdrop-blur-xl shadow-luxury-lg p-2 space-y-1"
                       >
                         {products.map((p) => {
                           const isSelected = selectedProductId === p.id;
@@ -181,13 +193,13 @@ const CustomOrdersPage = () => {
                               className={`w-full flex items-center gap-3 p-2.5 rounded-xl text-left transition-all ${
                                 isSelected
                                   ? "bg-primary/10 border border-primary/30"
-                                  : "hover:bg-muted/60"
+                                  : "hover:bg-secondary/70"
                               }`}
                             >
                               <img
                                 src={p.images[0]}
                                 alt={p.name}
-                                className="w-12 h-12 rounded-lg object-contain bg-white flex-shrink-0 border border-border/40"
+                                className="w-12 h-12 rounded-xl object-contain bg-white flex-shrink-0 border border-border/40 p-1"
                               />
                               <div className="flex-1 min-w-0">
                                 <p className="font-body text-sm font-semibold text-foreground truncate">
@@ -198,8 +210,8 @@ const CustomOrdersPage = () => {
                                 </p>
                               </div>
                               {isSelected && (
-                                <div className="w-5 h-5 rounded-full bg-primary flex items-center justify-center flex-shrink-0">
-                                  <Check size={12} className="text-primary-foreground" />
+                                <div className="w-5 h-5 rounded-full bg-primary flex items-center justify-center flex-shrink-0 text-white">
+                                  <Check size={12} />
                                 </div>
                               )}
                             </button>
@@ -210,43 +222,43 @@ const CustomOrdersPage = () => {
                   </AnimatePresence>
                 </div>
 
-                {/* Visual Card Grid with Product Image, Name & Price */}
-                <div className="pt-3">
-                  <p className="text-xs text-muted-foreground font-body mb-3">
-                    Or select directly from visual catalog:
+                {/* Visual Thumbnail Grid */}
+                <div className="pt-2">
+                  <p className="text-xs text-muted-foreground font-body mb-2.5">
+                    Or select by tapping any card:
                   </p>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-                    {products.map((p) => {
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                    {products.slice(0, 8).map((p) => {
                       const isSelected = selectedProductId === p.id;
                       return (
                         <button
                           key={p.id}
                           type="button"
                           onClick={() => setSelectedProductId(p.id)}
-                          className={`group relative text-left rounded-2xl overflow-hidden border-2 transition-all duration-200 active:scale-[0.97] bg-card ${
+                          className={`group relative text-left rounded-2xl overflow-hidden border-2 transition-all duration-200 active:scale-[0.97] bg-card p-2 ${
                             isSelected
-                              ? "border-primary shadow-lg shadow-primary/15 ring-2 ring-primary/20"
-                              : "border-border/60 hover:border-primary/40 shadow-luxury-sm hover:shadow-luxury"
+                              ? "border-primary shadow-luxury ring-2 ring-primary/20"
+                              : "border-border/50 hover:border-primary/40 shadow-luxury-sm"
                           }`}
                         >
                           {isSelected && (
-                            <div className="absolute top-2 right-2 z-10 w-6 h-6 rounded-full bg-primary flex items-center justify-center shadow-md">
-                              <Check size={14} className="text-primary-foreground" />
+                            <div className="absolute top-2 right-2 z-10 w-5 h-5 rounded-full bg-primary flex items-center justify-center shadow-md text-white">
+                              <Check size={12} />
                             </div>
                           )}
-                          <div className="aspect-square overflow-hidden bg-muted">
+                          <div className="aspect-square overflow-hidden rounded-xl bg-gradient-to-br from-purple-50 via-white to-pink-50 p-2">
                             <img
                               src={p.images[0]}
                               alt={p.name}
                               loading="lazy"
-                              className="w-full h-full object-contain bg-white group-hover:scale-105 transition-transform duration-500"
+                              className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-500"
                             />
                           </div>
-                          <div className="p-3">
-                            <p className="font-body text-xs md:text-sm font-medium text-foreground leading-snug line-clamp-1">
+                          <div className="mt-2 px-1">
+                            <p className="font-body text-xs font-semibold text-foreground truncate">
                               {p.name}
                             </p>
-                            <p className="mt-1 font-display text-sm font-bold text-primary">
+                            <p className="font-display text-xs font-bold text-primary mt-0.5">
                               {p.price}
                             </p>
                           </div>
@@ -257,75 +269,98 @@ const CustomOrdersPage = () => {
                 </div>
               </div>
 
-              {/* Step 2: Describe customisation */}
-              <div className="space-y-3 mb-8">
-                <label className="font-body text-sm font-semibold text-foreground uppercase tracking-[0.1em] block">
-                  2. Write your custom changes
-                </label>
+              {/* Step 2: Custom details */}
+              <div className="space-y-3 mb-8 pt-4 border-t border-border/40">
+                <div className="flex items-center justify-between">
+                  <label className="font-display text-base font-bold text-foreground flex items-center gap-2">
+                    <span className="w-6 h-6 rounded-full bg-primary text-white text-xs flex items-center justify-center font-body">2</span>
+                    Describe Your Customization
+                  </label>
+                  <span className="text-[10px] uppercase tracking-wider text-primary font-bold bg-primary/10 px-2.5 py-0.5 rounded-full">
+                    Required
+                  </span>
+                </div>
+
+                {/* Suggestion Chips */}
+                <div className="flex flex-wrap gap-1.5 pb-1">
+                  {promptSuggestions.map((prompt) => (
+                    <button
+                      key={prompt}
+                      type="button"
+                      onClick={() => setDetails((prev) => (prev ? `${prev}, ${prompt}` : prompt))}
+                      className="text-[11px] font-body text-muted-foreground hover:text-primary bg-secondary/60 hover:bg-primary/10 border border-border/60 px-3 py-1 rounded-full transition-all"
+                    >
+                      + {prompt}
+                    </button>
+                  ))}
+                </div>
+
                 <textarea
                   rows={4}
                   value={details}
                   onChange={(e) => setDetails(e.target.value)}
-                  placeholder="E.g. I want this in blue with my name 'Priya' stitched on it, slightly bigger size..."
-                  className="w-full rounded-2xl border border-border bg-card px-5 py-4 text-sm font-body focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/40 transition-all resize-none placeholder:text-muted-foreground/60"
+                  placeholder="Describe colors, specific outfit, size preferences, initials to stitch, or special packaging notes..."
+                  className="w-full rounded-2xl border border-border/70 bg-card px-4 py-3.5 text-sm font-body text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/30 transition-all resize-none shadow-luxury-sm"
                 />
               </div>
 
-              {/* Submit buttons - Cart or Direct Website Order */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {/* Action Buttons */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                 <button
                   onClick={handleAddToCart}
                   disabled={!canSend}
-                  className="w-full inline-flex items-center justify-center gap-2.5 rounded-2xl border border-primary/30 bg-card text-foreground py-4 font-semibold hover:border-primary/60 hover:bg-brand-blush/20 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed transition-all text-base"
+                  className="w-full inline-flex items-center justify-center gap-2 rounded-2xl border-2 border-border/70 hover:border-primary/40 bg-card text-foreground py-3.5 font-bold hover:bg-secondary/40 active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed transition-all text-sm shadow-luxury-sm"
                 >
-                  <ShoppingCart size={18} />
-                  Add Custom Order to Cart
+                  <ShoppingCart size={16} className="text-primary" />
+                  Add Custom Request to Bag
                 </button>
                 <button
                   onClick={handleSend}
                   disabled={!canSend}
-                  className="w-full inline-flex items-center justify-center gap-2.5 rounded-2xl bg-primary text-primary-foreground py-4 font-semibold shadow-md shadow-primary/20 hover:shadow-lg hover:shadow-primary/30 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed transition-all text-base"
+                  className="w-full inline-flex items-center justify-center gap-2 rounded-2xl btn-gradient text-white py-3.5 font-bold shadow-royal-glow hover:shadow-luxury-lg active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed transition-all text-sm"
                 >
-                  <ShoppingBag size={18} />
-                  Proceed to Checkout
+                  <Sparkles size={16} className="text-amber-200" />
+                  Proceed to Royal Checkout
                 </button>
               </div>
 
               {cartFeedback && (
-                <p className="text-center text-xs text-primary font-body font-medium mt-3">
+                <p className="text-center text-xs text-primary font-bold mt-4 animate-fade-scale-in">
                   {cartFeedback}
                 </p>
               )}
 
-              <p className="text-center text-xs text-muted-foreground mt-3">
-                Your custom piece will be handcrafted specially for you
+              <p className="text-center text-xs text-muted-foreground mt-4">
+                ✨ Once placed, we'll verify references and start crafting within 24 hours.
               </p>
             </div>
           </FadeIn>
-        </div>
+        </section>
 
-        {/* 3. Timeline - How It Works */}
-        <div className="bg-secondary/20 py-12 md:py-16">
-          <div className="container">
+        {/* How It Works Timeline */}
+        <section className="bg-secondary/25 py-14 md:py-20 border-y border-border/30">
+          <div className="container max-w-5xl">
             <FadeIn>
-              <h2 className="font-display text-2xl md:text-3xl font-bold text-foreground text-center">
-                How It Works
-              </h2>
+              <div className="text-center mb-12">
+                <span className="text-[10px] uppercase tracking-[0.25em] text-primary font-bold block mb-2">
+                  Atelier Journey
+                </span>
+                <h2 className="font-display text-2xl md:text-3xl font-bold text-foreground">
+                  How Bespoke Orders Work
+                </h2>
+              </div>
             </FadeIn>
-            <StaggerChildren className="mt-10 grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
-              {timelineSteps.map((step, i) => (
+            <StaggerChildren className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+              {timelineSteps.map((step) => (
                 <StaggerItem key={step.title}>
-                  <div className="flex flex-col items-center text-center p-5 md:p-6">
-                    <div className="w-14 h-14 rounded-2xl bg-brand-blush/60 flex items-center justify-center mb-4">
-                      <step.icon className="w-6 h-6 text-primary" />
+                  <div className="glass-card rounded-2xl p-6 text-center shadow-luxury-sm hover:shadow-luxury transition-all group h-full flex flex-col items-center">
+                    <div className="w-12 h-12 rounded-2xl bg-primary/10 text-primary flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                      <step.icon size={20} />
                     </div>
-                    <span className="text-[10px] uppercase tracking-wider text-primary/60 font-body font-semibold mb-1">
-                      Step {i + 1}
-                    </span>
-                    <h3 className="font-display text-base font-semibold text-foreground">
+                    <h3 className="font-display text-base font-bold text-foreground">
                       {step.title}
                     </h3>
-                    <p className="mt-1.5 text-xs text-muted-foreground leading-relaxed">
+                    <p className="mt-2 text-xs text-muted-foreground leading-relaxed">
                       {step.desc}
                     </p>
                   </div>
@@ -333,61 +368,61 @@ const CustomOrdersPage = () => {
               ))}
             </StaggerChildren>
           </div>
-        </div>
+        </section>
 
-        {/* Example gallery */}
-        <div className="py-12 md:py-16">
-          <div className="container">
+        {/* Gallery of Past Creations */}
+        <section className="py-14 md:py-20">
+          <div className="container max-w-5xl">
             <FadeIn>
-              <h2 className="font-display text-2xl md:text-3xl font-bold text-foreground text-center">
-                Past Custom Creations
-              </h2>
-              <p className="mt-3 text-center text-sm text-muted-foreground">
-                A few examples of custom pieces we've made for happy customers
-              </p>
+              <div className="text-center mb-10">
+                <span className="text-[10px] uppercase tracking-[0.25em] text-primary font-bold block mb-2">
+                  Portfolio Highlights
+                </span>
+                <h2 className="font-display text-2xl md:text-3xl font-bold text-foreground">
+                  Past Bespoke Creations
+                </h2>
+              </div>
             </FadeIn>
-            <StaggerChildren className="mt-8 grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
+            <StaggerChildren className="grid grid-cols-2 sm:grid-cols-4 gap-4">
               {exampleImages.map((img, i) => (
                 <StaggerItem key={i}>
-                  <div className="aspect-square rounded-2xl overflow-hidden shadow-luxury-sm">
+                  <div className="aspect-square rounded-2xl overflow-hidden glass-card shadow-luxury-sm group p-2 border border-border/40">
                     <img
                       src={img}
-                      alt={`Custom creation example ${i + 1}`}
+                      alt={`Past bespoke creation ${i + 1}`}
                       loading="lazy"
-                      className="w-full h-full object-contain bg-white hover:scale-105 transition-transform duration-700"
+                      className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-500"
                     />
                   </div>
                 </StaggerItem>
               ))}
             </StaggerChildren>
           </div>
-        </div>
+        </section>
 
-        {/* FAQ */}
-        <div className="bg-secondary/20 py-12 md:py-16">
+        {/* FAQs */}
+        <section className="bg-secondary/25 py-14 md:py-20 border-t border-border/30">
           <div className="container max-w-2xl">
             <FadeIn>
-              <h2 className="font-display text-2xl md:text-3xl font-bold text-foreground text-center">
-                Frequently Asked Questions
+              <h2 className="font-display text-2xl md:text-3xl font-bold text-foreground text-center mb-8">
+                Custom Order FAQs
               </h2>
             </FadeIn>
-            <div className="mt-8 space-y-2">
+            <div className="space-y-3">
               {faqs.map((faq, i) => (
                 <FadeIn key={i} delay={i * 0.05}>
-                  <div className="bg-card rounded-2xl shadow-luxury-sm overflow-hidden">
+                  <div className="glass-card rounded-2xl shadow-luxury-sm overflow-hidden border border-border/50">
                     <button
                       onClick={() => setOpenFaq(openFaq === i ? null : i)}
-                      className="w-full flex items-center gap-3 px-5 py-4 text-left"
+                      className="w-full flex items-center gap-3 px-5 py-4 text-left font-body text-sm font-semibold text-foreground hover:text-primary transition-colors"
                       aria-expanded={openFaq === i}
                     >
                       <HelpCircle size={16} className="text-primary flex-shrink-0" />
-                      <span className="font-body text-sm font-medium text-foreground flex-1">
-                        {faq.q}
-                      </span>
+                      <span className="flex-1">{faq.q}</span>
                       <ChevronRight
                         size={16}
-                        className={`text-muted-foreground transition-transform duration-200 ${
-                          openFaq === i ? "rotate-90" : ""
+                        className={`text-muted-foreground transition-transform duration-200 flex-shrink-0 ${
+                          openFaq === i ? "rotate-90 text-primary" : ""
                         }`}
                       />
                     </button>
@@ -397,10 +432,10 @@ const CustomOrdersPage = () => {
                           initial={{ height: 0, opacity: 0 }}
                           animate={{ height: "auto", opacity: 1 }}
                           exit={{ height: 0, opacity: 0 }}
-                          transition={{ duration: 0.2, ease: "easeInOut" }}
+                          transition={{ duration: 0.2 }}
                           className="overflow-hidden"
                         >
-                          <p className="px-5 pb-4 text-sm text-muted-foreground leading-relaxed pl-12">
+                          <p className="px-5 pb-4 text-xs md:text-sm text-muted-foreground leading-relaxed pl-12">
                             {faq.a}
                           </p>
                         </motion.div>
@@ -411,23 +446,7 @@ const CustomOrdersPage = () => {
               ))}
             </div>
           </div>
-        </div>
-
-        {/* Expectation management */}
-        <div className="container py-12 md:py-16">
-          <FadeIn>
-            <div className="max-w-2xl mx-auto bg-brand-blush/20 rounded-2xl p-6 md:p-8 text-center">
-              <h3 className="font-display text-xl font-bold text-foreground">
-                What to Expect
-              </h3>
-              <p className="mt-3 text-sm text-muted-foreground leading-relaxed max-w-md mx-auto">
-                Custom orders typically take 3-7 business days to craft depending on complexity.
-                Prices start from Rs. 199 for keychains and Rs. 399 for bouquets.
-                Once production begins, custom orders cannot be cancelled - please review your details carefully.
-              </p>
-            </div>
-          </FadeIn>
-        </div>
+        </section>
       </main>
 
       <Footer />
@@ -436,4 +455,3 @@ const CustomOrdersPage = () => {
 };
 
 export default CustomOrdersPage;
-

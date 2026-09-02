@@ -1,10 +1,11 @@
 import { useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Minus, Package, Plus, ShoppingBag, Trash2 } from "lucide-react";
+import { Minus, Package, Plus, ShoppingBag, Trash2, Sparkles, ArrowRight, ShieldCheck } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { FadeIn } from "@/components/motion/FadeIn";
+import logo from "@/assets/logo.png";
 import {
   clearCart,
   getCartCount,
@@ -36,109 +37,128 @@ const CartPage = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-background">
+    <div className="min-h-screen flex flex-col bg-background selection:bg-primary/15 selection:text-primary">
       <Navbar />
 
       <main className="flex-1">
-        <section className="bg-secondary/30 border-b border-border/40">
-          <div className="container py-12 md:py-16 text-center">
+        {/* Header Banner */}
+        <section className="bg-fairytale-mesh border-b border-border/40 relative overflow-hidden py-12 md:py-16">
+          <div className="absolute top-0 right-1/4 w-72 h-72 bg-primary/10 rounded-full blur-3xl pointer-events-none" />
+          <div className="container text-center relative z-10">
             <FadeIn>
-              <p className="text-xs uppercase tracking-[0.25em] text-primary font-body font-semibold">
-                Review Your Picks
-              </p>
-              <h1 className="mt-3 font-display text-3xl md:text-5xl font-bold text-foreground">
-                Your Cart
+              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full glass-card shadow-luxury-sm text-primary text-xs uppercase tracking-[0.22em] font-semibold mb-4">
+                <span>👑</span> Royal Cart & Bag
+              </div>
+              <h1 className="font-display text-3xl md:text-5xl font-extrabold text-foreground tracking-tight">
+                Your Handcrafted Treasures
               </h1>
-              <p className="mt-4 text-muted-foreground max-w-lg mx-auto leading-relaxed">
-                Add multiple handmade pieces and place one order when everything looks right.
+              <p className="mt-3 text-muted-foreground max-w-lg mx-auto text-sm md:text-base leading-relaxed">
+                Every item is individually stitched with milk cotton yarn and royal attention to detail.
               </p>
+
+              {/* Free Packaging Ribbon */}
+              <div className="mt-5 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-pink-500/10 border border-pink-500/20 text-pink-700 text-xs font-semibold shadow-sm">
+                <span>🎀</span> Complimentary Royal Gift Wrapping, Wax Seal & Ribbon Included!
+              </div>
             </FadeIn>
           </div>
         </section>
 
-        <div className="container py-10 md:py-14">
+        <div className="container py-10 md:py-14 max-w-6xl">
           {items.length === 0 ? (
             <FadeIn>
-              <div className="max-w-md mx-auto text-center py-14">
-                <div className="mx-auto w-16 h-16 rounded-2xl bg-brand-blush/60 flex items-center justify-center">
-                  <ShoppingBag className="w-7 h-7 text-primary" />
+              <div className="max-w-md mx-auto text-center py-16 px-6 glass-card rounded-3xl shadow-luxury-lg border border-border/50">
+                <div className="relative mx-auto w-24 h-24 rounded-full p-1.5 bg-gradient-to-tr from-primary via-pink-400 to-amber-300 shadow-royal mb-6 animate-glow-pulse">
+                  <img src={logo} alt="Inventive Queen" className="w-full h-full rounded-full object-cover" />
+                  <span className="absolute -bottom-1 -right-1 text-xl select-none">👑</span>
                 </div>
-                <h2 className="mt-5 font-display text-2xl font-bold text-foreground">
-                  Your cart is empty
+                <h2 className="font-display text-2xl font-bold text-foreground">
+                  Your Cart is Empty
                 </h2>
-                <p className="mt-2 text-sm text-muted-foreground">
-                  Browse the shop and add your favorite crochet creations.
+                <p className="mt-2.5 text-sm text-muted-foreground leading-relaxed">
+                  The Queen's atelier has delightful bespoke dolls, eternal floral bouquets & cute charms waiting for you!
                 </p>
-                <Button asChild className="mt-6 rounded-xl">
-                  <Link to="/">Continue Shopping</Link>
-                </Button>
+                <div className="mt-7">
+                  <Link
+                    to="/"
+                    className="inline-flex items-center gap-2 px-8 py-3.5 rounded-full btn-gradient text-white text-sm font-bold shadow-royal-glow hover:shadow-luxury-lg active:scale-95 transition-all"
+                  >
+                    <Sparkles size={16} className="text-amber-200" />
+                    <span>Explore Collections ✨</span>
+                  </Link>
+                </div>
               </div>
             </FadeIn>
           ) : (
-            <div className="grid lg:grid-cols-[1fr_360px] gap-8 items-start">
+            <div className="grid lg:grid-cols-[1fr_380px] gap-8 items-start">
               <FadeIn>
                 <div className="space-y-4">
                   {items.map((item) => (
                     <article
                       key={item.id}
-                      className="bg-card rounded-2xl p-4 md:p-5 shadow-luxury-sm border border-border/40"
+                      className="glass-card rounded-3xl p-5 md:p-6 shadow-luxury-sm hover:shadow-luxury transition-all duration-300 border border-border/50 group"
                     >
-                      <div className="flex gap-4">
+                      <div className="flex gap-4 sm:gap-6">
                         <Link to={`/product/${item.productId}`} className="flex-shrink-0">
-                          <img
-                            src={item.image}
-                            alt={item.name}
-                            className="w-24 h-24 md:w-28 md:h-28 rounded-xl object-contain bg-white shadow-sm"
-                          />
+                          <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl overflow-hidden bg-gradient-to-br from-purple-50 via-white to-pink-50 p-2 flex items-center justify-center border border-border/40 shadow-sm group-hover:border-primary/40 transition-colors">
+                            <img
+                              src={item.image}
+                              alt={item.name}
+                              className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-500"
+                            />
+                          </div>
                         </Link>
 
-                        <div className="flex-1 min-w-0">
-                          <div className="flex gap-3 justify-between">
-                            <div className="min-w-0">
-                              <Link
-                                to={`/product/${item.productId}`}
-                                className="font-body text-sm md:text-base font-semibold text-foreground hover:text-primary transition-colors line-clamp-1"
+                        <div className="flex-1 min-w-0 flex flex-col justify-between">
+                          <div>
+                            <div className="flex items-start justify-between gap-3">
+                              <div className="min-w-0">
+                                <Link
+                                  to={`/product/${item.productId}`}
+                                  className="font-display text-base sm:text-lg font-bold text-foreground hover:text-primary transition-colors line-clamp-1"
+                                >
+                                  {item.name}
+                                </Link>
+                                <p className="mt-1 font-display text-base font-bold text-primary">
+                                  {item.price}
+                                </p>
+                              </div>
+                              <button
+                                onClick={() => handleRemove(item.id)}
+                                className="w-8 h-8 rounded-full text-muted-foreground hover:text-destructive hover:bg-destructive/10 flex items-center justify-center transition-colors"
+                                aria-label={`Remove ${item.name}`}
                               >
-                                {item.name}
-                              </Link>
-                              <p className="mt-1 font-display text-base font-bold text-primary">
-                                {item.price}
-                              </p>
+                                <Trash2 size={15} />
+                              </button>
                             </div>
-                            <button
-                              onClick={() => handleRemove(item.id)}
-                              className="w-9 h-9 rounded-full text-muted-foreground hover:text-destructive hover:bg-destructive/10 flex items-center justify-center transition-colors"
-                              aria-label={`Remove ${item.name}`}
-                            >
-                              <Trash2 size={16} />
-                            </button>
+
+                            <ItemDetails item={item} />
                           </div>
 
-                          <ItemDetails item={item} />
-
-                          <div className="mt-4 flex items-center justify-between gap-3">
-                            <div className="inline-flex items-center rounded-full border border-border bg-background overflow-hidden">
+                          <div className="mt-4 pt-3 border-t border-border/30 flex items-center justify-between gap-3">
+                            <div className="inline-flex items-center rounded-full border border-border/60 bg-white dark:bg-card overflow-hidden shadow-sm">
                               <button
                                 onClick={() => handleQuantity(item.id, item.quantity - 1)}
-                                className="w-9 h-9 flex items-center justify-center text-muted-foreground hover:text-primary hover:bg-brand-blush/30 transition-colors"
+                                className="w-8 h-8 flex items-center justify-center text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors"
                                 aria-label={`Decrease ${item.name} quantity`}
                               >
-                                <Minus size={14} />
+                                <Minus size={13} />
                               </button>
-                              <span className="w-10 text-center text-sm font-body font-semibold text-foreground">
+                              <span className="w-9 text-center text-xs font-body font-bold text-foreground">
                                 {item.quantity}
                               </span>
                               <button
                                 onClick={() => handleQuantity(item.id, item.quantity + 1)}
-                                className="w-9 h-9 flex items-center justify-center text-muted-foreground hover:text-primary hover:bg-brand-blush/30 transition-colors"
+                                className="w-8 h-8 flex items-center justify-center text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors"
                                 aria-label={`Increase ${item.name} quantity`}
                               >
-                                <Plus size={14} />
+                                <Plus size={13} />
                               </button>
                             </div>
-                            <p className="text-xs text-muted-foreground font-body">
-                              Handmade to order
-                            </p>
+                            <span className="text-[11px] text-primary/80 font-semibold flex items-center gap-1">
+                              <Sparkles size={12} className="text-amber-500" />
+                              Hand-stitched
+                            </span>
                           </div>
                         </div>
                       </div>
@@ -147,49 +167,71 @@ const CartPage = () => {
                 </div>
               </FadeIn>
 
+              {/* Order Summary Sidebar */}
               <FadeIn delay={0.1}>
-                <aside className="bg-card rounded-2xl p-5 shadow-luxury-sm border border-border/40 lg:sticky lg:top-24">
-                  <div className="flex items-center gap-2">
-                    <Package size={17} className="text-primary" />
-                    <h2 className="font-display text-xl font-bold text-foreground">
-                      Order Summary
-                    </h2>
+                <aside className="glass-card rounded-3xl p-6 shadow-luxury-lg border border-border/60 lg:sticky lg:top-24">
+                  <div className="flex items-center gap-2 pb-4 border-b border-border/40">
+                    <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+                      <Package size={16} />
+                    </div>
+                    <div>
+                      <h2 className="font-display text-lg font-bold text-foreground">
+                        Order Summary
+                      </h2>
+                      <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">
+                        Bespoke Atelier Checkout
+                      </p>
+                    </div>
                   </div>
 
-                  <div className="mt-5 space-y-3 border-t border-border/60 pt-4">
-                    <div className="flex justify-between text-sm font-body">
-                      <span className="text-muted-foreground">Items</span>
-                      <span className="font-medium text-foreground">{itemCount}</span>
+                  <div className="mt-5 space-y-3.5 text-sm font-body">
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Total Items</span>
+                      <span className="font-semibold text-foreground">{itemCount}</span>
                     </div>
-                    <div className="flex justify-between text-sm font-body">
+                    <div className="flex justify-between">
                       <span className="text-muted-foreground">Subtotal</span>
-                      <span className="font-medium text-foreground">Rs. {total}</span>
+                      <span className="font-semibold text-foreground">Rs. {total}</span>
                     </div>
-                    <div className="flex justify-between text-xs font-body text-muted-foreground">
-                      <span>Shipping</span>
-                      <span>Calculated after confirmation</span>
+                    <div className="flex justify-between text-xs text-emerald-600 font-medium">
+                      <span>Royal Gift Box Packaging</span>
+                      <span className="font-bold uppercase tracking-wider bg-emerald-500/10 px-2 py-0.5 rounded-full">FREE 🎁</span>
+                    </div>
+                    <div className="flex justify-between text-xs text-muted-foreground">
+                      <span>Pan-India Shipping</span>
+                      <span className="font-medium text-foreground">Calculated at checkout</span>
                     </div>
                   </div>
 
-                  <div className="mt-5 border-t border-border/60 pt-4 flex justify-between items-center">
-                    <span className="font-body text-sm font-semibold text-foreground">Total</span>
-                    <span className="font-display text-2xl font-bold text-primary">Rs. {total}</span>
+                  <div className="mt-6 border-t border-border/50 pt-4 flex justify-between items-baseline">
+                    <div>
+                      <span className="font-body text-xs uppercase tracking-wider text-muted-foreground font-semibold block">Total Amount</span>
+                      <span className="text-[11px] text-muted-foreground">All taxes included</span>
+                    </div>
+                    <span className="font-display text-2xl font-extrabold text-gradient-royal">Rs. {total}</span>
                   </div>
 
-                  <Button
-                    size="lg"
-                    onClick={() => navigate("/checkout?cart=1")}
-                    className="mt-5 w-full rounded-xl text-base"
-                  >
-                    Checkout All Items
-                  </Button>
-                  <Button
-                    variant="outline"
-                    onClick={handleClear}
-                    className="mt-3 w-full rounded-xl"
-                  >
-                    Clear Cart
-                  </Button>
+                  <div className="mt-6 space-y-2.5">
+                    <button
+                      onClick={() => navigate("/checkout?cart=1")}
+                      className="w-full py-3.5 px-6 rounded-2xl btn-gradient text-white text-sm font-bold shadow-royal-glow hover:shadow-luxury-lg active:scale-95 transition-all flex items-center justify-center gap-2"
+                    >
+                      <Sparkles size={16} className="text-amber-200" />
+                      <span>Proceed to Royal Checkout</span>
+                      <ArrowRight size={15} />
+                    </button>
+                    <button
+                      onClick={handleClear}
+                      className="w-full py-2.5 rounded-xl text-xs text-muted-foreground hover:text-destructive hover:bg-destructive/5 font-medium transition-colors"
+                    >
+                      Clear Shopping Bag
+                    </button>
+                  </div>
+
+                  <div className="mt-5 pt-4 border-t border-border/30 flex items-center justify-center gap-1.5 text-xs text-muted-foreground">
+                    <ShieldCheck size={14} className="text-emerald-500" />
+                    <span>100% Secure Checkout & Payment</span>
+                  </div>
                 </aside>
               </FadeIn>
             </div>
@@ -214,7 +256,7 @@ function ItemDetails({ item }: { item: CartItem }) {
   return (
     <div className="mt-2 space-y-1">
       {details.map((detail) => (
-        <p key={detail} className="font-body text-xs text-muted-foreground line-clamp-2">
+        <p key={detail} className="font-body text-xs text-muted-foreground/90 line-clamp-2 bg-secondary/40 px-2.5 py-1 rounded-lg border border-border/30 w-fit">
           {detail}
         </p>
       ))}
@@ -223,4 +265,3 @@ function ItemDetails({ item }: { item: CartItem }) {
 }
 
 export default CartPage;
-

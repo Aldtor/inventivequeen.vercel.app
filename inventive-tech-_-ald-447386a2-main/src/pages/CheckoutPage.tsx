@@ -2,11 +2,12 @@ import { useState, useMemo, useRef } from "react";
 import { Link, useSearchParams, useNavigate } from "react-router-dom";
 import { useProducts } from "@/lib/cms-products";
 import { clearCart, getCartItems, getCartTotal, parsePrice, type CartItem } from "@/lib/cart";
-import { Heart, Package, Clock, Shield, Gift, Lock, Truck, ChevronLeft, Check } from "lucide-react";
+import { Heart, Package, Clock, Shield, Gift, Lock, Truck, ChevronLeft, Check, Sparkles, ArrowRight } from "lucide-react";
 import { FadeIn } from "@/components/motion/FadeIn";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/lib/auth";
 import { isSupabaseConfigured, supabase } from "@/lib/supabase";
+import logo from "@/assets/logo.png";
 
 const RAZORPAY_SCRIPT_URL = "https://checkout.razorpay.com/v1/checkout.js";
 const razorpayKeyId = import.meta.env.VITE_RAZORPAY_KEY_ID ?? "";
@@ -18,16 +19,16 @@ const steps = [
 ];
 
 const trustItems = [
-  { icon: Heart, label: "100% Handmade" },
-  { icon: Clock, label: "Made in 2-3 days" },
-  { icon: Shield, label: "Secure payment via Razorpay" },
-  { icon: Gift, label: "Perfect gift" },
+  { icon: Heart, label: "100% Handcrafted" },
+  { icon: Clock, label: "Made in 2–3 days" },
+  { icon: Shield, label: "Razorpay SSL Secure" },
+  { icon: Gift, label: "Aesthetic Gift Box" },
 ];
 
 const timelineSteps = [
   { label: "Order Placed", icon: Check, active: true },
-  { label: "Crafting", icon: Heart, active: false },
-  { label: "Shipped", icon: Truck, active: false },
+  { label: "Hand-Crafting", icon: Heart, active: false },
+  { label: "Dispatched", icon: Truck, active: false },
   { label: "Delivered", icon: Gift, active: false },
 ];
 
@@ -178,7 +179,7 @@ export default function CheckoutPage() {
     const errors: Record<string, string> = {};
     if (form.name.trim().length < 2) errors.name = "Please enter your full name.";
     if (!/^[6-9]\d{9}$/.test(form.phone.trim())) errors.phone = "Enter a valid 10-digit mobile number.";
-    if (form.address.trim().length < 10) errors.address = "Please enter your complete address.";
+    if (form.address.trim().length < 10) errors.address = "Please enter your complete street address.";
     if (!/^\d{6}$/.test(form.pincode.trim())) errors.pincode = "Enter a valid 6-digit pincode.";
     return errors;
   }, [form]);
@@ -245,7 +246,6 @@ export default function CheckoutPage() {
 
     if (!isFormValid) {
       setAttempted(true);
-      // Scroll to the form section so user sees the errors
       formRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
       return;
     }
@@ -318,8 +318,9 @@ export default function CheckoutPage() {
         giftNote: form.giftNote.trim(),
         items: itemNames,
       },
+      image: "/logo.png",
       theme: {
-        color: "#c45b73",
+        color: "#8c4fe6",
       },
       modal: {
         ondismiss: () => {
@@ -385,15 +386,17 @@ export default function CheckoutPage() {
 
   if (checkoutItems.length === 0) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="text-center space-y-3 px-6">
-          <Package className="w-12 h-12 text-muted-foreground mx-auto" />
-          <p className="text-lg text-muted-foreground font-body">No items selected.</p>
+      <div className="min-h-screen flex items-center justify-center bg-background p-6">
+        <div className="text-center space-y-4 max-w-sm glass-card p-8 rounded-3xl shadow-luxury">
+          <Package className="w-12 h-12 text-muted-foreground mx-auto text-primary" />
+          <p className="text-lg font-display font-bold text-foreground">No items in checkout</p>
+          <p className="text-xs text-muted-foreground">Select a handcrafted piece or explore our gallery.</p>
           <button
             onClick={() => navigate("/")}
-            className="text-primary underline underline-offset-4 font-body text-sm hover:text-primary/80 transition-colors"
+            className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full btn-gradient text-white text-xs font-bold shadow-md"
           >
-            Back to shop
+            <span>Back to Atelier</span>
+            <ArrowRight size={14} />
           </button>
         </div>
       </div>
@@ -401,60 +404,73 @@ export default function CheckoutPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <div className="sticky top-0 z-10 bg-background/95 backdrop-blur-md border-b border-border/60">
-        <div className="container max-w-lg mx-auto px-4 py-3 flex items-center gap-3">
+    <div className="min-h-screen bg-background selection:bg-primary/15 selection:text-primary">
+      {/* Sticky Header */}
+      <div className="sticky top-0 z-30 bg-background/90 backdrop-blur-xl border-b border-border/50">
+        <div className="container max-w-2xl mx-auto px-4 py-3 flex items-center justify-between">
           <button
             onClick={() => navigate(-1)}
-            className="text-muted-foreground hover:text-primary transition-colors text-sm font-body flex items-center gap-1"
+            className="text-muted-foreground hover:text-foreground transition-colors text-xs font-semibold flex items-center gap-1 py-1 px-2.5 rounded-lg hover:bg-secondary/60"
             aria-label="Go back"
           >
             <ChevronLeft size={16} /> Back
           </button>
-          <h1 className="font-display text-lg text-foreground">Checkout</h1>
+          <div className="flex items-center gap-2">
+            <span className="text-base select-none">👑</span>
+            <span className="font-display text-sm font-bold text-foreground">Royal Checkout</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <img src={logo} alt="Inventive Queen" className="w-7 h-7 rounded-full object-cover ring-2 ring-primary/20" />
+          </div>
         </div>
       </div>
 
-      <div className="container max-w-lg mx-auto px-4 py-6 space-y-6">
+      <div className="container max-w-2xl mx-auto px-4 py-8 space-y-6">
+        {/* Auth prompt if guest */}
         {!authLoading && !user && (
           <FadeIn>
-            <section className="bg-card rounded-2xl p-5 shadow-luxury-sm border border-primary/20 text-center">
-              <Lock className="w-8 h-8 text-primary mx-auto" />
-              <h2 className="mt-3 font-display text-xl font-bold text-foreground">
-                Sign in to place your order
+            <section className="glass-card rounded-3xl p-6 shadow-luxury border border-primary/20 text-center">
+              <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto text-primary mb-3">
+                <Lock size={22} />
+              </div>
+              <h2 className="font-display text-xl font-bold text-foreground">
+                Sign in to complete order
               </h2>
-              <p className="mt-2 text-sm text-muted-foreground">
-                Login creates your order history so you can track every handmade piece.
+              <p className="mt-1.5 text-xs text-muted-foreground max-w-sm mx-auto">
+                Sign in lets you view your order history, tracking updates & bespoke status.
               </p>
-              <Button asChild className="mt-4 rounded-xl">
-                <Link to={`/login?redirect=${encodeURIComponent(`/checkout?${params.toString()}`)}`}>
+              <div className="mt-4">
+                <Link
+                  to={`/login?redirect=${encodeURIComponent(`/checkout?${params.toString()}`)}`}
+                  className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full btn-gradient text-white text-xs font-bold shadow-royal-glow"
+                >
+                  <Sparkles size={14} className="text-amber-200" />
                   Sign In or Create Account
                 </Link>
-              </Button>
+              </div>
             </section>
           </FadeIn>
         )}
 
-        {/* Progress indicator */}
+        {/* Stepper */}
         <FadeIn>
-          <div className="flex items-center justify-between px-2">
+          <div className="flex items-center justify-between px-4 py-3 glass-panel rounded-2xl">
             {steps.map((step, i) => (
               <div key={step.label} className="flex items-center gap-2">
-                <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-body font-semibold ${
+                <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold ${
                   i === 0
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-border/60 text-muted-foreground"
+                    ? "bg-primary text-white shadow-sm shadow-primary/30"
+                    : "bg-secondary text-muted-foreground"
                 }`}>
                   {i + 1}
                 </div>
-                <span className={`text-xs font-body font-medium hidden sm:block ${
+                <span className={`text-xs font-semibold hidden sm:inline ${
                   i === 0 ? "text-foreground" : "text-muted-foreground"
                 }`}>
                   {step.label}
                 </span>
                 {i < steps.length - 1 && (
-                  <div className="w-8 sm:w-12 h-px bg-border/60 mx-1" />
+                  <div className="w-8 sm:w-16 h-px bg-border/60 mx-2" />
                 )}
               </div>
             ))}
@@ -463,11 +479,14 @@ export default function CheckoutPage() {
 
         {/* Order Summary */}
         <FadeIn delay={0.05}>
-          <section className="bg-card rounded-2xl p-5 shadow-luxury-sm">
-            <div className="flex items-center justify-between gap-3 mb-4">
-              <h2 className="font-display text-base text-foreground">Order Summary</h2>
+          <section className="glass-card rounded-3xl p-6 shadow-luxury-sm border border-border/50">
+            <div className="flex items-center justify-between gap-3 mb-4 pb-3 border-b border-border/40">
+              <h2 className="font-display text-base font-bold text-foreground flex items-center gap-2">
+                <Package size={16} className="text-primary" />
+                Order Summary
+              </h2>
               {isCartCheckout && (
-                <span className="text-xs font-body text-muted-foreground">
+                <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-primary/10 text-primary">
                   {checkoutItems.reduce((sum, item) => sum + item.quantity, 0)} items
                 </span>
               )}
@@ -475,25 +494,27 @@ export default function CheckoutPage() {
 
             <div className="space-y-4">
               {checkoutItems.map((item) => (
-                <div key={item.id} className="flex gap-4">
-                  <img
-                    src={item.image}
-                    alt={item.name}
-                    className="w-20 h-20 rounded-xl object-contain bg-white flex-shrink-0 shadow-sm"
-                  />
-                  <div className="flex-1 min-w-0 space-y-1.5">
-                    <div className="flex items-start justify-between gap-3">
-                      <p className="font-body font-medium text-foreground text-sm line-clamp-1">
+                <div key={item.id} className="flex gap-4 items-center">
+                  <div className="w-16 h-16 rounded-2xl overflow-hidden bg-gradient-to-br from-purple-50 to-pink-50 p-1.5 flex items-center justify-center border border-border/40 shadow-sm flex-shrink-0">
+                    <img
+                      src={item.image}
+                      alt={item.name}
+                      className="w-full h-full object-contain"
+                    />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-start justify-between gap-2">
+                      <p className="font-display text-sm font-bold text-foreground line-clamp-1">
                         {item.name}
                       </p>
                       {item.quantity > 1 && (
-                        <span className="text-xs font-body font-semibold text-primary bg-brand-blush/50 rounded-full px-2 py-0.5">
-                          x{item.quantity}
+                        <span className="text-[10px] font-bold text-primary bg-primary/10 rounded-full px-2 py-0.5">
+                          ×{item.quantity}
                         </span>
                       )}
                     </div>
                     <CheckoutItemDetails item={item} />
-                    <p className="font-display text-lg text-primary font-semibold">
+                    <p className="font-display text-sm font-bold text-primary mt-1">
                       {item.quantity > 1
                         ? `Rs. ${parsePrice(item.price) * item.quantity}`
                         : item.price}
@@ -504,9 +525,9 @@ export default function CheckoutPage() {
             </div>
 
             {isCartCheckout && (
-              <div className="mt-5 pt-4 border-t border-border/60 flex items-center justify-between">
-                <span className="font-body text-sm font-semibold text-foreground">Total</span>
-                <span className="font-display text-2xl text-primary font-bold">
+              <div className="mt-5 pt-4 border-t border-border/40 flex items-center justify-between">
+                <span className="font-body text-xs uppercase tracking-wider text-muted-foreground font-semibold">Subtotal</span>
+                <span className="font-display text-xl font-bold text-primary">
                   Rs. {orderTotal}
                 </span>
               </div>
@@ -514,15 +535,17 @@ export default function CheckoutPage() {
           </section>
         </FadeIn>
 
-        {/* Customer Details */}
+        {/* Customer Details Form */}
         <FadeIn delay={0.1}>
-          <section ref={formRef} className="bg-card rounded-2xl p-5 shadow-luxury-sm space-y-4">
-            <h2 className="font-display text-base text-foreground">Your Details</h2>
+          <section ref={formRef} className="glass-card rounded-3xl p-6 shadow-luxury-sm border border-border/50 space-y-4">
+            <h2 className="font-display text-base font-bold text-foreground pb-2 border-b border-border/40">
+              Delivery Address & Contact
+            </h2>
 
             <InputField
               label="Full Name"
               name="name"
-              placeholder="Enter your full name"
+              placeholder="e.g. Priyanshi Sharma"
               value={form.name}
               onChange={handleChange}
               error={attempted ? formErrors.name : undefined}
@@ -537,16 +560,18 @@ export default function CheckoutPage() {
               maxLength={10}
               error={attempted ? formErrors.phone : undefined}
             />
-            <div className="space-y-2">
-              <label className="font-body text-sm font-medium text-foreground">Address</label>
+            <div className="space-y-1.5">
+              <label className="font-body text-xs font-semibold text-foreground uppercase tracking-wider">
+                Full Street Address
+              </label>
               <textarea
                 name="address"
-                placeholder="Full delivery address"
+                placeholder="House/flat no, building name, street, landmark, city, state"
                 value={form.address}
                 onChange={handleChange}
                 rows={3}
-                className={`w-full rounded-xl border bg-background px-4 py-3 text-sm font-body text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/40 transition-all duration-200 resize-none ${
-                  attempted && formErrors.address ? "border-destructive" : "border-border"
+                className={`w-full rounded-2xl border bg-card px-4 py-3 text-sm font-body text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/30 transition-all resize-none ${
+                  attempted && formErrors.address ? "border-destructive ring-1 ring-destructive/20" : "border-border/60"
                 }`}
               />
               {attempted && formErrors.address && (
@@ -556,7 +581,7 @@ export default function CheckoutPage() {
             <InputField
               label="Pincode"
               name="pincode"
-              placeholder="6-digit pincode"
+              placeholder="6-digit postal code"
               value={form.pincode}
               onChange={handleChange}
               maxLength={6}
@@ -567,59 +592,58 @@ export default function CheckoutPage() {
 
         {/* Gift Note */}
         <FadeIn delay={0.15}>
-          <section className="bg-card rounded-2xl p-5 shadow-luxury-sm space-y-3">
+          <section className="glass-card rounded-3xl p-6 shadow-luxury-sm border border-border/50 space-y-3">
             <div className="flex items-center gap-2">
               <Gift size={16} className="text-primary" />
-              <h2 className="font-display text-base text-foreground">Gift Note</h2>
-              <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-body ml-auto">Optional</span>
+              <h2 className="font-display text-base font-bold text-foreground">Gift Message & Note</h2>
+              <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold ml-auto bg-secondary px-2.5 py-0.5 rounded-full">
+                Optional
+              </span>
             </div>
             <textarea
               name="giftNote"
-              placeholder="Add a personal message for the recipient..."
+              placeholder="Personal message for the recipient (we hand-write this on aesthetic parchment)..."
               value={form.giftNote}
               onChange={handleChange}
               rows={2}
-              className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm font-body text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/40 transition-all duration-200 resize-none"
+              className="w-full rounded-2xl border border-border/60 bg-card px-4 py-3 text-sm font-body text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/30 transition-all resize-none"
             />
           </section>
         </FadeIn>
 
         {/* Delivery timeline */}
         <FadeIn delay={0.2}>
-          <section className="bg-card rounded-2xl p-5 shadow-luxury-sm">
-            <h2 className="font-display text-base text-foreground mb-4">Delivery Timeline</h2>
-            <div className="flex items-center justify-between px-2">
-              {timelineSteps.map((step, i) => (
-                <div key={step.label} className="flex flex-col items-center gap-1.5 flex-1">
-                  <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
+          <section className="glass-card rounded-3xl p-6 shadow-luxury-sm border border-border/50">
+            <h2 className="font-display text-sm font-bold text-foreground mb-4">Handcrafted Process Timeline</h2>
+            <div className="grid grid-cols-4 gap-2 text-center">
+              {timelineSteps.map((step) => (
+                <div key={step.label} className="flex flex-col items-center gap-2">
+                  <div className={`w-9 h-9 rounded-2xl flex items-center justify-center transition-all ${
                     step.active
-                      ? "bg-primary text-primary-foreground"
-                      : "bg-brand-blush/50 text-primary/40"
+                      ? "bg-primary text-white shadow-royal"
+                      : "bg-secondary text-muted-foreground/60"
                   }`}>
-                    <step.icon size={14} />
+                    <step.icon size={15} />
                   </div>
-                  <span className="text-[10px] font-body font-medium text-center text-muted-foreground leading-tight">
+                  <span className="text-[10px] font-semibold text-foreground leading-tight">
                     {step.label}
                   </span>
-                  {i < timelineSteps.length - 1 && (
-                    <div className="absolute" />
-                  )}
                 </div>
               ))}
             </div>
           </section>
         </FadeIn>
 
-        {/* Trust Section */}
+        {/* Trust Badges */}
         <FadeIn delay={0.25}>
           <section className="grid grid-cols-2 gap-3">
             {trustItems.map(({ icon: Icon, label }) => (
               <div
                 key={label}
-                className="flex items-center gap-2.5 bg-card rounded-xl px-3.5 py-3.5 shadow-luxury-sm"
+                className="flex items-center gap-2.5 glass-panel rounded-2xl px-4 py-3 shadow-luxury-sm"
               >
                 <Icon className="w-4 h-4 text-primary flex-shrink-0" />
-                <span className="font-body text-xs text-muted-foreground leading-tight">
+                <span className="font-body text-xs font-medium text-foreground">
                   {label}
                 </span>
               </div>
@@ -627,31 +651,25 @@ export default function CheckoutPage() {
           </section>
         </FadeIn>
 
-        {/* Security line */}
-        <div className="flex items-center justify-center gap-2 py-2">
-          <Lock className="w-3.5 h-3.5 text-muted-foreground" />
-          <p className="font-body text-xs text-muted-foreground">
-            Secure payment via Razorpay - Made after order
-          </p>
-        </div>
-
         {/* Pay Button */}
-        <div className="space-y-3 pb-8">
+        <div className="space-y-3 pt-2 pb-8">
           <button
             onClick={handlePayNow}
             disabled={isPaying}
-            className="w-full py-4 rounded-2xl font-body font-semibold text-base text-primary-foreground bg-primary shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:shadow-none transition-all duration-200"
+            className="w-full py-4 px-6 rounded-2xl font-body font-bold text-sm text-white btn-gradient shadow-royal-glow hover:shadow-luxury-lg active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2"
           >
-            {isPaying ? "Opening Razorpay..." : `Pay Now ${payLabel}`}
+            <Sparkles size={16} className="text-amber-200" />
+            <span>{isPaying ? "Opening Razorpay Gateway..." : `Pay Now ${payLabel}`}</span>
           </button>
           {paymentError && (
-            <p className="text-center font-body text-xs text-destructive">
+            <p className="text-center font-body text-xs text-destructive bg-destructive/10 p-2.5 rounded-xl">
               {paymentError}
             </p>
           )}
-          <p className="text-center font-body text-xs text-muted-foreground">
-            Your order will be handcrafted after confirmation
-          </p>
+          <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground">
+            <Lock size={12} className="text-emerald-600" />
+            <span>Encrypted 256-bit SSL transaction via Razorpay</span>
+          </div>
         </div>
       </div>
     </div>
@@ -668,9 +686,9 @@ function CheckoutItemDetails({ item }: { item: CartItem }) {
   if (details.length === 0) return null;
 
   return (
-    <div className="space-y-1">
+    <div className="space-y-0.5 mt-1">
       {details.map((detail) => (
-        <p key={detail} className="font-body text-xs text-muted-foreground line-clamp-2">
+        <p key={detail} className="font-body text-[11px] text-muted-foreground line-clamp-1">
           {detail}
         </p>
       ))}
@@ -698,8 +716,8 @@ function InputField({
   error?: string;
 }) {
   return (
-    <div className="space-y-2">
-      <label className="font-body text-sm font-medium text-foreground">{label}</label>
+    <div className="space-y-1.5">
+      <label className="font-body text-xs font-semibold text-foreground uppercase tracking-wider">{label}</label>
       <input
         type={type}
         name={name}
@@ -707,8 +725,8 @@ function InputField({
         value={value}
         onChange={onChange}
         maxLength={maxLength}
-        className={`w-full rounded-xl border bg-background px-4 py-3 text-sm font-body text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/40 transition-all duration-200 ${
-          error ? "border-destructive" : "border-border"
+        className={`w-full rounded-2xl border bg-card px-4 py-3 text-sm font-body text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/30 transition-all ${
+          error ? "border-destructive ring-1 ring-destructive/20" : "border-border/60"
         }`}
       />
       {error && (
@@ -717,4 +735,3 @@ function InputField({
     </div>
   );
 }
-

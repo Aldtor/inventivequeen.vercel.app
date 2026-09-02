@@ -1,5 +1,7 @@
-import { LayoutDashboard, ShoppingBag, Package, Settings } from "lucide-react";
+import { LayoutDashboard, ShoppingBag, Package, Settings, ExternalLink } from "lucide-react";
+import { Link } from "react-router-dom";
 import { NavLink } from "@/components/NavLink";
+import logo from "@/assets/logo.png";
 import {
   Sidebar,
   SidebarContent,
@@ -24,31 +26,37 @@ export function AdminSidebar() {
   const collapsed = state === "collapsed";
 
   return (
-    <Sidebar collapsible="icon" className="border-r border-border bg-card">
+    <Sidebar collapsible="icon" className="border-r border-border/60 bg-card/80 backdrop-blur-xl">
       <SidebarContent className="pt-4">
         {!collapsed && (
-          <div className="px-4 pb-4">
-            <h2 className="font-display text-lg text-foreground leading-tight">
-              Inventive Queen
-            </h2>
-            <p className="font-body text-xs text-muted-foreground mt-0.5">Admin Panel</p>
+          <div className="px-4 pb-4 flex items-center gap-3 border-b border-border/40 mb-2">
+            <div className="relative">
+              <img src={logo} alt="Inventive Queen" className="w-10 h-10 rounded-full object-cover ring-2 ring-primary/30 shadow-sm" />
+              <span className="absolute -bottom-1 -right-1 text-xs select-none">👑</span>
+            </div>
+            <div>
+              <h2 className="font-display text-sm font-bold text-foreground leading-tight">
+                Inventive Queen
+              </h2>
+              <p className="font-body text-[10px] text-primary uppercase tracking-wider font-bold">Royal Atelier CMS</p>
+            </div>
           </div>
         )}
 
         <SidebarGroup>
-          <SidebarGroupLabel className="font-body text-[11px] uppercase tracking-wider text-muted-foreground">
-            Menu
+          <SidebarGroupLabel className="font-body text-[10px] uppercase tracking-wider text-muted-foreground font-semibold px-4">
+            Management
           </SidebarGroupLabel>
           <SidebarGroupContent>
-            <SidebarMenu>
+            <SidebarMenu className="px-2 space-y-1">
               {items.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
                     <NavLink
                       to={item.url}
                       end={item.url === "/admin"}
-                      className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-body text-muted-foreground hover:bg-secondary/60 transition-colors"
-                      activeClassName="bg-secondary text-foreground font-medium"
+                      className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-muted-foreground hover:bg-secondary/70 hover:text-foreground transition-all"
+                      activeClassName="bg-primary/10 text-primary font-bold shadow-sm"
                     >
                       <item.icon className="h-4 w-4 flex-shrink-0" />
                       {!collapsed && <span>{item.title}</span>}
@@ -56,6 +64,19 @@ export function AdminSidebar() {
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
+
+              {/* Back to store link */}
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild>
+                  <Link
+                    to="/"
+                    className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-muted-foreground hover:bg-secondary/70 hover:text-primary transition-all mt-4 border-t border-border/30 pt-3"
+                  >
+                    <ExternalLink className="h-4 w-4 flex-shrink-0" />
+                    {!collapsed && <span>View Live Website</span>}
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
