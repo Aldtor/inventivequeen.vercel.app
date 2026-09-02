@@ -1,6 +1,7 @@
 import Navbar from "@/components/Navbar";
 import HeroSection from "@/components/HeroSection";
 import MarqueeTicker from "@/components/MarqueeTicker";
+import StatsHighlights from "@/components/StatsHighlights";
 import CategoriesSection from "@/components/CategoriesSection";
 import FeaturedProducts from "@/components/FeaturedProducts";
 import DesignsGallery from "@/components/DesignsGallery";
@@ -17,6 +18,7 @@ const Index = () => (
     <Navbar />
     <HeroSection />
     <MarqueeTicker />
+    <StatsHighlights />
     <CategoriesSection />
     <FeaturedProducts />
     <DesignsGallery />

@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,500&family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,600;1,700&family=Inter:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -7,58 +7,63 @@
 /* ─── BASE LAYER ──────────────────────────────────────────────── */
 @layer base {
   :root {
-    --background: 280 30% 98%;
-    --foreground: 270 35% 11%;
+    /* Soft lilac/lavender canvas background matching the logo */
+    --background: 275 50% 98.5%;
+    /* Deep plum/purple foreground text for high contrast & cozy warmth */
+    --foreground: 275 65% 14%;
 
     --card: 0 0% 100%;
-    --card-foreground: 270 35% 11%;
+    --card-foreground: 275 65% 14%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 270 35% 11%;
+    --popover-foreground: 275 65% 14%;
 
-    --primary: 270 60% 56%;
+    /* Royal purple from logo dress and hook */
+    --primary: 270 75% 58%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 275 30% 95%;
-    --secondary-foreground: 270 35% 11%;
+    /* Soft lavender secondary */
+    --secondary: 275 45% 95%;
+    --secondary-foreground: 272 60% 28%;
 
-    --muted: 275 20% 94%;
-    --muted-foreground: 270 12% 48%;
+    --muted: 275 30% 94%;
+    --muted-foreground: 275 22% 46%;
 
-    --accent: 275 40% 93%;
-    --accent-foreground: 270 35% 11%;
+    --accent: 275 55% 93%;
+    --accent-foreground: 272 70% 32%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 275 22% 90%;
-    --input: 275 22% 90%;
-    --ring: 270 60% 56%;
+    /* Lavender subtle borders */
+    --border: 275 35% 90%;
+    --input: 275 35% 90%;
+    --ring: 270 75% 58%;
 
-    --radius: 0.875rem;
+    --radius: 1.25rem;
 
-    --sidebar-background: 280 30% 99%;
-    --sidebar-foreground: 270 18% 28%;
-    --sidebar-primary: 270 60% 56%;
+    --sidebar-background: 275 45% 99%;
+    --sidebar-foreground: 275 40% 25%;
+    --sidebar-primary: 270 75% 58%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 275 35% 95%;
-    --sidebar-accent-foreground: 270 35% 11%;
-    --sidebar-border: 275 18% 91%;
-    --sidebar-ring: 270 60% 56%;
+    --sidebar-accent: 275 45% 94%;
+    --sidebar-accent-foreground: 275 65% 14%;
+    --sidebar-border: 275 30% 91%;
+    --sidebar-ring: 270 75% 58%;
 
-    /* ── Brand Tokens ── */
+    /* ── Brand Tokens Matching Logo ── */
     --brand-cream: 30 50% 97%;
-    --brand-blush: 330 45% 93%;
-    --brand-rose: 270 60% 56%;
-    --brand-warm: 268 48% 38%;
-    --brand-taupe: 270 18% 40%;
-    --brand-gold: 40 85% 58%;
-    --brand-lilac: 275 55% 93%;
-    --brand-lavender: 272 45% 85%;
-    --brand-amethyst: 270 60% 56%;
-    --brand-midnight: 270 40% 10%;
-    --brand-pink: 330 70% 72%;
-    --brand-peach: 20 80% 88%;
+    --brand-blush: 285 50% 95%;
+    --brand-rose: 270 75% 58%;
+    --brand-warm: 272 55% 34%;
+    --brand-taupe: 275 20% 42%;
+    --brand-gold: 40 92% 54%;
+    --brand-lilac: 275 60% 94%;
+    --brand-lavender: 272 55% 88%;
+    --brand-amethyst: 270 75% 58%;
+    --brand-midnight: 275 65% 10%;
+    --brand-pink: 310 65% 70%;
+    --brand-peach: 25 85% 90%;
   }
 }
 
@@ -73,33 +78,38 @@
 
   body {
     @apply bg-background text-foreground antialiased;
-    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    font-family: 'Plus Jakarta Sans', 'Inter', system-ui, -apple-system, sans-serif;
+    background-color: #fbf8fe;
+    /* CyDoes Craft signature polka dot background */
+    background-image: radial-gradient(hsl(275 45% 85% / 0.65) 1.5px, transparent 1.5px);
+    background-size: 26px 26px;
+    background-attachment: fixed;
   }
 
   h1, h2, h3, h4, h5, h6 {
     font-family: 'Playfair Display', serif;
-    @apply tracking-tight;
+    @apply tracking-tight text-foreground;
   }
 
   /* Premium selection highlight */
   ::selection {
-    background: hsl(270 60% 56% / 0.18);
-    color: hsl(270 40% 10%);
+    background: hsl(270 75% 58% / 0.22);
+    color: hsl(275 65% 14%);
   }
 
-  /* Smooth custom scrollbar */
+  /* Smooth custom scrollbar in royal purple */
   ::-webkit-scrollbar {
-    width: 6px;
+    width: 8px;
   }
   ::-webkit-scrollbar-track {
-    background: hsl(275 20% 94%);
+    background: hsl(275 35% 96%);
   }
   ::-webkit-scrollbar-thumb {
-    background: hsl(270 30% 78%);
+    background: hsl(270 50% 75%);
     border-radius: 999px;
   }
   ::-webkit-scrollbar-thumb:hover {
-    background: hsl(270 40% 65%);
+    background: hsl(270 65% 60%);
   }
 }
 
@@ -116,6 +126,12 @@
 /* ─── COMPONENTS ──────────────────────────────────────────────── */
 @layer components {
 
+  /* ── CyDoes Craft Polka Dot Grid ── */
+  .bg-craft-dots {
+    background-image: radial-gradient(hsl(275 45% 84% / 0.7) 1.5px, transparent 1.5px);
+    background-size: 26px 26px;
+  }
+
   /* ── Card Hover Lift ── */
   .card-lift {
     @apply transition-all duration-300 ease-out;
@@ -123,8 +139,8 @@
   .card-lift:hover {
     @apply -translate-y-1.5;
     box-shadow:
-      0 20px 40px -10px hsl(270 60% 56% / 0.14),
-      0 8px 16px -6px hsl(270 35% 11% / 0.05);
+      0 20px 40px -10px hsl(270 75% 58% / 0.16),
+      0 8px 16px -6px hsl(275 65% 14% / 0.06);
   }
 
   /* ── Scarcity / Announcement Banner ── */
@@ -132,37 +148,36 @@
     @apply text-center py-2.5 text-xs font-body font-medium tracking-wide border-b;
     background: linear-gradient(
       90deg,
-      hsl(330 45% 95%) 0%,
-      hsl(280 30% 98%) 40%,
-      hsl(40 60% 96%) 70%,
-      hsl(275 40% 95%) 100%
+      #7c3aed 0%,
+      #8b5cf6 50%,
+      #6d28d9 100%
     );
-    border-color: hsl(270 30% 88% / 0.6);
-    color: hsl(270 55% 32%);
+    border-color: rgba(255, 255, 255, 0.15);
+    color: #ffffff;
   }
 
   /* ── Shadow Presets ── */
   .shadow-luxury-sm {
     box-shadow:
-      0 2px 8px -2px hsl(270 35% 11% / 0.04),
-      0 1px 4px -1px hsl(270 60% 56% / 0.05);
+      0 2px 8px -2px hsl(275 65% 14% / 0.04),
+      0 1px 4px -1px hsl(270 75% 58% / 0.06);
   }
   .shadow-luxury {
     box-shadow:
-      0 8px 28px -6px hsl(270 60% 56% / 0.10),
-      0 3px 10px -3px hsl(270 35% 11% / 0.04);
+      0 8px 28px -6px hsl(270 75% 58% / 0.12),
+      0 3px 10px -3px hsl(275 65% 14% / 0.05);
   }
   .shadow-luxury-lg {
     box-shadow:
-      0 20px 50px -10px hsl(270 60% 56% / 0.15),
-      0 6px 20px -6px hsl(270 35% 11% / 0.05);
+      0 20px 50px -10px hsl(270 75% 58% / 0.16),
+      0 6px 20px -6px hsl(275 65% 14% / 0.06);
   }
   .shadow-royal {
-    box-shadow: 0 0 40px -6px hsl(270 60% 56% / 0.22);
+    box-shadow: 0 0 40px -6px hsl(270 75% 58% / 0.25);
   }
   .shadow-royal-glow {
     box-shadow:
-      0 12px 36px -10px hsl(270 60% 56% / 0.22),
+      0 12px 36px -10px hsl(270 75% 58% / 0.28),
       0 0 24px -6px hsl(40 85% 58% / 0.15);
   }
   .shadow-gold-glow {
@@ -173,77 +188,57 @@
 
   /* ── Glassmorphism ── */
   .glass-card {
-    background: rgba(255, 255, 255, 0.72);
+    background: rgba(255, 255, 255, 0.82);
     backdrop-filter: blur(16px) saturate(1.4);
     -webkit-backdrop-filter: blur(16px) saturate(1.4);
-    border: 1px solid rgba(220, 200, 240, 0.45);
+    border: 1px solid rgba(220, 200, 245, 0.65);
   }
 
   .glass-navbar {
-    background: rgba(255, 255, 255, 0.85);
+    background: rgba(251, 248, 254, 0.88);
     backdrop-filter: blur(20px) saturate(1.6);
     -webkit-backdrop-filter: blur(20px) saturate(1.6);
-    border-bottom: 1px solid rgba(220, 200, 240, 0.5);
+    border-bottom: 1px solid rgba(225, 205, 245, 0.65);
   }
 
   .glass-panel {
-    background: rgba(255, 255, 255, 0.60);
+    background: rgba(255, 255, 255, 0.75);
     backdrop-filter: blur(20px) saturate(1.5);
     -webkit-backdrop-filter: blur(20px) saturate(1.5);
-    border: 1px solid rgba(220, 200, 240, 0.35);
-  }
-
-  .glass-dark {
-    background: rgba(30, 15, 50, 0.85);
-    backdrop-filter: blur(20px) saturate(1.5);
-    -webkit-backdrop-filter: blur(20px) saturate(1.5);
-    border: 1px solid rgba(120, 80, 170, 0.25);
+    border: 1px solid rgba(220, 200, 245, 0.55);
   }
 
   /* ── Gradient Texts ── */
   .text-gradient-royal {
-    background: linear-gradient(135deg, hsl(270 70% 48%) 0%, hsl(330 65% 55%) 50%, hsl(268 75% 52%) 100%);
+    background: linear-gradient(135deg, hsl(270 80% 48%) 0%, hsl(295 70% 50%) 50%, hsl(265 85% 55%) 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
   }
 
   .text-gradient-gold {
-    background: linear-gradient(135deg, hsl(40 85% 52%) 0%, hsl(35 90% 65%) 50%, hsl(45 80% 55%) 100%);
+    background: linear-gradient(135deg, hsl(40 90% 50%) 0%, hsl(35 90% 62%) 50%, hsl(45 85% 55%) 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
   }
 
-  /* ── Background Patterns ── */
-  .bg-craft-dots {
-    background-image: radial-gradient(hsl(270 40% 78% / 0.18) 1.5px, transparent 1.5px);
-    background-size: 24px 24px;
-  }
-
+  /* ── Background Mesh Meshes ── */
   .bg-fairytale-mesh {
     background:
-      radial-gradient(at 0% 0%, hsl(280 55% 95% / 0.7) 0px, transparent 50%),
-      radial-gradient(at 100% 0%, hsl(330 55% 95% / 0.6) 0px, transparent 50%),
-      radial-gradient(at 50% 50%, hsl(275 35% 97% / 0.8) 0px, transparent 50%),
-      radial-gradient(at 100% 100%, hsl(40 60% 96% / 0.6) 0px, transparent 50%),
-      radial-gradient(at 0% 100%, hsl(270 45% 94% / 0.7) 0px, transparent 50%);
+      radial-gradient(at 0% 0%, hsl(280 65% 95% / 0.8) 0px, transparent 50%),
+      radial-gradient(at 100% 0%, hsl(295 55% 95% / 0.7) 0px, transparent 50%),
+      radial-gradient(at 50% 50%, hsl(275 45% 97% / 0.85) 0px, transparent 50%),
+      radial-gradient(at 100% 100%, hsl(270 50% 96% / 0.7) 0px, transparent 50%),
+      radial-gradient(at 0% 100%, hsl(275 55% 94% / 0.8) 0px, transparent 50%);
   }
 
   .bg-premium-mesh {
     background:
-      radial-gradient(at 10% 20%, hsl(270 50% 92% / 0.5) 0px, transparent 40%),
-      radial-gradient(at 90% 10%, hsl(330 50% 94% / 0.4) 0px, transparent 40%),
-      radial-gradient(at 50% 80%, hsl(40 50% 95% / 0.35) 0px, transparent 40%),
-      radial-gradient(at 80% 90%, hsl(275 40% 93% / 0.4) 0px, transparent 40%);
-  }
-
-  .bg-dark-mesh {
-    background:
-      radial-gradient(at 0% 0%, hsl(270 50% 18% / 0.8) 0px, transparent 50%),
-      radial-gradient(at 100% 100%, hsl(330 40% 15% / 0.6) 0px, transparent 50%),
-      radial-gradient(at 50% 50%, hsl(40 30% 12% / 0.3) 0px, transparent 50%),
-      hsl(270 40% 8%);
+      radial-gradient(at 10% 20%, hsl(270 55% 93% / 0.6) 0px, transparent 40%),
+      radial-gradient(at 90% 10%, hsl(290 50% 94% / 0.5) 0px, transparent 40%),
+      radial-gradient(at 50% 80%, hsl(275 45% 95% / 0.5) 0px, transparent 40%),
+      radial-gradient(at 80% 90%, hsl(275 45% 93% / 0.5) 0px, transparent 40%);
   }
 
   /* ── Shimmer Badge ── */
@@ -254,16 +249,43 @@
 
   /* ── Gradient CTA Button ── */
   .btn-gradient {
-    background: linear-gradient(135deg, hsl(270 60% 52%) 0%, hsl(300 55% 52%) 50%, hsl(270 65% 55%) 100%);
+    background: linear-gradient(135deg, hsl(270 75% 56%) 0%, hsl(285 70% 54%) 50%, hsl(265 80% 58%) 100%);
     background-size: 200% 200%;
     animation: gradient-shift 4s ease infinite;
   }
 
   .btn-gradient:hover {
-    filter: brightness(1.08);
+    filter: brightness(1.06);
     box-shadow:
-      0 8px 24px -6px hsl(270 60% 56% / 0.30),
-      0 0 12px -2px hsl(330 60% 56% / 0.15);
+      0 10px 28px -6px hsl(270 75% 58% / 0.35),
+      0 0 16px -2px hsl(285 70% 56% / 0.20);
+  }
+
+  /* ── Speech Bubble Pointer ── */
+  .speech-bubble-tail {
+    position: relative;
+  }
+  .speech-bubble-tail::after {
+    content: '';
+    position: absolute;
+    bottom: -8px;
+    right: 32px;
+    border-width: 8px 8px 0;
+    border-style: solid;
+    border-color: #ffffff transparent;
+    display: block;
+    width: 0;
+  }
+  .speech-bubble-tail::before {
+    content: '';
+    position: absolute;
+    bottom: -11px;
+    right: 31px;
+    border-width: 9px 9px 0;
+    border-style: solid;
+    border-color: #d8b4fe transparent;
+    display: block;
+    width: 0;
   }
 
   /* ── Glow Border ── */
@@ -275,7 +297,7 @@
     position: absolute;
     inset: -1px;
     border-radius: inherit;
-    background: linear-gradient(135deg, hsl(270 60% 56% / 0.3), hsl(330 60% 60% / 0.2), hsl(40 80% 60% / 0.2));
+    background: linear-gradient(135deg, hsl(270 75% 58% / 0.35), hsl(295 65% 60% / 0.25), hsl(40 80% 60% / 0.2));
     z-index: -1;
     opacity: 0;
     transition: opacity 0.3s ease;
@@ -287,7 +309,7 @@
   /* ── Section Divider ── */
   .section-divider {
     height: 1px;
-    background: linear-gradient(90deg, transparent, hsl(270 40% 80% / 0.5), hsl(330 40% 82% / 0.4), transparent);
+    background: linear-gradient(90deg, transparent, hsl(275 40% 82% / 0.6), hsl(290 40% 85% / 0.5), transparent);
   }
 }
 
@@ -310,18 +332,28 @@
 }
 
 @keyframes float-gentle {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-10px) rotate(3deg); }
+}
+
+@keyframes float-slow {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-14px) rotate(-4deg); }
+}
+
+@keyframes bounce-gentle {
   0%, 100% { transform: translateY(0px); }
-  50% { transform: translateY(-10px); }
+  50% { transform: translateY(-6px); }
 }
 
 @keyframes pulse-glow {
-  0%, 100% { box-shadow: 0 0 0 0 hsl(270 60% 56% / 0.3); }
-  50% { box-shadow: 0 0 20px 4px hsl(270 60% 56% / 0.15); }
+  0%, 100% { box-shadow: 0 0 0 0 hsl(270 75% 58% / 0.35); }
+  50% { box-shadow: 0 0 24px 6px hsl(270 75% 58% / 0.18); }
 }
 
 @keyframes sparkle {
   0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.6; transform: scale(0.85); }
+  50% { opacity: 0.5; transform: scale(0.85); }
 }
 
 @keyframes fade-scale-in {
@@ -338,15 +370,21 @@
 .animate-marquee {
   display: flex;
   width: max-content;
-  animation: marquee 36s linear infinite;
+  animation: marquee 34s linear infinite;
 }
 .animate-marquee:hover {
   animation-play-state: paused;
 }
 
-/* ── Float Gentle ── */
+/* ── Float Classes ── */
 .animate-float-gentle {
   animation: float-gentle 5s ease-in-out infinite;
+}
+.animate-float-slow {
+  animation: float-slow 7s ease-in-out infinite;
+}
+.animate-bounce-gentle {
+  animation: bounce-gentle 3.5s ease-in-out infinite;
 }
 
 /* ── Pulse Glow ── */

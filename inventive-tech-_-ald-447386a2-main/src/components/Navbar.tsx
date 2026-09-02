@@ -70,20 +70,22 @@ const Navbar = () => {
             transition={{ duration: 0.3, ease: "easeOut" }}
             className="overflow-hidden"
           >
-            <div className="scarcity-line flex items-center justify-center gap-2 px-4 relative z-50">
-              <Crown size={12} className="text-amber-500 flex-shrink-0" />
-              <span className="font-medium">
-                <strong className="tracking-wide">LIMITED SLOTS</strong>: Custom crochet orders are currently OPEN! Processing time: 3–5 days.
+            <div className="bg-gradient-to-r from-purple-700 via-purple-600 to-indigo-700 text-white text-center py-2.5 px-4 text-xs font-medium tracking-wide flex items-center justify-center gap-2 relative z-50 shadow-sm">
+              <span className="px-2.5 py-0.5 rounded-full bg-white/20 border border-white/30 text-[10px] font-extrabold uppercase tracking-wider text-white">
+                LIMITED SLOTS
+              </span>
+              <span>
+                🌸 Custom crochet orders are currently <strong className="font-bold underline decoration-white/50 underline-offset-2">OPEN</strong>! Processing time: 3–5 days.
               </span>
               <a
                 href="#how-to-order"
-                className="underline underline-offset-2 font-semibold ml-1 text-primary hover:opacity-80 transition-opacity hidden sm:inline"
+                className="underline underline-offset-2 font-bold ml-1 text-purple-100 hover:text-white transition-colors hidden sm:inline"
               >
                 Learn more →
               </a>
               <button
                 onClick={() => setBannerVisible(false)}
-                className="absolute right-3 sm:right-4 text-muted-foreground hover:text-foreground transition-colors p-1"
+                className="absolute right-3 sm:right-4 text-white/70 hover:text-white transition-colors p-1"
                 aria-label="Dismiss banner"
               >
                 <X size={14} />
@@ -97,15 +99,15 @@ const Navbar = () => {
       <nav
         className={`sticky top-0 z-50 transition-all duration-300 ${
           scrolled
-            ? "bg-background/92 backdrop-blur-2xl shadow-luxury-sm border-b border-border/60"
-            : "bg-background/80 backdrop-blur-xl border-b border-border/40"
+            ? "bg-[#fbf8fe]/95 backdrop-blur-2xl shadow-luxury-sm border-b border-purple-200/60"
+            : "bg-[#fbf8fe]/85 backdrop-blur-xl border-b border-purple-100"
         }`}
       >
         <div className="container flex items-center justify-between h-16 md:h-[72px] gap-3">
           {/* ── Brand Logo ── */}
           <Link to="/" className="flex items-center gap-2.5 flex-shrink-0 group">
             <div className="relative">
-              <div className="w-10 h-10 md:w-11 md:h-11 rounded-full overflow-hidden ring-2 ring-primary/20 group-hover:ring-primary/40 transition-all duration-300 shadow-sm">
+              <div className="w-10 h-10 md:w-11 md:h-11 rounded-full overflow-hidden ring-2 ring-purple-400/40 group-hover:ring-purple-500 transition-all duration-300 shadow-sm bg-purple-50">
                 <img
                   src={logo}
                   alt="Inventive Queen"
@@ -115,16 +117,16 @@ const Navbar = () => {
               <span className="absolute -bottom-0.5 -right-0.5 text-[10px] select-none drop-shadow-sm">👑</span>
             </div>
             <div className="flex flex-col">
-              <span className="font-display text-base md:text-lg font-bold tracking-tight text-foreground group-hover:text-primary transition-colors duration-200 leading-none">
+              <span className="font-display text-base md:text-lg font-bold tracking-tight text-purple-950 group-hover:text-purple-700 transition-colors duration-200 leading-none">
                 Inventive Queen
               </span>
-              <span className="text-[9px] uppercase tracking-[0.2em] text-primary/70 font-bold mt-0.5">
+              <span className="text-[9px] uppercase tracking-[0.2em] text-purple-600 font-bold mt-0.5">
                 Royal Crochet Atelier
               </span>
             </div>
 
             {/* Orders OPEN badge */}
-            <div className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 text-[10px] font-semibold ml-1">
+            <div className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 border border-emerald-300/60 text-emerald-700 text-[11px] font-semibold ml-1.5 shadow-sm">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
               <span>Orders OPEN</span>
             </div>
@@ -141,10 +143,10 @@ const Navbar = () => {
               <li key={p.label}>
                 <button
                   onClick={p.action}
-                  className={`relative px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all duration-200 ${
+                  className={`relative px-4 py-1.5 rounded-full text-xs font-bold transition-all duration-200 ${
                     p.active
-                      ? "bg-primary text-primary-foreground shadow-sm shadow-primary/20"
-                      : "text-muted-foreground hover:text-foreground hover:bg-secondary/70"
+                      ? "bg-purple-100 text-purple-800 shadow-sm border border-purple-200/70"
+                      : "text-purple-900/70 hover:text-purple-950 hover:bg-purple-50"
                   }`}
                 >
                   {p.label}

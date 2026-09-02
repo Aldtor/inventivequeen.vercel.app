@@ -73,18 +73,18 @@ const CategoriesSection = () => {
       <div className="container max-w-6xl relative z-10">
         <div className="text-center max-w-2xl mx-auto mb-14">
           <FadeIn>
-            <div className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-primary/8 border border-primary/15 text-primary text-xs uppercase tracking-[0.22em] font-semibold mb-4">
-              <span>🛍️</span> Atelier Collections
+            <div className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-purple-100 border border-purple-200 text-purple-800 text-xs uppercase tracking-[0.22em] font-bold mb-4">
+              <span>🌸</span> Catalogue
             </div>
           </FadeIn>
           <FadeIn delay={0.1}>
-            <h2 className="font-display text-3xl md:text-4xl lg:text-[2.75rem] font-bold text-foreground text-balance">
-              What I Craft For You
+            <h2 className="font-display text-3xl md:text-4xl lg:text-[2.75rem] font-extrabold text-purple-950 text-balance">
+              What I make
             </h2>
           </FadeIn>
           <FadeIn delay={0.15}>
-            <p className="mt-4 text-sm md:text-base text-muted-foreground leading-relaxed">
-              Every creation is tailor-made to your vision. Choose a collection below to view designs and price guides.
+            <p className="mt-4 text-sm md:text-base text-purple-900/70 leading-relaxed font-normal">
+              Every category has its own pricelist page with sizes, prices and sample designs.
             </p>
           </FadeIn>
         </div>
