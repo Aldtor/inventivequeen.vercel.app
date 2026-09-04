@@ -109,7 +109,7 @@ const CustomOrdersPage = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#FAF8F5] text-[#461c48] font-sans selection:bg-purple-200 selection:text-purple-900">
+    <div className="min-h-screen flex flex-col bg-transparent text-[#461c48] font-sans selection:bg-purple-200 selection:text-purple-900">
       <SiteHeader />
 
       <main className="flex-1 pt-24 sm:pt-28">

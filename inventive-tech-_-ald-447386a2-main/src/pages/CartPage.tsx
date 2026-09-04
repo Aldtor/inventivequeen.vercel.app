@@ -50,7 +50,7 @@ export default function CartPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#FAF8F5] text-[#461c48] font-sans">
+    <div className="min-h-screen flex flex-col bg-transparent text-[#461c48] font-sans">
       <SiteHeader />
 
       <main className="flex-1 pb-24 pt-32 sm:pt-36">

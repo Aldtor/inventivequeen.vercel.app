@@ -93,7 +93,7 @@ export default function ProductPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#FAF8F5] text-[#461c48] font-sans">
+    <div className="min-h-screen bg-transparent text-[#461c48] font-sans">
       <SiteHeader />
 
       <main className="relative overflow-x-hidden pb-24 pt-32 sm:pt-36">

@@ -62,27 +62,27 @@ export function SiteHeader({ hideBanner = false }: SiteHeaderProps) {
             animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.28, ease: "easeInOut" }}
-            className="fixed inset-x-0 top-0 z-50 overflow-hidden bg-gradient-to-r from-purple-950 via-purple-900 to-indigo-950 text-white shadow-sm border-b border-purple-800/40"
+            className="fixed inset-x-0 top-0 z-50 overflow-hidden bg-gradient-to-r from-purple-950 via-[#3B124B] to-purple-950 text-white shadow-xs border-b border-amber-400/20"
           >
-            <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-2 text-xs font-medium tracking-wide">
+            <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-1.5 text-xs font-medium tracking-wide">
               <div className="flex-1 flex items-center justify-center gap-2 sm:gap-3 text-center">
-                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-400/25 border border-amber-300/40 text-[10px] font-bold uppercase tracking-wider text-amber-200">
-                  <Crown size={11} className="text-amber-300" />
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-400/20 border border-amber-300/40 text-[10px] font-bold uppercase tracking-wider text-amber-200">
+                  <Crown size={10} className="text-amber-300 fill-amber-300" />
                   Royal Atelier
                 </span>
-                <span className="text-purple-100 hidden sm:inline">
-                  🌸 Bespoke Custom Commissions are currently <strong className="font-bold text-white underline decoration-amber-300/60 underline-offset-2">OPEN</strong>!
+                <span className="text-purple-100 hidden sm:inline text-xs">
+                  🌸 Bespoke Commissions are currently <strong className="font-bold text-white underline decoration-amber-300/70 underline-offset-2">OPEN</strong>!
                 </span>
-                <span className="text-purple-100 sm:hidden">
-                  🌸 Custom orders are <strong className="font-bold text-white">OPEN</strong>!
+                <span className="text-purple-100 sm:hidden text-xs">
+                  🌸 Custom orders <strong className="font-bold text-white">OPEN</strong>!
                 </span>
-                <span className="text-purple-300 text-[11px] hidden md:inline">• Turnaround: 3–5 Days</span>
+                <span className="text-purple-300 text-[11px] hidden md:inline">✦ Turnaround: 3–5 Days</span>
                 <Link
                   to="/custom-orders"
-                  className="inline-flex items-center gap-1 font-bold text-amber-200 hover:text-white transition-colors ml-1 underline decoration-amber-300/50"
+                  className="inline-flex items-center gap-1 font-bold text-amber-200 hover:text-white transition-colors ml-1 underline decoration-amber-300/50 text-xs"
                 >
-                  <span>Commission Now</span>
-                  <ArrowRight size={12} />
+                  <span>Commission Piece</span>
+                  <ArrowRight size={11} />
                 </Link>
               </div>
 
@@ -91,7 +91,7 @@ export function SiteHeader({ hideBanner = false }: SiteHeaderProps) {
                 className="text-purple-300/70 hover:text-white transition-colors p-1 -mr-1 rounded-md"
                 aria-label="Dismiss banner"
               >
-                <X size={14} />
+                <X size={13} />
               </button>
             </div>
           </motion.div>
@@ -101,31 +101,31 @@ export function SiteHeader({ hideBanner = false }: SiteHeaderProps) {
       {/* ── Main Floating Capsule Header ── */}
       <header
         className="fixed inset-x-0 z-40 px-3 sm:px-6 pointer-events-none transition-all duration-300"
-        style={{ top: showTopBanner ? "36px" : "12px" }}
+        style={{ top: showTopBanner ? "33px" : "12px" }}
       >
-        <div className="mx-auto flex max-w-6xl items-center justify-between rounded-full glass-card px-3.5 sm:px-6 py-2.5 pointer-events-auto border border-purple-200/80 shadow-[0_8px_30px_rgb(0,0,0,0.06)] backdrop-blur-xl bg-white/90 transition-all duration-300 hover:border-purple-300">
+        <div className="mx-auto flex max-w-6xl items-center justify-between rounded-full px-4 sm:px-6 py-2 pointer-events-auto border border-purple-200/90 shadow-[0_12px_36px_-6px_rgba(84,27,92,0.09),0_2px_10px_rgba(0,0,0,0.03)] backdrop-blur-2xl bg-white/92 transition-all duration-300 hover:border-purple-300 hover:shadow-[0_16px_45px_-6px_rgba(84,27,92,0.13)]">
           {/* Logo & Atelier Name */}
           <Link to="/" className="flex items-center gap-2.5 sm:gap-3 group">
-            <div className="relative">
+            <div className="relative p-0.5 rounded-full bg-gradient-to-tr from-amber-400/80 via-purple-300 to-amber-200/80 shadow-xs">
               <img
                 src={logo}
                 alt="Inventive Queen logo"
-                className="h-9 w-9 sm:h-11 sm:w-11 rounded-full object-cover border border-purple-200 shadow-sm group-hover:scale-105 transition-transform duration-300"
+                className="h-9 w-9 sm:h-10 sm:w-10 rounded-full object-cover border border-white shadow-xs group-hover:scale-105 transition-transform duration-300"
               />
               <span className="absolute -bottom-1 -right-1 text-[11px] select-none filter drop-shadow">👑</span>
             </div>
             <div className="flex flex-col">
-              <span className="font-display text-base sm:text-lg tracking-tight font-bold text-plum group-hover:text-purple-700 transition-colors">
+              <span className="font-display text-base sm:text-lg tracking-tight font-bold text-plum group-hover:text-purple-700 transition-colors leading-tight">
                 Inventive Queen
               </span>
-              <span className="text-[9px] uppercase tracking-[0.25em] text-purple-600 font-semibold hidden sm:inline">
+              <span className="text-[8.5px] uppercase tracking-[0.28em] text-purple-600 font-bold hidden sm:inline">
                 Crochet Atelier
               </span>
             </div>
           </Link>
 
           {/* Desktop Navigation Links */}
-          <nav className="hidden gap-1.5 text-xs lg:text-sm font-medium lg:flex items-center">
+          <nav className="hidden gap-1 text-xs lg:text-[13px] font-medium lg:flex items-center">
             {navLinks.map((item) => {
               const active = isActive(item.href);
               return (
@@ -134,10 +134,10 @@ export function SiteHeader({ hideBanner = false }: SiteHeaderProps) {
                   to={item.href}
                   className={`px-3 py-1.5 rounded-full transition-all duration-200 ${
                     active
-                      ? "bg-purple-100/90 text-purple-950 font-bold shadow-sm"
+                      ? "bg-purple-100/95 text-purple-950 font-bold shadow-xs"
                       : item.highlight
-                      ? "text-purple-700 hover:bg-purple-50 font-semibold"
-                      : "text-muted-foreground hover:text-purple-950 hover:bg-purple-50/70"
+                      ? "text-purple-700 hover:bg-purple-50 font-bold"
+                      : "text-plum/75 hover:text-purple-950 hover:bg-purple-50/70"
                   }`}
                 >
                   {item.label}
@@ -147,19 +147,19 @@ export function SiteHeader({ hideBanner = false }: SiteHeaderProps) {
           </nav>
 
           {/* Right Action Icons & Basket */}
-          <div className="flex items-center gap-1.5 sm:gap-3">
+          <div className="flex items-center gap-1.5 sm:gap-2.5">
             {user ? (
               <Link
                 to="/account"
-                className="hidden sm:inline-flex items-center justify-center h-9 w-9 rounded-full border border-purple-200/80 bg-white/90 text-plum hover:bg-purple-50 transition-colors shadow-sm"
+                className="hidden sm:inline-flex items-center justify-center h-8 w-8 rounded-full border border-purple-200/80 bg-white/90 text-plum hover:bg-purple-50 transition-colors shadow-xs"
                 title="Your Account"
               >
-                <User className="h-4 w-4" />
+                <User className="h-3.5 w-3.5" />
               </Link>
             ) : (
               <Link
                 to="/login"
-                className="hidden sm:inline-flex text-xs font-semibold text-purple-700 hover:text-purple-950 px-2.5 py-1.5 rounded-full hover:bg-purple-50 transition-colors"
+                className="hidden sm:inline-flex text-xs font-bold text-purple-700 hover:text-purple-950 px-2.5 py-1.5 rounded-full hover:bg-purple-50 transition-colors"
               >
                 Sign In
               </Link>
@@ -168,13 +168,13 @@ export function SiteHeader({ hideBanner = false }: SiteHeaderProps) {
             {/* Shopping Basket Button */}
             <button
               onClick={() => openCartDrawer()}
-              className="relative rounded-full btn-royal px-3.5 sm:px-5 py-2 text-xs sm:text-sm font-semibold flex items-center gap-1.5 sm:gap-2 shadow-md hover:shadow-lg transition-all active:scale-95"
+              className="relative rounded-full btn-royal px-3.5 sm:px-4 py-1.5 sm:py-2 text-xs font-bold flex items-center gap-1.5 shadow-md hover:shadow-lg transition-all active:scale-95"
               aria-label="Open basket"
             >
-              <ShoppingBag className="h-4 w-4" />
+              <ShoppingBag className="h-3.5 w-3.5" />
               <span className="hidden sm:inline">Basket</span>
               {count > 0 && (
-                <span className="ml-1 flex h-5 w-5 items-center justify-center rounded-full bg-white text-[10px] font-black text-plum shadow-inner animate-pulse">
+                <span className="ml-1 flex h-4 w-4 sm:h-5 sm:w-5 items-center justify-center rounded-full bg-white text-[10px] font-black text-plum shadow-inner">
                   {count}
                 </span>
               )}
@@ -183,10 +183,10 @@ export function SiteHeader({ hideBanner = false }: SiteHeaderProps) {
             {/* Mobile Menu Hamburger Toggle */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="lg:hidden p-2 rounded-full border border-purple-200/80 bg-white text-plum hover:bg-purple-50 transition-colors"
+              className="lg:hidden p-1.5 rounded-full border border-purple-200/80 bg-white text-plum hover:bg-purple-50 transition-colors"
               aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
             >
-              {mobileMenuOpen ? <X size={18} /> : <Menu size={18} />}
+              {mobileMenuOpen ? <X size={17} /> : <Menu size={17} />}
             </button>
           </div>
         </div>

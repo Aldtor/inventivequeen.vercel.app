@@ -359,7 +359,7 @@ export default function ShopPage({ initialCategory = "All" }: { initialCategory?
   };
 
   return (
-    <div className="min-h-screen bg-[#FAF8F5] text-[#461c48] font-sans">
+    <div className="min-h-screen bg-transparent text-[#461c48] font-sans">
       <SiteHeader />
 
       <main className="relative overflow-x-hidden pb-24 pt-32 sm:pt-36">
@@ -376,7 +376,7 @@ export default function ShopPage({ initialCategory = "All" }: { initialCategory?
         </section>
 
         {/* Filter Bar */}
-        <section className="sticky top-20 z-30 mt-12 border-y border-purple-200/60 bg-[#FAF8F5]/85 py-4 backdrop-blur-xl">
+        <section className="sticky top-16 z-30 mt-12 border-y border-purple-200/80 bg-white/80 py-4 backdrop-blur-2xl shadow-xs">
           <div className="mx-auto flex max-w-6xl flex-col gap-4 px-6 lg:flex-row lg:items-center lg:justify-between">
             {/* Category Pills */}
             <div className="flex flex-wrap items-center gap-2">

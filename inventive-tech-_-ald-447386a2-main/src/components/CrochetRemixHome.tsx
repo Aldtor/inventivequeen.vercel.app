@@ -205,7 +205,7 @@ export default function CrochetRemixHome() {
   };
 
   return (
-    <div className="relative min-h-screen overflow-x-hidden bg-[#FAF8F5] text-[#461c48] selection:bg-purple-200 selection:text-purple-900 font-sans">
+    <div className="relative min-h-screen overflow-x-hidden bg-transparent text-[#461c48] selection:bg-purple-200 selection:text-purple-900 font-sans">
       {/* ── Top Scroll Progress Bar ── */}
       <motion.div
         className="fixed inset-x-0 top-0 z-50 h-[3px] origin-left btn-royal"
@@ -217,49 +217,57 @@ export default function CrochetRemixHome() {
 
       {/* ── Ambient Background Lighting ── */}
       <div className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
-        <div className="absolute -top-32 left-1/2 -translate-x-1/2 w-[850px] h-[500px] rounded-full bg-gradient-to-tr from-purple-300/20 via-pink-200/20 to-amber-100/30 blur-[130px]" />
-        <div className="absolute top-[45%] right-0 w-[500px] h-[500px] rounded-full bg-purple-200/15 blur-[120px]" />
-        <div className="absolute top-[75%] left-0 w-[550px] h-[550px] rounded-full bg-pink-100/25 blur-[140px]" />
+        <div className="absolute -top-40 left-1/2 -translate-x-1/2 w-[1000px] h-[600px] rounded-full bg-gradient-to-tr from-purple-400/25 via-pink-200/20 to-amber-200/30 blur-[140px]" />
+        <div className="absolute top-[35%] right-[-10%] w-[650px] h-[650px] rounded-full bg-gradient-to-bl from-purple-300/20 via-pink-300/15 to-transparent blur-[130px]" />
+        <div className="absolute top-[65%] left-[-10%] w-[600px] h-[600px] rounded-full bg-gradient-to-tr from-amber-100/30 via-purple-200/20 to-transparent blur-[140px]" />
       </div>
 
-      <main className="pt-28 sm:pt-36">
+      <main className="pt-24 sm:pt-32">
         {/* ══════════════════════════════════════════════════════════════
             HERO SECTION
            ══════════════════════════════════════════════════════════════ */}
-        <section ref={heroRef} className="relative mx-auto max-w-6xl px-6 pb-20 pt-4 sm:pt-8">
+        <section ref={heroRef} className="relative mx-auto max-w-6xl px-6 pb-20 pt-6 sm:pt-10">
           <div className="grid lg:grid-cols-12 gap-12 lg:gap-8 items-center">
             {/* Left Copy */}
             <div className="lg:col-span-7 z-10">
               <motion.div
-                initial={{ opacity: 0, y: 20 }}
+                initial={{ opacity: 0, y: 16 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-                className="inline-flex items-center gap-2 rounded-full border border-purple-200/90 bg-white/80 px-4 py-1.5 text-xs uppercase tracking-[0.25em] text-purple-900 font-bold shadow-sm backdrop-blur-md"
+                className="inline-flex items-center gap-2.5 rounded-full border border-purple-300/80 bg-gradient-to-r from-purple-50/90 via-white to-amber-50/70 px-4 py-1.5 shadow-[0_4px_16px_rgba(84,27,92,0.06)] backdrop-blur-xl"
               >
-                <Crown className="h-3.5 w-3.5 text-amber-500" />
-                <span>Handcrafted Luxury Atelier</span>
+                <span className="flex h-5 w-5 items-center justify-center rounded-full bg-amber-400/20 text-amber-600 shadow-inner">
+                  <Crown size={12} className="fill-amber-400 text-amber-500" />
+                </span>
+                <span className="text-[10.5px] font-black uppercase tracking-[0.24em] text-purple-950">
+                  Royal Haute Crochet Atelier
+                </span>
+                <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
               </motion.div>
 
               <motion.h1
-                initial={{ opacity: 0, y: 30 }}
+                initial={{ opacity: 0, y: 28 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.9, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
-                className="mt-6 font-display text-5xl leading-[1.05] text-plum sm:text-6xl md:text-7xl font-bold tracking-tight"
+                className="mt-6 font-display text-5xl leading-[1.05] text-plum sm:text-6xl md:text-7xl font-extrabold tracking-tight"
               >
                 Stitched slowly,
-                <span className="block italic text-gradient font-normal">kept forever.</span>
+                <span className="block font-serif italic font-normal bg-gradient-to-r from-purple-700 via-pink-600 to-amber-600 bg-clip-text text-transparent">
+                  kept forever.
+                </span>
               </motion.h1>
 
               <motion.p
-                initial={{ opacity: 0, y: 25 }}
+                initial={{ opacity: 0, y: 22 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.9, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
-                className="mt-6 max-w-xl text-base sm:text-lg leading-relaxed text-muted-foreground"
+                className="mt-6 max-w-xl text-base sm:text-lg leading-relaxed text-[#542a58]/85 font-normal"
               >
-                Everlasting flower bouquets, heirloom amigurumi companions, and personalized keepsakes — each one
-                crocheted stitch-by-stitch in combed milk cotton yarn.
+                Everlasting floral bouquets, heirloom amigurumi companions, and bespoke keepsakes — each one
+                sculpted stitch-by-stitch with combed milk cotton yarn and pure devotion.
               </motion.p>
 
+              {/* Action Buttons */}
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -268,88 +276,110 @@ export default function CrochetRemixHome() {
               >
                 <Link
                   to="/shop"
-                  className="rounded-full btn-royal px-8 py-3.5 text-sm font-semibold tracking-wide shadow-lg hover:shadow-xl transition-all"
+                  className="rounded-full btn-royal px-8 py-3.5 text-sm font-bold tracking-wide shadow-[0_12px_28px_-6px_rgba(84,27,92,0.35)] hover:shadow-[0_18px_38px_-6px_rgba(84,27,92,0.45)] hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center gap-2"
                 >
-                  Explore The Collection
+                  <ShoppingBag size={16} />
+                  <span>Explore The Collection</span>
                 </Link>
                 <Link
                   to="/custom-orders"
-                  className="rounded-full border border-purple-300/80 bg-white/90 px-6 py-3.5 text-sm font-semibold text-plum hover:bg-purple-50 transition-colors shadow-sm flex items-center gap-2"
+                  className="rounded-full border border-purple-300/90 bg-white/95 px-6 py-3.5 text-sm font-bold text-plum hover:bg-purple-50 transition-colors shadow-[0_4px_16px_rgba(84,27,92,0.06)] hover:shadow-md flex items-center gap-2"
                 >
-                  <span>Bespoke Studio</span>
                   <Sparkles size={14} className="text-amber-500" />
+                  <span>Bespoke Studio</span>
+                  <ArrowRight size={13} className="text-purple-600" />
                 </Link>
               </motion.div>
 
-              {/* Trust Indicators */}
+              {/* Trust Cards */}
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ duration: 0.9, delay: 0.4 }}
-                className="mt-8 flex flex-wrap items-center gap-4 text-xs font-semibold text-muted-foreground"
+                className="mt-9 flex flex-wrap items-center gap-3 text-xs font-bold text-purple-950"
               >
-                <span className="flex items-center gap-1.5 text-purple-900 bg-purple-50/80 px-3 py-1 rounded-full border border-purple-200/60">
+                <div className="flex items-center gap-2 bg-white/90 px-3.5 py-1.5 rounded-full border border-purple-200/80 shadow-xs backdrop-blur-md">
                   <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-                  Ready to ship in 3–5 days
-                </span>
-                <span className="flex items-center gap-1 text-purple-900">
+                  <span>Ready to ship in 3–5 days</span>
+                </div>
+                <div className="flex items-center gap-1.5 bg-white/90 px-3.5 py-1.5 rounded-full border border-purple-200/80 shadow-xs backdrop-blur-md">
                   <Star size={13} className="fill-amber-400 text-amber-400" />
-                  <span>500+ Verified Patrons</span>
-                </span>
-                <span className="flex items-center gap-1 text-purple-900">
+                  <span>500+ Verified Patron Gifts</span>
+                </div>
+                <div className="flex items-center gap-1.5 bg-white/90 px-3.5 py-1.5 rounded-full border border-purple-200/80 shadow-xs backdrop-blur-md">
                   <ShieldCheck size={14} className="text-purple-600" />
                   <span>Pan-India Delivery</span>
-                </span>
+                </div>
               </motion.div>
             </div>
 
-            {/* Right Hero Visual Showcase */}
+            {/* Right Hero Visual Showcase (Layered Luxury Haute Composition) */}
             <motion.div
               style={{ y: heroY, scale: heroScale }}
               className="lg:col-span-5 relative"
             >
-              <div className="relative mx-auto max-w-sm sm:max-w-md tilt-scene">
-                {/* Decorative Halo Behind */}
-                <div className="absolute -inset-4 rounded-[3rem] bg-gradient-to-tr from-purple-400/30 via-pink-300/30 to-amber-200/40 blur-2xl -z-10" />
+              <div className="relative mx-auto max-w-sm sm:max-w-md">
+                {/* Radiant Ambient Aura Behind */}
+                <div className="absolute -inset-6 rounded-[3.5rem] bg-gradient-to-tr from-purple-400/35 via-pink-300/30 to-amber-200/40 blur-3xl -z-10" />
 
-                {/* Main Framed Atelier Photo */}
-                <div className="overflow-hidden rounded-[2.8rem] glass-card border-2 border-purple-200/80 shadow-2xl bg-white p-2.5">
-                  <img
-                    src={hero}
-                    alt="Inventive Queen luxury crochet bouquet"
-                    className="w-full aspect-[4/5] object-cover rounded-[2.2rem] shadow-sm"
-                  />
+                {/* Decorative Dashed Embroidery Stitch Ring */}
+                <div className="absolute -inset-3 rounded-[3.2rem] border-2 border-dashed border-purple-300/50 pointer-events-none -z-10" />
+
+                {/* Main Framed Atelier Heirloom Portrait */}
+                <div className="overflow-hidden rounded-[2.8rem] glass-card border-2 border-white/90 shadow-[0_20px_60px_-15px_rgba(84,27,92,0.22)] bg-white p-2.5">
+                  <div className="overflow-hidden rounded-[2.2rem] relative">
+                    <img
+                      src={hero}
+                      alt="Inventive Queen luxury crochet bouquet and amigurumi"
+                      className="w-full aspect-[4/5] object-cover shadow-sm transition-transform duration-700 hover:scale-105"
+                    />
+                    {/* Soft gradient sheen at base of image */}
+                    <div className="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-[#461c48]/40 via-transparent to-transparent pointer-events-none" />
+                  </div>
                 </div>
 
-                {/* Floating Badge 1: 100% Milk Cotton */}
+                {/* Floating Badge 1: 5-Star Patron Rating */}
                 <motion.div
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.6, duration: 0.6 }}
-                  className="absolute -left-4 sm:-left-8 top-12 glass-card px-4 py-2.5 rounded-2xl border border-purple-200/80 shadow-lg bg-white/95 flex items-center gap-2.5 backdrop-blur-md"
+                  initial={{ opacity: 0, y: -15 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.5, duration: 0.6 }}
+                  className="absolute -right-3 sm:-right-6 -top-3 glass-card px-4 py-2 rounded-2xl border border-white/90 shadow-xl bg-white/95 flex items-center gap-2 backdrop-blur-xl"
                 >
-                  <span className="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center text-sm select-none">
+                  <div className="flex gap-0.5 text-amber-400">
+                    {Array.from({ length: 5 }).map((_, i) => (
+                      <Star key={i} size={12} className="fill-amber-400 text-amber-400" />
+                    ))}
+                  </div>
+                  <span className="text-[11px] font-black text-plum">5.0 Heirloom</span>
+                </motion.div>
+
+                {/* Floating Badge 2: 100% Milk Cotton Info Card */}
+                <motion.div
+                  initial={{ opacity: 0, x: -25 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.65, duration: 0.6 }}
+                  className="absolute -left-4 sm:-left-8 bottom-12 glass-card px-4 py-3 rounded-2xl border border-purple-200/90 shadow-xl bg-white/95 flex items-center gap-3 backdrop-blur-xl max-w-[210px]"
+                >
+                  <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-purple-600 to-indigo-600 text-white flex items-center justify-center text-base shadow-sm shrink-0">
                     🧶
-                  </span>
+                  </div>
                   <div>
-                    <p className="text-[11px] font-bold text-plum leading-tight">100% Milk Cotton</p>
-                    <p className="text-[9px] text-muted-foreground">Certified skin-safe & soft</p>
+                    <p className="text-xs font-bold text-plum leading-tight">100% Milk Cotton</p>
+                    <p className="text-[9.5px] text-muted-foreground leading-tight mt-0.5">Velvety soft & skin safe</p>
                   </div>
                 </motion.div>
 
-                {/* Floating Badge 2: Never Withers */}
+                {/* Floating Badge 3: Wax-Sealed Unboxing */}
                 <motion.div
-                  initial={{ opacity: 0, x: 20 }}
+                  initial={{ opacity: 0, x: 25 }}
                   animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.7, duration: 0.6 }}
-                  className="absolute -right-3 sm:-right-6 bottom-16 glass-card px-4 py-2.5 rounded-2xl border border-purple-200/80 shadow-lg bg-white/95 flex items-center gap-2.5 backdrop-blur-md"
+                  transition={{ delay: 0.75, duration: 0.6 }}
+                  className="absolute -right-2 sm:-right-4 bottom-4 glass-card px-3.5 py-2 rounded-2xl border border-amber-300/80 shadow-lg bg-white/95 flex items-center gap-2 backdrop-blur-md"
                 >
-                  <span className="w-8 h-8 rounded-full bg-pink-100 flex items-center justify-center text-sm select-none">
-                    🌸
-                  </span>
+                  <span className="text-base select-none">🎁</span>
                   <div>
-                    <p className="text-[11px] font-bold text-plum leading-tight">Forever Bloom</p>
-                    <p className="text-[9px] text-muted-foreground">Keepsakes that last years</p>
+                    <p className="text-[10.5px] font-bold text-plum leading-tight">Wax-Sealed Unboxing</p>
+                    <p className="text-[9px] text-purple-700 font-semibold">Signature ribbon pack</p>
                   </div>
                 </motion.div>
               </div>
