@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { ArrowUp, Instagram, MessageCircle, Lock, Crown, Sparkles, Heart, Send, CheckCircle2, ShieldCheck } from "lucide-react";
+import { ArrowUp, Instagram, MessageCircle, Lock, Crown, Sparkles, Heart, Send, CheckCircle2, ShieldCheck, Phone, Mail } from "lucide-react";
 import { toast } from "sonner";
 import logo from "@/assets/logo.png";
 import ContactModal from "@/components/ContactModal";
@@ -33,23 +33,23 @@ const Footer = () => {
 
   return (
     <>
-      <footer className="relative border-t border-purple-200/70 pt-20 pb-12 overflow-hidden bg-gradient-to-b from-white/90 via-purple-50/30 to-purple-100/40 backdrop-blur-xl">
+      <footer className="relative border-t border-purple-200/70 pt-20 pb-12 overflow-hidden bg-gradient-to-b from-white/90 via-purple-50/40 to-purple-100/50 backdrop-blur-xl">
         {/* Soft background ambient glow */}
         <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[800px] h-[350px] bg-purple-300/15 rounded-full blur-[120px] pointer-events-none -z-10" />
 
-        <div className="container max-w-7xl relative z-10">
+        <div className="container max-w-7xl mx-auto px-4 sm:px-6 relative z-10">
           {/* ── Top Newsletter Banner ── */}
-          <div className="glass-card-luxury rounded-[2.5rem] p-8 md:p-12 mb-16 border border-purple-200 shadow-luxury-lg relative overflow-hidden">
+          <div className="glass-card rounded-[2.5rem] p-8 md:p-12 mb-16 border border-purple-200/80 shadow-[0_12px_40px_rgb(0,0,0,0.05)] bg-white/80 relative overflow-hidden">
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
               <div className="lg:col-span-7">
                 <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-purple-100 text-purple-900 text-xs font-bold uppercase tracking-wider mb-3">
                   <Crown size={12} className="text-amber-500" />
                   <span>Royal Atelier VIP Circle</span>
                 </div>
-                <h3 className="font-display text-2xl md:text-4xl font-black text-purple-950">
+                <h3 className="font-display text-2xl md:text-4xl font-bold text-plum">
                   Enjoy 10% Off Your First Custom Commission
                 </h3>
-                <p className="mt-2 text-xs sm:text-sm text-purple-900/75 max-w-xl">
+                <p className="mt-2 text-xs sm:text-sm text-muted-foreground max-w-xl">
                   Receive secret drop announcements, seasonal forever bouquet releases, and exclusive plushie commission priority.
                 </p>
               </div>
@@ -69,12 +69,12 @@ const Footer = () => {
                       type="email"
                       value={newsletterEmail}
                       onChange={(e) => setNewsletterEmail(e.target.value)}
-                      placeholder="Enter your royal email..."
-                      className="w-full text-xs font-body rounded-2xl border border-purple-200 bg-white px-4 py-3.5 text-purple-950 placeholder:text-purple-900/40 focus:outline-none focus:ring-2 focus:ring-purple-400/30"
+                      placeholder="Enter your email address..."
+                      className="w-full text-xs font-body rounded-2xl border border-purple-200/90 bg-white px-4 py-3.5 text-plum placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-purple-400/40"
                     />
                     <button
                       type="submit"
-                      className="btn-gradient px-5 py-3.5 rounded-2xl text-white text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 flex-shrink-0 shadow-md hover:shadow-lg active:scale-95 transition-all"
+                      className="btn-royal px-5 py-3.5 rounded-2xl text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 flex-shrink-0 shadow-md hover:shadow-lg active:scale-95 transition-all"
                     >
                       <span>Join</span>
                       <Send size={13} />
@@ -88,36 +88,35 @@ const Footer = () => {
           {/* ── Main Footer Columns ── */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-10 pb-12 border-b border-purple-200/60">
             {/* Column 1: Brand Info */}
-            <div className="lg:col-span-5 space-y-4">
+            <div className="lg:col-span-4 space-y-4">
               <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-full overflow-hidden p-0.5 bg-gradient-to-tr from-purple-400 via-pink-300 to-amber-300 shadow-md">
-                  <div className="w-full h-full rounded-full overflow-hidden bg-white">
-                    <img src={logo} alt="Inventive Queen" className="w-full h-full object-cover" />
-                  </div>
+                <div className="relative">
+                  <img src={logo} alt="Inventive Queen" className="w-12 h-12 rounded-full object-cover border border-purple-200 shadow-sm" />
+                  <span className="absolute -bottom-1 -right-1 text-xs select-none">👑</span>
                 </div>
                 <div>
-                  <h4 className="font-display text-xl font-bold text-purple-950">Inventive Queen</h4>
+                  <h4 className="font-display text-xl font-bold text-plum">Inventive Queen</h4>
                   <p className="text-[10px] uppercase tracking-[0.2em] font-bold text-purple-600">Royal Crochet Atelier</p>
                 </div>
               </div>
 
-              <p className="text-xs sm:text-sm text-purple-900/75 leading-relaxed max-w-sm font-normal">
+              <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed max-w-sm font-normal">
                 Bespoke handcrafted crochet dolls, forever floral bouquets, and aesthetic pocket keepsakes. Stitched with royal devotion and pure milk cotton yarn.
               </p>
 
               {/* Trust Tag */}
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-purple-100/70 border border-purple-200 text-xs text-purple-950 font-bold">
-                <ShieldCheck size={14} className="text-purple-700" />
-                <span>Insured Nationwide Delivery with Wax-Seal Box</span>
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-purple-100/70 border border-purple-200/80 text-xs text-purple-950 font-semibold">
+                <ShieldCheck size={14} className="text-purple-700 shrink-0" />
+                <span>Wax-Sealed Gift Box & Pan-India Dispatch</span>
               </div>
             </div>
 
             {/* Column 2: Atelier Collections */}
             <div className="lg:col-span-3 space-y-3">
-              <p className="font-display text-sm font-bold text-purple-950 uppercase tracking-wider">
+              <p className="font-display text-sm font-bold text-plum uppercase tracking-wider">
                 Collections
               </p>
-              <ul className="space-y-2 text-xs font-semibold text-purple-900/80">
+              <ul className="space-y-2 text-xs font-medium text-plum/85">
                 <li>
                   <Link to="/category/bouquet" className="hover:text-purple-700 transition-colors">
                     🌸 Everlasting Bouquets
@@ -139,82 +138,100 @@ const Footer = () => {
                   </Link>
                 </li>
                 <li>
-                  <Link to="/custom-orders" className="text-purple-700 font-bold hover:underline">
-                    👑 Bespoke Commission Studio →
+                  <Link to="/custom-orders" className="text-purple-700 font-bold hover:underline inline-flex items-center gap-1">
+                    <span>👑 Bespoke Commission Studio</span>
+                    <Sparkles size={11} className="text-amber-500" />
                   </Link>
                 </li>
               </ul>
             </div>
 
-            {/* Column 3: Customer Care & Policies */}
+            {/* Column 3: The Atelier Experience */}
             <div className="lg:col-span-2 space-y-3">
-              <p className="font-display text-sm font-bold text-purple-950 uppercase tracking-wider">
-                Client Concierge
+              <p className="font-display text-sm font-bold text-plum uppercase tracking-wider">
+                Atelier
               </p>
-              <ul className="space-y-2 text-xs font-semibold text-purple-900/80">
+              <ul className="space-y-2 text-xs font-medium text-plum/85">
                 <li>
-                  <button onClick={() => setContactOpen(true)} className="hover:text-purple-700 transition-colors text-left">
-                    Direct Inquiry / FAQ
+                  <Link to="/about" className="hover:text-purple-700 transition-colors">
+                    The Craft & Story
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/reviews" className="hover:text-purple-700 transition-colors">
+                    Patron Reviews (500+)
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/how-to-order" className="hover:text-purple-700 transition-colors">
+                    How to Commission
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/faq" className="hover:text-purple-700 transition-colors">
+                    Frequently Asked Questions
+                  </Link>
+                </li>
+                <li>
+                  <button onClick={() => setContactOpen(true)} className="hover:text-purple-700 transition-colors text-left font-semibold">
+                    Direct Inquiry / Help
                   </button>
                 </li>
-                <li>
-                  <Link to="/policy" className="hover:text-purple-700 transition-colors">
-                    Care Instructions
-                  </Link>
-                </li>
-                <li>
-                  <Link to="/policy" className="hover:text-purple-700 transition-colors">
-                    Shipping & Returns
-                  </Link>
-                </li>
-                <li>
-                  <Link to="/policy" className="hover:text-purple-700 transition-colors">
-                    Terms of Commission
-                  </Link>
-                </li>
               </ul>
             </div>
 
-            {/* Column 4: Social Atelier */}
-            <div className="lg:col-span-2 space-y-3">
-              <p className="font-display text-sm font-bold text-purple-950 uppercase tracking-wider">
-                Connect
+            {/* Column 4: Contact & Social */}
+            <div className="lg:col-span-3 space-y-3">
+              <p className="font-display text-sm font-bold text-plum uppercase tracking-wider">
+                Connect With Us
               </p>
               <div className="flex flex-col gap-2">
+                <a
+                  href="https://wa.me/917892305330?text=Hi%20Inventive%20Queen!%20I%20would%20like%20to%20order%20a%20custom%20crochet%20piece."
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 px-3.5 py-2.5 rounded-xl bg-emerald-50 border border-emerald-200/80 text-xs font-bold text-emerald-900 hover:bg-emerald-100 hover:shadow-xs transition-all"
+                >
+                  <MessageCircle size={15} className="text-emerald-600" />
+                  <span>WhatsApp: +91 7892305330</span>
+                </a>
+
+                <a
+                  href="tel:+917892305330"
+                  className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white border border-purple-200/80 text-xs font-medium text-plum hover:bg-purple-50 transition-all"
+                >
+                  <Phone size={14} className="text-purple-600" />
+                  <span>Call Atelier: +91 7892305330</span>
+                </a>
+
                 <a
                   href="https://instagram.com"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-white border border-purple-200 text-xs font-bold text-purple-950 hover:border-purple-400 hover:shadow-xs transition-all"
+                  className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white border border-purple-200/80 text-xs font-medium text-plum hover:bg-purple-50 transition-all"
                 >
                   <Instagram size={14} className="text-pink-600" />
-                  <span>Instagram</span>
-                </a>
-
-                <a
-                  href="https://wa.me/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-white border border-purple-200 text-xs font-bold text-purple-950 hover:border-purple-400 hover:shadow-xs transition-all"
-                >
-                  <MessageCircle size={14} className="text-emerald-600" />
-                  <span>WhatsApp</span>
+                  <span>Follow on Instagram</span>
                 </a>
               </div>
             </div>
           </div>
 
           {/* ── Bottom Bar ── */}
-          <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-purple-900/60 font-medium text-center sm:text-left">
-            <span>© 2026 Inventive Queen Atelier. Handcrafted with royal care in India.</span>
+          <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-muted-foreground font-medium text-center sm:text-left">
+            <span>© {new Date().getFullYear()} Inventive Queen Royal Atelier. Handcrafted with love & milk cotton yarn in India.</span>
             
             <div className="flex items-center gap-3">
-              <Link to="/policy" className="hover:text-purple-950 transition-colors">
+              <Link to="/policy/privacy-policy" className="hover:text-purple-950 transition-colors">
                 Privacy
               </Link>
               <span>•</span>
-              <Link to="/policy" className="hover:text-purple-950 transition-colors">
+              <Link to="/policy/terms-of-service" className="hover:text-purple-950 transition-colors">
                 Terms
+              </Link>
+              <span>•</span>
+              <Link to="/policy/shipping-policy" className="hover:text-purple-950 transition-colors">
+                Shipping
               </Link>
               <span>•</span>
               <Link to="/admin" className="inline-flex items-center gap-1 text-purple-700 font-bold hover:text-purple-950 transition-colors">

@@ -4,6 +4,7 @@ import { Search, SlidersHorizontal, ArrowDownUp, Check, ShoppingBag, ArrowRight 
 import { motion } from "framer-motion";
 import { toast } from "sonner";
 import { SiteHeader } from "@/components/SiteHeader";
+import Footer from "@/components/Footer";
 import { addCartItem, openCartDrawer } from "@/lib/cart";
 
 import pBear from "@/assets/p-bear.jpg";
@@ -541,16 +542,8 @@ export default function ShopPage({ initialCategory = "All" }: { initialCategory?
         </section>
       </main>
 
-      {/* Footer */}
-      <footer className="border-t border-purple-200/60 py-12 bg-white/60">
-        <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-6 px-6 text-sm text-muted-foreground sm:flex-row">
-          <div className="flex items-center gap-3">
-            <span className="font-display text-plum font-semibold text-base">Inventive Queen</span>
-            <span className="text-[10px] uppercase tracking-wider text-purple-600 font-medium">Royal Crochet Atelier</span>
-          </div>
-          <p className="text-xs">© {new Date().getFullYear()} Inventive Queen — Crocheted with love & care</p>
-        </div>
-      </footer>
+      {/* Global Luxury Atelier Footer */}
+      <Footer />
     </div>
   );
 }

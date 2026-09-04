@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Clock, Package, Truck, CheckCircle, ShoppingBag, Sparkles, ArrowRight } from "lucide-react";
-import Navbar from "@/components/Navbar";
+import { SiteHeader } from "@/components/SiteHeader";
 import Footer from "@/components/Footer";
 import { useAuth } from "@/lib/auth";
 import { isSupabaseConfigured, supabase, type DbOrder, type OrderStatus } from "@/lib/supabase";
@@ -48,10 +48,10 @@ const OrdersPage = () => {
   }, [loading, user]);
 
   return (
-    <div className="min-h-screen flex flex-col bg-background selection:bg-primary/15 selection:text-primary">
-      <Navbar />
+    <div className="min-h-screen flex flex-col bg-[#FAF8F5] text-[#461c48] font-sans selection:bg-purple-200 selection:text-purple-900">
+      <SiteHeader />
 
-      <main className="flex-1">
+      <main className="flex-1 pt-28 sm:pt-36">
         <section className="bg-fairytale-mesh border-b border-border/40 py-12 md:py-16 text-center relative overflow-hidden">
           <div className="container relative z-10">
             <FadeIn>

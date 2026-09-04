@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { AlertCircle, CheckCircle2, KeyRound, MailCheck, Sparkles, ArrowRight } from "lucide-react";
-import Navbar from "@/components/Navbar";
+import { SiteHeader } from "@/components/SiteHeader";
 import Footer from "@/components/Footer";
 import { useAuth } from "@/lib/auth";
 import { supabase } from "@/lib/supabase";
@@ -69,9 +69,9 @@ export default function AuthActionPage({ mode }: { mode: "verified" | "reset-pas
   const Icon = hasError ? AlertCircle : mode === "reset-password" ? KeyRound : MailCheck;
 
   return (
-    <div className="min-h-screen flex flex-col bg-background selection:bg-primary/15 selection:text-primary">
-      <Navbar />
-      <main className="flex-1 bg-fairytale-mesh py-12 md:py-20 flex items-center justify-center relative overflow-hidden">
+    <div className="min-h-screen flex flex-col bg-[#FAF8F5] text-[#461c48] font-sans selection:bg-purple-200 selection:text-purple-900">
+      <SiteHeader />
+      <main className="flex-1 py-28 md:py-36 flex items-center justify-center relative overflow-hidden">
         <div className="container max-w-md px-4 relative z-10">
           <FadeIn>
             <div className="glass-card rounded-3xl shadow-luxury-lg border border-border/60 p-6 sm:p-9 text-center backdrop-blur-xl">

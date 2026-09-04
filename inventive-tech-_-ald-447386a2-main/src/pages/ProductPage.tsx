@@ -1,9 +1,10 @@
 import { useState, useMemo } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
-import { ArrowLeft, Check, Minus, Plus, ShoppingBag, Star, Truck, Sparkles, Heart } from "lucide-react";
+import { ArrowLeft, Check, Minus, Plus, ShoppingBag, Star, Truck, Sparkles, Heart, MessageCircle, ShieldCheck } from "lucide-react";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
 import { SiteHeader } from "@/components/SiteHeader";
+import Footer from "@/components/Footer";
 import { allCatalogItems, type ShopItem } from "./ShopPage";
 import { useProducts } from "@/lib/cms-products";
 import { addCartItem, openCartDrawer } from "@/lib/cart";
@@ -213,11 +214,28 @@ export default function ProductPage() {
               </div>
 
               {/* Shipping & Packaging Assurance */}
-              <div className="mt-8 flex items-center gap-3 rounded-2xl glass-card border border-purple-200/70 p-4 text-xs text-muted-foreground shadow-sm bg-white/70">
+              <div className="mt-8 flex items-center gap-3 rounded-2xl glass-card border border-purple-200/80 p-4 text-xs text-muted-foreground shadow-sm bg-white/80">
                 <Truck className="h-5 w-5 shrink-0 text-purple-700" />
                 <span>
-                  Free courier shipping on orders over ₹999 · Dispatches in 3–5 business days · Signature gift packaging included.
+                  Free courier shipping on orders over ₹999 · Dispatches in 3–5 business days · Signature wax-sealed gift packaging included.
                 </span>
+              </div>
+
+              {/* Direct Customization Inquiry */}
+              <div className="mt-4 flex flex-wrap items-center justify-between gap-3 p-4 rounded-2xl bg-purple-50/70 border border-purple-200/80 text-xs">
+                <div className="flex items-center gap-2">
+                  <Sparkles size={15} className="text-amber-500" />
+                  <span className="font-semibold text-plum">Want a different size or custom color?</span>
+                </div>
+                <a
+                  href={`https://wa.me/917892305330?text=Hi%20Inventive%20Queen!%20I%20would%20like%20to%20customize%20the%20${encodeURIComponent(product.name)}.`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-600 text-white font-bold text-[11px] uppercase tracking-wider hover:bg-emerald-700 transition-colors shadow-xs"
+                >
+                  <MessageCircle size={13} />
+                  <span>Ask on WhatsApp</span>
+                </a>
               </div>
             </div>
           </div>
@@ -312,16 +330,8 @@ export default function ProductPage() {
         </div>
       </main>
 
-      {/* Footer */}
-      <footer className="border-t border-purple-200/60 py-12 bg-white/60">
-        <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-6 px-6 text-sm text-muted-foreground sm:flex-row">
-          <div className="flex items-center gap-3">
-            <span className="font-display text-plum font-semibold text-base">Inventive Queen</span>
-            <span className="text-[10px] uppercase tracking-wider text-purple-600 font-medium">Royal Crochet Atelier</span>
-          </div>
-          <p className="text-xs">© {new Date().getFullYear()} Inventive Queen — Crocheted with love & care</p>
-        </div>
-      </footer>
+      {/* Global Luxury Atelier Footer */}
+      <Footer />
     </div>
   );
 }

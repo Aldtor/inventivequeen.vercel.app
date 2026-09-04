@@ -2,6 +2,7 @@ import { useMemo, useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Minus, Plus, ShoppingBag, Trash2, Sparkles, ArrowRight, ShieldCheck, Truck, ArrowLeft } from "lucide-react";
 import { SiteHeader } from "@/components/SiteHeader";
+import Footer from "@/components/Footer";
 import {
   clearCart,
   getCartCount,
@@ -263,16 +264,8 @@ export default function CartPage() {
         </div>
       </main>
 
-      {/* Footer */}
-      <footer className="border-t border-purple-200/60 py-12 bg-white/60">
-        <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-6 px-6 text-sm text-muted-foreground sm:flex-row">
-          <div className="flex items-center gap-3">
-            <span className="font-display text-plum font-semibold text-base">Inventive Queen</span>
-            <span className="text-[10px] uppercase tracking-wider text-purple-600 font-medium">Royal Crochet Atelier</span>
-          </div>
-          <p className="text-xs">© {new Date().getFullYear()} Inventive Queen — Crocheted with love & care</p>
-        </div>
-      </footer>
+      {/* Global Luxury Atelier Footer */}
+      <Footer />
     </div>
   );
 }

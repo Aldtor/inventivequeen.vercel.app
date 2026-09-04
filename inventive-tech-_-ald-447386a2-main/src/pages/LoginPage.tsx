@@ -2,7 +2,7 @@ import { useState } from "react";
 import type { ReactNode } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { KeyRound, Lock, Mail, UserRound, Sparkles, ArrowRight } from "lucide-react";
-import Navbar from "@/components/Navbar";
+import { SiteHeader } from "@/components/SiteHeader";
 import Footer from "@/components/Footer";
 import { useAuth } from "@/lib/auth";
 import { getAuthRedirectUrl } from "@/lib/auth-redirect";
@@ -126,10 +126,10 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-background selection:bg-primary/15 selection:text-primary">
-      <Navbar />
+    <div className="min-h-screen flex flex-col bg-[#FAF8F5] text-[#461c48] font-sans selection:bg-purple-200 selection:text-purple-900">
+      <SiteHeader />
 
-      <main className="flex-1 bg-fairytale-mesh py-12 md:py-20 flex items-center justify-center relative overflow-hidden">
+      <main className="flex-1 py-28 md:py-36 flex items-center justify-center relative overflow-hidden">
         <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-96 h-96 bg-primary/10 rounded-full blur-3xl pointer-events-none" />
 
         <div className="container max-w-md px-4 relative z-10">
