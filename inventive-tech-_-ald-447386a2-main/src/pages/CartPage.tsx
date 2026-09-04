@@ -1,11 +1,7 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Minus, Package, Plus, ShoppingBag, Trash2, Sparkles, ArrowRight, ShieldCheck } from "lucide-react";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
-import { Button } from "@/components/ui/button";
-import { FadeIn } from "@/components/motion/FadeIn";
-import logo from "@/assets/logo.png";
+import { Minus, Plus, ShoppingBag, Trash2, Sparkles, ArrowRight, ShieldCheck, Truck, ArrowLeft } from "lucide-react";
+import { SiteHeader } from "@/components/SiteHeader";
 import {
   clearCart,
   getCartCount,
@@ -13,15 +9,31 @@ import {
   getCartTotal,
   removeCartItem,
   updateCartItemQuantity,
+  FREE_SHIPPING_THRESHOLD,
+  CART_UPDATED_EVENT,
   type CartItem,
 } from "@/lib/cart";
 
-const CartPage = () => {
+export default function CartPage() {
   const navigate = useNavigate();
-  const [items, setItems] = useState<CartItem[]>(getCartItems);
+  const [items, setItems] = useState<CartItem[]>(getCartItems());
+
+  const sync = () => setItems(getCartItems());
+
+  useEffect(() => {
+    sync();
+    window.addEventListener(CART_UPDATED_EVENT, sync);
+    window.addEventListener("storage", sync);
+    return () => {
+      window.removeEventListener(CART_UPDATED_EVENT, sync);
+      window.removeEventListener("storage", sync);
+    };
+  }, []);
 
   const itemCount = useMemo(() => getCartCount(items), [items]);
-  const total = useMemo(() => getCartTotal(items), [items]);
+  const subtotal = useMemo(() => getCartTotal(items), [items]);
+  const remainingForFreeShipping = Math.max(0, FREE_SHIPPING_THRESHOLD - subtotal);
+  const shippingProgress = Math.min(100, (subtotal / FREE_SHIPPING_THRESHOLD) * 100);
 
   const handleQuantity = (id: string, quantity: number) => {
     setItems(updateCartItemQuantity(id, quantity));
@@ -37,231 +49,230 @@ const CartPage = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-background selection:bg-primary/15 selection:text-primary">
-      <Navbar />
+    <div className="min-h-screen flex flex-col bg-[#FAF8F5] text-[#461c48] font-sans">
+      <SiteHeader />
 
-      <main className="flex-1">
-        {/* Header Banner */}
-        <section className="bg-fairytale-mesh border-b border-border/40 relative overflow-hidden py-12 md:py-16">
-          <div className="absolute top-0 right-1/4 w-72 h-72 bg-primary/10 rounded-full blur-3xl pointer-events-none" />
-          <div className="container text-center relative z-10">
-            <FadeIn>
-              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full glass-card shadow-luxury-sm text-primary text-xs uppercase tracking-[0.22em] font-semibold mb-4">
-                <span>👑</span> Royal Cart & Bag
-              </div>
-              <h1 className="font-display text-3xl md:text-5xl font-extrabold text-foreground tracking-tight">
-                Your Handcrafted Treasures
-              </h1>
-              <p className="mt-3 text-muted-foreground max-w-lg mx-auto text-sm md:text-base leading-relaxed">
-                Every item is individually stitched with milk cotton yarn and royal attention to detail.
-              </p>
-
-              {/* Free Packaging Ribbon */}
-              <div className="mt-5 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-pink-500/10 border border-pink-500/20 text-pink-700 text-xs font-semibold shadow-sm">
-                <span>🎀</span> Complimentary Royal Gift Wrapping, Wax Seal & Ribbon Included!
-              </div>
-            </FadeIn>
+      <main className="flex-1 pb-24 pt-32 sm:pt-36">
+        <div className="mx-auto max-w-6xl px-6">
+          {/* Top Back Navigation */}
+          <div>
+            <Link
+              to="/shop"
+              className="inline-flex items-center gap-2 text-[11px] uppercase tracking-[0.2em] text-muted-foreground transition-colors hover:text-purple-700 font-semibold"
+            >
+              <ArrowLeft className="h-3.5 w-3.5" /> Continue browsing collection
+            </Link>
           </div>
-        </section>
 
-        <div className="container py-10 md:py-14 max-w-6xl">
+          <div className="mt-8 flex flex-col md:flex-row md:items-end md:justify-between gap-4 border-b border-purple-200/60 pb-6">
+            <div>
+              <p className="text-xs uppercase tracking-[0.42em] text-purple-700 font-bold">Shopping Basket</p>
+              <h1 className="mt-2 font-display text-4xl text-plum sm:text-5xl font-medium">
+                Your <span className="italic text-gradient">Keepsakes</span>
+              </h1>
+            </div>
+            {items.length > 0 && (
+              <button
+                onClick={handleClear}
+                className="text-xs text-muted-foreground hover:text-rose-600 transition-colors uppercase tracking-wider font-semibold self-start md:self-auto"
+              >
+                Clear all items
+              </button>
+            )}
+          </div>
+
           {items.length === 0 ? (
-            <FadeIn>
-              <div className="max-w-md mx-auto text-center py-16 px-6 glass-card rounded-3xl shadow-luxury-lg border border-border/50">
-                <div className="relative mx-auto w-24 h-24 rounded-full p-1.5 bg-gradient-to-tr from-primary via-pink-400 to-amber-300 shadow-royal mb-6 animate-glow-pulse">
-                  <img src={logo} alt="Inventive Queen" className="w-full h-full rounded-full object-cover" />
-                  <span className="absolute -bottom-1 -right-1 text-xl select-none">👑</span>
-                </div>
-                <h2 className="font-display text-2xl font-bold text-foreground">
-                  Your Cart is Empty
-                </h2>
-                <p className="mt-2.5 text-sm text-muted-foreground leading-relaxed">
-                  The Queen's atelier has delightful bespoke dolls, eternal floral bouquets & cute charms waiting for you!
-                </p>
-                <div className="mt-7">
-                  <Link
-                    to="/"
-                    className="inline-flex items-center gap-2 px-8 py-3.5 rounded-full btn-gradient text-white text-sm font-bold shadow-royal-glow hover:shadow-luxury-lg active:scale-95 transition-all"
-                  >
-                    <Sparkles size={16} className="text-amber-200" />
-                    <span>Explore Collections ✨</span>
-                  </Link>
-                </div>
+            <div className="mt-16 rounded-[2.5rem] glass-card border border-purple-200/80 bg-white/70 p-16 text-center shadow-soft">
+              <div className="h-16 w-16 mx-auto rounded-full bg-purple-100 flex items-center justify-center text-purple-600 mb-4 shadow-inner">
+                <ShoppingBag className="h-8 w-8 text-purple-600/70" />
               </div>
-            </FadeIn>
+              <h2 className="font-display text-2xl text-plum font-semibold">Your basket is currently empty</h2>
+              <p className="mt-2 text-sm text-muted-foreground max-w-md mx-auto leading-relaxed">
+                Explore our handmade crochet bouquets, keepsake dolls, pocket charms, and bespoke commissions.
+              </p>
+              <div className="mt-8 flex flex-wrap justify-center gap-4">
+                <Link
+                  to="/shop"
+                  className="rounded-full btn-royal px-8 py-3.5 text-xs font-semibold uppercase tracking-wider"
+                >
+                  Explore The Collection
+                </Link>
+                <Link
+                  to="/custom-orders"
+                  className="rounded-full border border-purple-300 bg-white px-8 py-3.5 text-xs font-semibold text-plum hover:bg-purple-50"
+                >
+                  Custom Orders Studio
+                </Link>
+              </div>
+            </div>
           ) : (
-            <div className="grid lg:grid-cols-[1fr_380px] gap-8 items-start">
-              <FadeIn>
-                <div className="space-y-4">
-                  {items.map((item) => (
-                    <article
-                      key={item.id}
-                      className="glass-card rounded-3xl p-5 md:p-6 shadow-luxury-sm hover:shadow-luxury transition-all duration-300 border border-border/50 group"
-                    >
-                      <div className="flex gap-4 sm:gap-6">
-                        <Link to={`/product/${item.productId}`} className="flex-shrink-0">
-                          <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl overflow-hidden bg-gradient-to-br from-purple-50 via-white to-pink-50 p-2 flex items-center justify-center border border-border/40 shadow-sm group-hover:border-primary/40 transition-colors">
-                            <img
-                              src={item.image}
-                              alt={item.name}
-                              className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-500"
-                            />
-                          </div>
-                        </Link>
+            <div className="mt-10 grid gap-12 lg:grid-cols-3 items-start">
+              {/* Cart Items List */}
+              <div className="lg:col-span-2 space-y-4">
+                {/* Free Shipping Notification Card */}
+                <div className="rounded-2xl border border-purple-200/70 bg-purple-50/70 p-5 shadow-sm">
+                  <div className="flex items-center justify-between text-xs font-semibold text-plum">
+                    <span>
+                      {remainingForFreeShipping === 0 ? (
+                        <span className="text-emerald-700 flex items-center gap-1.5 font-bold">
+                          <Sparkles className="h-4 w-4 text-amber-500" /> You unlocked FREE Atelier Courier Delivery!
+                        </span>
+                      ) : (
+                        <>Add ₹{remainingForFreeShipping.toLocaleString("en-IN")} more to qualify for <strong>FREE shipping</strong></>
+                      )}
+                    </span>
+                    <span className="text-purple-800">{Math.round(shippingProgress)}%</span>
+                  </div>
+                  <div className="mt-2.5 h-2 w-full overflow-hidden rounded-full bg-purple-200/70">
+                    <div
+                      className="h-full rounded-full bg-gradient-to-r from-purple-500 to-indigo-600 transition-all duration-500"
+                      style={{ width: `${shippingProgress}%` }}
+                    />
+                  </div>
+                </div>
 
-                        <div className="flex-1 min-w-0 flex flex-col justify-between">
-                          <div>
-                            <div className="flex items-start justify-between gap-3">
-                              <div className="min-w-0">
-                                <Link
-                                  to={`/product/${item.productId}`}
-                                  className="font-display text-base sm:text-lg font-bold text-foreground hover:text-primary transition-colors line-clamp-1"
-                                >
-                                  {item.name}
-                                </Link>
-                                <p className="mt-1 font-display text-base font-bold text-primary">
-                                  {item.price}
-                                </p>
-                              </div>
-                              <button
-                                onClick={() => handleRemove(item.id)}
-                                className="w-8 h-8 rounded-full text-muted-foreground hover:text-destructive hover:bg-destructive/10 flex items-center justify-center transition-colors"
-                                aria-label={`Remove ${item.name}`}
-                              >
-                                <Trash2 size={15} />
-                              </button>
-                            </div>
+                {/* Items */}
+                {items.map((item) => (
+                  <article
+                    key={item.id}
+                    className="flex flex-col sm:flex-row gap-5 rounded-3xl glass-card border border-purple-200/70 bg-white/80 p-5 shadow-sm hover:border-purple-300 transition-all"
+                  >
+                    <img
+                      src={item.image}
+                      alt={item.name}
+                      className="h-28 w-28 rounded-2xl object-cover border border-purple-100 shrink-0 self-center sm:self-start"
+                    />
 
-                            <ItemDetails item={item} />
-                          </div>
+                    <div className="flex flex-1 flex-col justify-between">
+                      <div className="flex items-start justify-between gap-4">
+                        <div>
+                          <h3 className="font-display text-lg text-plum font-semibold">
+                            {item.name}
+                          </h3>
+                          {item.color && (
+                            <p className="text-xs text-muted-foreground mt-1">
+                              Custom Shade: <span className="font-semibold text-purple-900">{item.color}</span>
+                            </p>
+                          )}
+                          {item.custom && (
+                            <p className="text-xs text-purple-800/80 italic mt-1">
+                              Note: {item.custom}
+                            </p>
+                          )}
+                        </div>
 
-                          <div className="mt-4 pt-3 border-t border-border/30 flex items-center justify-between gap-3">
-                            <div className="inline-flex items-center rounded-full border border-border/60 bg-white dark:bg-card overflow-hidden shadow-sm">
-                              <button
-                                onClick={() => handleQuantity(item.id, item.quantity - 1)}
-                                className="w-8 h-8 flex items-center justify-center text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors"
-                                aria-label={`Decrease ${item.name} quantity`}
-                              >
-                                <Minus size={13} />
-                              </button>
-                              <span className="w-9 text-center text-xs font-body font-bold text-foreground">
-                                {item.quantity}
-                              </span>
-                              <button
-                                onClick={() => handleQuantity(item.id, item.quantity + 1)}
-                                className="w-8 h-8 flex items-center justify-center text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors"
-                                aria-label={`Increase ${item.name} quantity`}
-                              >
-                                <Plus size={13} />
-                              </button>
-                            </div>
-                            <span className="text-[11px] text-primary/80 font-semibold flex items-center gap-1">
-                              <Sparkles size={12} className="text-amber-500" />
-                              Hand-stitched
-                            </span>
-                          </div>
+                        <button
+                          onClick={() => handleRemove(item.id)}
+                          aria-label={`Remove ${item.name}`}
+                          className="rounded-full p-2 text-muted-foreground transition-colors hover:bg-rose-50 hover:text-rose-600"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      </div>
+
+                      <div className="mt-5 flex items-center justify-between border-t border-purple-100 pt-4">
+                        {/* Quantity Counter */}
+                        <div className="flex items-center rounded-full border border-purple-200 bg-white p-1 shadow-sm">
+                          <button
+                            onClick={() => handleQuantity(item.id, item.quantity - 1)}
+                            aria-label="Decrease quantity"
+                            className="rounded-full p-1.5 text-muted-foreground hover:bg-purple-100 hover:text-plum transition-colors"
+                          >
+                            <Minus className="h-3.5 w-3.5" />
+                          </button>
+                          <span className="w-8 text-center text-xs font-bold text-plum">
+                            {item.quantity}
+                          </span>
+                          <button
+                            onClick={() => handleQuantity(item.id, item.quantity + 1)}
+                            aria-label="Increase quantity"
+                            className="rounded-full p-1.5 text-muted-foreground hover:bg-purple-100 hover:text-plum transition-colors"
+                          >
+                            <Plus className="h-3.5 w-3.5" />
+                          </button>
+                        </div>
+
+                        <div className="text-right">
+                          <span className="font-display text-lg font-bold text-purple-950">
+                            {item.price}
+                          </span>
                         </div>
                       </div>
-                    </article>
-                  ))}
-                </div>
-              </FadeIn>
+                    </div>
+                  </article>
+                ))}
+              </div>
 
               {/* Order Summary Sidebar */}
-              <FadeIn delay={0.1}>
-                <aside className="glass-card rounded-3xl p-6 shadow-luxury-lg border border-border/60 lg:sticky lg:top-24">
-                  <div className="flex items-center gap-2 pb-4 border-b border-border/40">
-                    <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary">
-                      <Package size={16} />
-                    </div>
-                    <div>
-                      <h2 className="font-display text-lg font-bold text-foreground">
-                        Order Summary
-                      </h2>
-                      <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">
-                        Bespoke Atelier Checkout
-                      </p>
-                    </div>
+              <div className="rounded-[2.5rem] glass-card border border-purple-200/80 bg-white/90 p-8 shadow-lift sticky top-28">
+                <h2 className="font-display text-2xl text-plum font-semibold border-b border-purple-200/60 pb-4">
+                  Order Summary
+                </h2>
+
+                <div className="mt-6 space-y-3.5 text-sm text-muted-foreground">
+                  <div className="flex justify-between">
+                    <span>Items ({itemCount})</span>
+                    <span className="font-semibold text-plum">₹{subtotal.toLocaleString("en-IN")}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Atelier Shipping</span>
+                    <span>
+                      {remainingForFreeShipping === 0 ? (
+                        <strong className="text-emerald-700 font-bold uppercase tracking-wider text-xs">Free</strong>
+                      ) : (
+                        "₹99 (Free over ₹999)"
+                      )}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Signature Gift Wrap</span>
+                    <span className="text-emerald-700 font-bold uppercase tracking-wider text-xs">Complimentary</span>
                   </div>
 
-                  <div className="mt-5 space-y-3.5 text-sm font-body">
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Total Items</span>
-                      <span className="font-semibold text-foreground">{itemCount}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Subtotal</span>
-                      <span className="font-semibold text-foreground">Rs. {total}</span>
-                    </div>
-                    <div className="flex justify-between text-xs text-emerald-600 font-medium">
-                      <span>Royal Gift Box Packaging</span>
-                      <span className="font-bold uppercase tracking-wider bg-emerald-500/10 px-2 py-0.5 rounded-full">FREE 🎁</span>
-                    </div>
-                    <div className="flex justify-between text-xs text-muted-foreground">
-                      <span>Pan-India Shipping</span>
-                      <span className="font-medium text-foreground">Calculated at checkout</span>
-                    </div>
+                  <div className="border-t border-purple-200/60 pt-4 flex justify-between items-baseline">
+                    <span className="font-display text-lg font-bold text-plum">Total</span>
+                    <span className="font-display text-2xl font-black text-purple-950">
+                      ₹{(subtotal + (remainingForFreeShipping === 0 ? 0 : 99)).toLocaleString("en-IN")}
+                    </span>
                   </div>
+                </div>
 
-                  <div className="mt-6 border-t border-border/50 pt-4 flex justify-between items-baseline">
-                    <div>
-                      <span className="font-body text-xs uppercase tracking-wider text-muted-foreground font-semibold block">Total Amount</span>
-                      <span className="text-[11px] text-muted-foreground">All taxes included</span>
-                    </div>
-                    <span className="font-display text-2xl font-extrabold text-gradient-royal">Rs. {total}</span>
-                  </div>
+                <div className="mt-8 space-y-3">
+                  <button
+                    onClick={() => navigate("/checkout")}
+                    className="w-full rounded-full btn-royal py-4 text-xs font-semibold uppercase tracking-[0.16em] flex items-center justify-center gap-2 shadow-lg hover:shadow-xl transition-all"
+                  >
+                    <span>Proceed to Checkout</span>
+                    <ArrowRight className="h-4 w-4" />
+                  </button>
+                  <button
+                    onClick={() => navigate("/shop")}
+                    className="w-full rounded-full border border-purple-200 bg-white py-3 text-xs font-semibold text-plum hover:bg-purple-50 transition-colors"
+                  >
+                    Add more pieces
+                  </button>
+                </div>
 
-                  <div className="mt-6 space-y-2.5">
-                    <button
-                      onClick={() => navigate("/checkout?cart=1")}
-                      className="w-full py-3.5 px-6 rounded-2xl btn-gradient text-white text-sm font-bold shadow-royal-glow hover:shadow-luxury-lg active:scale-95 transition-all flex items-center justify-center gap-2"
-                    >
-                      <Sparkles size={16} className="text-amber-200" />
-                      <span>Proceed to Royal Checkout</span>
-                      <ArrowRight size={15} />
-                    </button>
-                    <button
-                      onClick={handleClear}
-                      className="w-full py-2.5 rounded-xl text-xs text-muted-foreground hover:text-destructive hover:bg-destructive/5 font-medium transition-colors"
-                    >
-                      Clear Shopping Bag
-                    </button>
-                  </div>
-
-                  <div className="mt-5 pt-4 border-t border-border/30 flex items-center justify-center gap-1.5 text-xs text-muted-foreground">
-                    <ShieldCheck size={14} className="text-emerald-500" />
-                    <span>100% Secure Checkout & Payment</span>
-                  </div>
-                </aside>
-              </FadeIn>
+                <div className="mt-6 border-t border-purple-100 pt-4 flex items-center gap-2.5 text-xs text-muted-foreground">
+                  <ShieldCheck className="h-4 w-4 text-purple-700 shrink-0" />
+                  <span>Secure SSL checkout with 100% handmade guarantee</span>
+                </div>
+              </div>
             </div>
           )}
         </div>
       </main>
 
-      <Footer />
-    </div>
-  );
-};
-
-function ItemDetails({ item }: { item: CartItem }) {
-  const details = [
-    item.color ? `Color: ${item.color}` : null,
-    item.flowers?.length ? `Flowers: ${item.flowers.join(", ")}` : null,
-    item.custom ? `Custom: ${item.custom}` : null,
-  ].filter(Boolean);
-
-  if (details.length === 0) return null;
-
-  return (
-    <div className="mt-2 space-y-1">
-      {details.map((detail) => (
-        <p key={detail} className="font-body text-xs text-muted-foreground/90 line-clamp-2 bg-secondary/40 px-2.5 py-1 rounded-lg border border-border/30 w-fit">
-          {detail}
-        </p>
-      ))}
+      {/* Footer */}
+      <footer className="border-t border-purple-200/60 py-12 bg-white/60">
+        <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-6 px-6 text-sm text-muted-foreground sm:flex-row">
+          <div className="flex items-center gap-3">
+            <span className="font-display text-plum font-semibold text-base">Inventive Queen</span>
+            <span className="text-[10px] uppercase tracking-wider text-purple-600 font-medium">Royal Crochet Atelier</span>
+          </div>
+          <p className="text-xs">© {new Date().getFullYear()} Inventive Queen — Crocheted with love & care</p>
+        </div>
+      </footer>
     </div>
   );
 }
-
-export default CartPage;

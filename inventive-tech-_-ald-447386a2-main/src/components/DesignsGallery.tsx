@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { ArrowRight, Sparkles } from "lucide-react";
+import { ArrowRight, Sparkles, Crown } from "lucide-react";
 import { FadeIn } from "@/components/motion/FadeIn";
 import { StaggerChildren, StaggerItem } from "@/components/motion/StaggerChildren";
 
@@ -42,141 +42,112 @@ const designs: DesignItem[] = [
 ];
 
 const tabs: { key: FilterTab; label: string; emoji: string }[] = [
-  { key: "all", label: "All Designs", emoji: "✨" },
-  { key: "dolls", label: "Dolls & Plush", emoji: "🧸" },
-  { key: "bouquets", label: "Bouquets", emoji: "💐" },
-  { key: "keychains", label: "Charms", emoji: "🔑" },
+  { key: "all", label: "All Creations", emoji: "✨" },
+  { key: "dolls", label: "Dolls & Chibis", emoji: "🧸" },
+  { key: "bouquets", label: "Forever Flowers", emoji: "💐" },
+  { key: "keychains", label: "Charms & Keepsakes", emoji: "🎀" },
 ];
 
 const DesignsGallery = () => {
   const [activeTab, setActiveTab] = useState<FilterTab>("all");
 
   const filteredDesigns = activeTab === "all" ? designs : designs.filter((d) => d.category === activeTab);
-
   const getCount = (tab: FilterTab) => (tab === "all" ? designs.length : designs.filter((d) => d.category === tab).length);
 
-  const getBadgeClass = (badge: string) => {
-    if (badge.includes("Bestseller")) return "bg-amber-500 text-white";
-    if (badge.includes("Royal")) return "bg-primary text-white";
-    return "bg-foreground/80 text-white";
-  };
-
   return (
-    <section id="catalogue" className="py-20 md:py-28 bg-secondary/20 border-t border-border/30 relative">
-      <div className="absolute inset-0 bg-craft-dots opacity-[0.03] pointer-events-none" />
-
-      <div className="container max-w-6xl relative z-10">
+    <section id="catalogue" className="py-20 md:py-28 relative overflow-hidden bg-purple-50/50 border-y border-purple-200/60">
+      <div className="container max-w-7xl relative z-10">
+        {/* Section Header */}
         <div className="text-center max-w-2xl mx-auto mb-12">
           <FadeIn>
-            <div className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-primary/8 border border-primary/15 text-primary text-xs uppercase tracking-[0.22em] font-semibold mb-4">
-              <span>🎨</span> CATALOGUE
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white border border-purple-200 shadow-sm text-purple-900 text-xs uppercase tracking-[0.2em] font-bold mb-4">
+              <Crown size={13} className="text-amber-500" />
+              <span>Atelier Lookbook</span>
             </div>
           </FadeIn>
           <FadeIn delay={0.1}>
-            <h2 className="font-display text-3xl md:text-4xl lg:text-[2.6rem] font-bold text-foreground text-balance">
-              Designs I've Made
+            <h2 className="font-display text-3xl md:text-5xl font-black text-purple-950 text-balance">
+              Designs We Have Created
             </h2>
           </FadeIn>
           <FadeIn delay={0.15}>
-            <p className="mt-3 text-sm md:text-base text-muted-foreground leading-relaxed">
-              A peek at past orders — all designs are customizable and can be tailored in your favorite colors.
+            <p className="mt-4 text-base text-purple-900/75 leading-relaxed font-normal">
+              A gallery of our past bespoke creations. Love a design? Commission one just like it or request your own colors!
             </p>
           </FadeIn>
 
-          {/* Filter Tabs */}
+          {/* Interactive Filter Pills */}
           <FadeIn delay={0.2}>
-            <div className="mt-8 inline-flex flex-wrap items-center justify-center gap-2">
+            <div className="mt-8 inline-flex flex-wrap items-center justify-center gap-2 p-1.5 rounded-full bg-white border border-purple-200 shadow-sm">
               {tabs.map((tab) => (
                 <button
                   key={tab.key}
                   onClick={() => setActiveTab(tab.key)}
-                  className={`px-4 py-2 rounded-full text-xs font-body font-semibold transition-all duration-300 ${
+                  className={`px-4 py-2 rounded-full text-xs font-bold transition-all duration-300 flex items-center gap-1.5 ${
                     activeTab === tab.key
-                      ? "btn-gradient text-white shadow-md shadow-primary/20"
-                      : "bg-card border border-border/60 text-muted-foreground hover:text-foreground hover:border-primary/30"
+                      ? "bg-purple-700 text-white shadow-sm"
+                      : "text-purple-900/75 hover:text-purple-950 hover:bg-purple-50"
                   }`}
                 >
-                  {tab.emoji} {tab.label} ({getCount(tab.key)})
+                  <span>{tab.emoji}</span>
+                  <span>{tab.label}</span>
+                  <span className={`text-[10px] px-1.5 py-0.2 rounded-full ${activeTab === tab.key ? "bg-white/20 text-white" : "bg-purple-100 text-purple-800"}`}>
+                    {getCount(tab.key)}
+                  </span>
                 </button>
               ))}
             </div>
           </FadeIn>
         </div>
 
-        {/* Product Grid */}
-        <StaggerChildren className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-5">
-          {filteredDesigns.map((item) => (
-            <StaggerItem key={item.id}>
-              <div className="h-full bg-card rounded-3xl p-3.5 border border-border/50 hover:border-primary/30 shadow-luxury-sm hover:shadow-luxury-lg transition-all duration-400 flex flex-col group">
-                {/* Image */}
-                <div className="aspect-square rounded-2xl overflow-hidden relative bg-gradient-to-br from-purple-50/60 via-pink-50/30 to-amber-50/20 mb-3.5 flex items-center justify-center p-3">
+        {/* Gallery Grid */}
+        <StaggerChildren className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 sm:gap-5">
+          {filteredDesigns.map((d) => (
+            <StaggerItem key={d.id}>
+              <div className="group h-full bg-white rounded-3xl p-3 border border-purple-100/90 hover:border-purple-300 shadow-sm hover:shadow-luxury hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between overflow-hidden">
+                <Link to={`/product/${d.productId}`} className="block relative aspect-square rounded-2xl overflow-hidden bg-purple-50/60">
                   <img
-                    src={item.image}
-                    alt={item.name}
+                    src={d.image}
+                    alt={d.name}
                     loading="lazy"
-                    className="w-full h-full object-contain group-hover:scale-[1.06] transition-transform duration-500"
+                    className="w-full h-full object-contain p-2 group-hover:scale-105 transition-transform duration-500 ease-out"
                   />
-                  {item.badge && (
-                    <span className={`absolute top-2.5 left-2.5 text-[9px] uppercase tracking-wider font-bold px-2.5 py-0.5 rounded-full shadow-sm ${getBadgeClass(item.badge)}`}>
-                      {item.badge}
+                  {d.badge && (
+                    <span className="absolute top-2 left-2 px-2 py-0.5 rounded-full bg-white/95 text-purple-950 text-[9px] font-bold shadow-xs border border-purple-100">
+                      {d.badge}
                     </span>
                   )}
-                </div>
+                </Link>
 
-                {/* Info */}
-                <div className="flex-1">
-                  <span className="text-[10px] uppercase tracking-wider text-primary font-bold block">
-                    {item.categoryLabel}
-                  </span>
-                  <h3 className="font-display text-sm md:text-base font-bold text-foreground group-hover:text-primary transition-colors line-clamp-1 mt-0.5">
-                    {item.name}
-                  </h3>
-                </div>
+                <div className="mt-3 flex-1 flex flex-col justify-between">
+                  <div>
+                    <span className="text-[10px] uppercase font-bold text-purple-600 tracking-wider">
+                      {d.categoryLabel}
+                    </span>
+                    <Link to={`/product/${d.productId}`} className="block mt-0.5">
+                      <h4 className="font-display text-xs sm:text-sm font-bold text-purple-950 group-hover:text-purple-700 transition-colors line-clamp-1">
+                        {d.name}
+                      </h4>
+                    </Link>
+                  </div>
 
-                {/* Price + CTA */}
-                <div className="mt-4 pt-3 border-t border-border/30 flex items-center justify-between">
-                  <span className="font-display text-base font-bold text-foreground">
-                    {item.price}
-                  </span>
-                  <Link
-                    to={`/product/${item.productId}`}
-                    className="inline-flex items-center gap-1 px-3.5 py-1.5 rounded-full bg-primary/8 group-hover:bg-primary text-primary group-hover:text-white text-xs font-semibold transition-all duration-200"
-                  >
-                    <span>Order</span>
-                    <ArrowRight size={12} className="group-hover:translate-x-0.5 transition-transform" />
-                  </Link>
+                  <div className="mt-2.5 pt-2 border-t border-purple-50 flex items-center justify-between">
+                    <span className="font-display text-xs sm:text-sm font-black text-purple-950">
+                      {d.price}
+                    </span>
+                    <Link
+                      to={`/product/${d.productId}`}
+                      className="text-[11px] font-bold text-purple-700 hover:text-purple-950 inline-flex items-center gap-1"
+                    >
+                      <span>Details</span>
+                      <ArrowRight size={11} />
+                    </Link>
+                  </div>
                 </div>
               </div>
             </StaggerItem>
           ))}
         </StaggerChildren>
-
-        {/* Bottom Jump Pills */}
-        <FadeIn delay={0.3}>
-          <div className="mt-12 flex flex-wrap items-center justify-center gap-3">
-            {[
-              { label: "Mini Dolls", to: "/category/dolls" },
-              { label: "Crochet Bouquets", to: "/category/bouquets" },
-              { label: "Keychains & Charms", to: "/category/keychains" },
-            ].map((link) => (
-              <Link
-                key={link.label}
-                to={link.to}
-                className="px-5 py-2.5 rounded-full bg-card hover:bg-primary hover:text-white text-foreground text-xs font-semibold border border-border/60 hover:border-primary transition-all flex items-center gap-1.5 shadow-sm"
-              >
-                <span>{link.label}</span>
-                <ArrowRight size={13} />
-              </Link>
-            ))}
-            <Link
-              to="/custom-orders"
-              className="px-6 py-2.5 rounded-full btn-gradient text-white text-xs font-semibold shadow-md shadow-primary/20 hover:shadow-luxury active:scale-95 transition-all flex items-center gap-1.5"
-            >
-              <Sparkles size={13} />
-              <span>Request Custom Design</span>
-            </Link>
-          </div>
-        </FadeIn>
       </div>
     </section>
   );

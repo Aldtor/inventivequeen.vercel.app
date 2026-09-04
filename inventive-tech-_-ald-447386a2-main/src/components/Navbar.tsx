@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import { ShoppingBag, User, Menu, X, ChevronDown, Sparkles, Crown, Search } from "lucide-react";
+import { ShoppingBag, User, Menu, X, ChevronDown, Sparkles, Crown, Search, Heart, MessageCircle } from "lucide-react";
 import { getCartCount, CART_UPDATED_EVENT } from "@/lib/cart";
 import { useAuth } from "@/lib/auth";
 import logo from "@/assets/logo.png";
@@ -37,7 +37,10 @@ const Navbar = () => {
   }, []);
 
   // Close mobile menu on route change
-  useEffect(() => { setOpen(false); setInfoDropdown(false); }, [location.pathname]);
+  useEffect(() => {
+    setOpen(false);
+    setInfoDropdown(false);
+  }, [location.pathname]);
 
   const handleScrollTo = (id: string) => {
     setOpen(false);
@@ -51,16 +54,15 @@ const Navbar = () => {
 
   const navPills = [
     { label: "Home", action: () => { setOpen(false); navigate("/"); }, active: location.pathname === "/" && !location.hash },
-    { label: "Dolls", action: () => handleScrollTo("pricelist"), active: location.hash === "#pricelist" },
-    { label: "Characters", action: () => handleScrollTo("pricelist"), active: false },
-    { label: "Flowers", action: () => handleScrollTo("categories"), active: location.hash === "#categories" },
-    { label: "Catalogue", action: () => handleScrollTo("catalogue"), active: location.hash === "#catalogue" },
-    { label: "How to order", action: () => handleScrollTo("how-to-order"), active: location.hash === "#how-to-order" },
+    { label: "Forever Flowers", action: () => { setOpen(false); navigate("/category/bouquet"); }, active: location.pathname.includes("/category/bouquet") },
+    { label: "Keepsake Dolls", action: () => { setOpen(false); navigate("/category/doll"); }, active: location.pathname.includes("/category/doll") },
+    { label: "Pocket Charms", action: () => { setOpen(false); navigate("/category/keychain"); }, active: location.pathname.includes("/category/keychain") },
+    { label: "Custom Studio", action: () => { setOpen(false); navigate("/custom-orders"); }, active: location.pathname === "/custom-orders" },
   ];
 
   return (
     <>
-      {/* ── Announcement Banner ── */}
+      {/* ── Top Royal Atelier Announcement Ribbon ── */}
       <AnimatePresence>
         {bannerVisible && (
           <motion.div
@@ -68,24 +70,29 @@ const Navbar = () => {
             animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.3, ease: "easeOut" }}
-            className="overflow-hidden"
+            className="overflow-hidden relative z-50"
           >
-            <div className="bg-gradient-to-r from-purple-700 via-purple-600 to-indigo-700 text-white text-center py-2.5 px-4 text-xs font-medium tracking-wide flex items-center justify-center gap-2 relative z-50 shadow-sm">
-              <span className="px-2.5 py-0.5 rounded-full bg-white/20 border border-white/30 text-[10px] font-extrabold uppercase tracking-wider text-white">
-                LIMITED SLOTS
+            <div className="bg-gradient-to-r from-purple-800 via-purple-700 to-indigo-800 text-white text-center py-2 px-4 text-xs font-medium tracking-wide flex items-center justify-center gap-2 shadow-inner border-b border-purple-600/40">
+              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-amber-400/25 border border-amber-300/40 text-[10px] font-bold uppercase tracking-wider text-amber-200">
+                <Crown size={11} className="text-amber-300" />
+                Royal Atelier
               </span>
-              <span>
-                🌸 Custom crochet orders are currently <strong className="font-bold underline decoration-white/50 underline-offset-2">OPEN</strong>! Processing time: 3–5 days.
+              <span className="hidden sm:inline text-purple-100">
+                🌸 Bespoke Custom Commissions are currently <strong className="font-bold text-white underline decoration-amber-300/60 underline-offset-2">OPEN</strong>!
               </span>
-              <a
-                href="#how-to-order"
-                className="underline underline-offset-2 font-bold ml-1 text-purple-100 hover:text-white transition-colors hidden sm:inline"
+              <span className="sm:hidden text-purple-100">
+                🌸 Custom orders are <strong className="font-bold text-white">OPEN</strong>!
+              </span>
+              <span className="text-purple-300 text-[11px] hidden md:inline">• Turnaround: 3–5 Days</span>
+              <Link
+                to="/custom-orders"
+                className="underline underline-offset-2 font-bold ml-1 text-amber-200 hover:text-white transition-colors text-xs"
               >
-                Learn more →
-              </a>
+                Order Custom Piece →
+              </Link>
               <button
                 onClick={() => setBannerVisible(false)}
-                className="absolute right-3 sm:right-4 text-white/70 hover:text-white transition-colors p-1"
+                className="absolute right-3 sm:right-5 text-white/70 hover:text-white transition-colors p-1"
                 aria-label="Dismiss banner"
               >
                 <X size={14} />
@@ -95,132 +102,148 @@ const Navbar = () => {
         )}
       </AnimatePresence>
 
-      {/* ── Main Navbar ── */}
-      <nav
-        className={`sticky top-0 z-50 transition-all duration-300 ${
+      {/* ── Main Floating Capsule Navbar ── */}
+      <header
+        className={`sticky top-0 z-40 transition-all duration-300 ${
           scrolled
-            ? "bg-[#fbf8fe]/95 backdrop-blur-2xl shadow-luxury-sm border-b border-purple-200/60"
-            : "bg-[#fbf8fe]/85 backdrop-blur-xl border-b border-purple-100"
+            ? "glass-navbar shadow-luxury py-2.5"
+            : "bg-background/80 backdrop-blur-md py-3.5 border-b border-purple-100/80"
         }`}
       >
-        <div className="container flex items-center justify-between h-16 md:h-[72px] gap-3">
-          {/* ── Brand Logo ── */}
-          <Link to="/" className="flex items-center gap-2.5 flex-shrink-0 group">
+        <div className="container max-w-7xl flex items-center justify-between gap-3">
+          {/* ── Brand Logo & Royal Avatar ── */}
+          <Link to="/" className="flex items-center gap-3 flex-shrink-0 group">
             <div className="relative">
-              <div className="w-10 h-10 md:w-11 md:h-11 rounded-full overflow-hidden ring-2 ring-purple-400/40 group-hover:ring-purple-500 transition-all duration-300 shadow-sm bg-purple-50">
-                <img
-                  src={logo}
-                  alt="Inventive Queen"
-                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                />
+              <div className="w-11 h-11 md:w-12 md:h-12 rounded-full overflow-hidden p-0.5 bg-gradient-to-tr from-purple-400 via-pink-300 to-amber-300 shadow-md group-hover:shadow-royal transition-all duration-300">
+                <div className="w-full h-full rounded-full overflow-hidden bg-white flex items-center justify-center">
+                  <img
+                    src={logo}
+                    alt="Inventive Queen"
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                  />
+                </div>
               </div>
-              <span className="absolute -bottom-0.5 -right-0.5 text-[10px] select-none drop-shadow-sm">👑</span>
+              <span className="absolute -bottom-1 -right-1 text-xs select-none filter drop-shadow">👑</span>
             </div>
             <div className="flex flex-col">
-              <span className="font-display text-base md:text-lg font-bold tracking-tight text-purple-950 group-hover:text-purple-700 transition-colors duration-200 leading-none">
+              <span className="font-display text-lg md:text-xl font-bold tracking-tight text-purple-950 group-hover:text-purple-700 transition-colors duration-200 leading-tight">
                 Inventive Queen
               </span>
-              <span className="text-[9px] uppercase tracking-[0.2em] text-purple-600 font-bold mt-0.5">
+              <span className="text-[10px] uppercase tracking-[0.22em] text-purple-600 font-bold">
                 Royal Crochet Atelier
               </span>
             </div>
 
-            {/* Orders OPEN badge */}
-            <div className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 border border-emerald-300/60 text-emerald-700 text-[11px] font-semibold ml-1.5 shadow-sm">
+            {/* Commissions Status Pill */}
+            <div className="hidden xl:inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-50 border border-emerald-200/80 text-emerald-700 text-[10px] font-bold ml-1.5 shadow-sm">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-              <span>Orders OPEN</span>
+              <span>Slots Available</span>
             </div>
           </Link>
 
-          {/* ── Desktop Search ── */}
-          <div className="hidden lg:flex flex-1 max-w-xs mx-3">
+          {/* ── Desktop Live Search ── */}
+          <div className="hidden lg:flex flex-1 max-w-xs xl:max-w-sm mx-4">
             <SearchBar />
           </div>
 
-          {/* ── Desktop Navigation Pills ── */}
-          <ul className="hidden md:flex items-center gap-1">
+          {/* ── Desktop Navigation Navigation Pills ── */}
+          <nav className="hidden md:flex items-center gap-1">
             {navPills.map((p) => (
-              <li key={p.label}>
-                <button
-                  onClick={p.action}
-                  className={`relative px-4 py-1.5 rounded-full text-xs font-bold transition-all duration-200 ${
-                    p.active
-                      ? "bg-purple-100 text-purple-800 shadow-sm border border-purple-200/70"
-                      : "text-purple-900/70 hover:text-purple-950 hover:bg-purple-50"
-                  }`}
-                >
-                  {p.label}
-                </button>
-              </li>
+              <button
+                key={p.label}
+                onClick={p.action}
+                className={`relative px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all duration-200 ${
+                  p.active
+                    ? "bg-purple-100/90 text-purple-900 border border-purple-200/80 shadow-sm"
+                    : "text-purple-900/75 hover:text-purple-950 hover:bg-purple-50/80"
+                }`}
+              >
+                {p.label}
+              </button>
             ))}
 
             {/* Info Dropdown */}
-            <li className="relative">
+            <div className="relative">
               <button
                 onClick={() => setInfoDropdown(!infoDropdown)}
-                className="px-3 py-1.5 rounded-full text-xs font-semibold text-muted-foreground hover:text-foreground hover:bg-secondary/70 transition-colors flex items-center gap-1"
+                className="px-3 py-1.5 rounded-full text-xs font-semibold text-purple-900/75 hover:text-purple-950 hover:bg-purple-50/80 transition-colors flex items-center gap-1"
               >
-                <span>Info</span>
+                <span>Atelier</span>
                 <ChevronDown size={12} className={`transition-transform duration-200 ${infoDropdown ? "rotate-180" : ""}`} />
               </button>
 
               <AnimatePresence>
                 {infoDropdown && (
                   <motion.div
-                    initial={{ opacity: 0, y: 8, scale: 0.96 }}
+                    initial={{ opacity: 0, y: 8, scale: 0.95 }}
                     animate={{ opacity: 1, y: 0, scale: 1 }}
-                    exit={{ opacity: 0, y: 8, scale: 0.96 }}
-                    transition={{ duration: 0.2, ease: "easeOut" }}
-                    className="absolute right-0 mt-2 w-52 rounded-2xl bg-card/95 backdrop-blur-xl border border-border/80 shadow-luxury-lg py-2 z-50 text-xs"
+                    exit={{ opacity: 0, y: 8, scale: 0.95 }}
+                    transition={{ duration: 0.18, ease: "easeOut" }}
+                    className="absolute right-0 mt-2 w-56 rounded-2xl bg-white/95 backdrop-blur-2xl border border-purple-100 shadow-luxury-lg py-2 z-50 text-xs"
                   >
                     <button
                       onClick={() => handleScrollTo("why-choose-us")}
-                      className="w-full text-left px-4 py-2.5 hover:bg-primary/8 hover:text-primary transition-colors flex items-center gap-2"
+                      className="w-full text-left px-4 py-2.5 hover:bg-purple-50 text-purple-950 transition-colors flex items-center gap-2.5 font-medium"
                     >
-                      <Crown size={13} className="text-amber-500" />
-                      About Atelier
+                      <Crown size={14} className="text-amber-500" />
+                      About Our Atelier
                     </button>
                     <button
                       onClick={() => handleScrollTo("terms")}
-                      className="w-full text-left px-4 py-2.5 hover:bg-primary/8 hover:text-primary transition-colors"
+                      className="w-full text-left px-4 py-2.5 hover:bg-purple-50 text-purple-950 transition-colors flex items-center gap-2.5 font-medium"
                     >
-                      Terms & Conditions
+                      <span>📜</span>
+                      Ordering & Terms
                     </button>
                     <button
                       onClick={() => { setInfoDropdown(false); setContactOpen(true); }}
-                      className="w-full text-left px-4 py-2.5 hover:bg-primary/8 hover:text-primary transition-colors"
+                      className="w-full text-left px-4 py-2.5 hover:bg-purple-50 text-purple-950 transition-colors flex items-center gap-2.5 font-medium"
                     >
-                      Contact & Inquiries
+                      <MessageCircle size={14} className="text-purple-600" />
+                      Direct Inquiry & FAQ
                     </button>
-                    <div className="mx-3 my-1 h-px bg-border/60" />
+                    <div className="mx-3 my-1.5 h-px bg-purple-100" />
                     <Link
                       to="/custom-orders"
                       onClick={() => setInfoDropdown(false)}
-                      className="w-full block px-4 py-2.5 text-primary font-semibold hover:bg-primary/8 transition-colors flex items-center gap-2"
+                      className="w-full px-4 py-2.5 text-purple-700 font-bold hover:bg-purple-50 transition-colors flex items-center gap-2"
                     >
-                      <Sparkles size={13} className="text-amber-500" />
-                      Custom Bespoke Orders
+                      <Sparkles size={14} className="text-amber-500" />
+                      Bespoke Custom Studio
                     </Link>
                   </motion.div>
                 )}
               </AnimatePresence>
-            </li>
-          </ul>
+            </div>
+          </nav>
 
-          {/* ── Right Action Icons ── */}
-          <div className="flex items-center gap-1.5">
+          {/* ── Right Action Controls ── */}
+          <div className="flex items-center gap-2">
+            {/* Custom Commission Button */}
+            <Link
+              to="/custom-orders"
+              className="hidden sm:inline-flex items-center gap-1.5 px-4 py-2 rounded-full btn-gradient text-xs font-bold text-white shadow-sm hover:shadow-md transition-all duration-300 hover:scale-[1.02] active:scale-95"
+            >
+              <Sparkles size={13} className="text-amber-200" />
+              <span>Commission Bespoke</span>
+            </Link>
+
+            {/* User Profile */}
             <Link
               to={user ? "/account" : "/login"}
-              className="p-2.5 rounded-full text-muted-foreground hover:text-foreground hover:bg-secondary/70 transition-all duration-200"
+              className="p-2.5 rounded-full text-purple-900/75 hover:text-purple-950 hover:bg-purple-100/70 transition-all duration-200 border border-transparent hover:border-purple-200/60"
               aria-label={user ? "Account" : "Sign in"}
+              title={user ? "My Account" : "Sign In"}
             >
               <User size={18} />
             </Link>
 
+            {/* Shopping Bag */}
             <Link
               to="/cart"
-              className="relative p-2.5 rounded-full text-muted-foreground hover:text-foreground hover:bg-secondary/70 transition-all duration-200"
+              className="relative p-2.5 rounded-full text-purple-900/75 hover:text-purple-950 hover:bg-purple-100/70 transition-all duration-200 border border-transparent hover:border-purple-200/60"
               aria-label="Shopping Cart"
+              title="Shopping Cart"
             >
               <ShoppingBag size={18} />
               <AnimatePresence>
@@ -230,7 +253,7 @@ const Navbar = () => {
                     initial={{ scale: 0 }}
                     animate={{ scale: 1 }}
                     exit={{ scale: 0 }}
-                    className="absolute -top-0.5 -right-0.5 bg-primary text-primary-foreground text-[10px] font-bold w-[18px] h-[18px] rounded-full flex items-center justify-center shadow-sm"
+                    className="absolute -top-0.5 -right-0.5 bg-gradient-to-tr from-purple-600 to-pink-500 text-white text-[10px] font-black w-5 h-5 rounded-full flex items-center justify-center shadow-md border-2 border-white"
                   >
                     {cartCount}
                   </motion.span>
@@ -238,18 +261,18 @@ const Navbar = () => {
               </AnimatePresence>
             </Link>
 
-            {/* Mobile menu trigger */}
+            {/* Mobile Hamburger Menu */}
             <button
               onClick={() => setOpen(!open)}
-              className="md:hidden p-2.5 rounded-full text-foreground hover:bg-secondary/70 transition-colors"
-              aria-label="Toggle menu"
+              className="md:hidden p-2.5 rounded-full text-purple-950 hover:bg-purple-100/70 transition-colors"
+              aria-label="Toggle navigation menu"
             >
-              {open ? <X size={20} /> : <Menu size={20} />}
+              {open ? <X size={22} /> : <Menu size={22} />}
             </button>
           </div>
         </div>
 
-        {/* ── Mobile Menu Overlay ── */}
+        {/* ── Mobile Navigation Drawer ── */}
         <AnimatePresence>
           {open && (
             <motion.div
@@ -257,79 +280,60 @@ const Navbar = () => {
               animate={{ opacity: 1, height: "auto" }}
               exit={{ opacity: 0, height: 0 }}
               transition={{ duration: 0.25, ease: "easeOut" }}
-              className="md:hidden border-t border-border/60 bg-background/98 backdrop-blur-2xl px-5 py-5 overflow-hidden"
+              className="md:hidden border-t border-purple-100 bg-white/95 backdrop-blur-2xl px-5 py-5 overflow-hidden shadow-2xl"
             >
               <div className="mb-4">
                 <SearchBar />
               </div>
-              <ul className="space-y-1">
-                {navPills.map((p, i) => (
-                  <motion.li
-                    key={p.label}
-                    initial={{ opacity: 0, x: -16 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: i * 0.05, duration: 0.25 }}
-                  >
+              <ul className="space-y-1 text-sm font-semibold">
+                {navPills.map((p) => (
+                  <li key={p.label}>
                     <button
                       onClick={p.action}
-                      className={`w-full text-left py-2.5 px-4 rounded-xl text-sm font-semibold transition-colors ${
+                      className={`w-full text-left py-2.5 px-4 rounded-2xl transition-colors ${
                         p.active
-                          ? "bg-primary/10 text-primary"
-                          : "text-foreground hover:bg-primary/5 hover:text-primary"
+                          ? "bg-purple-100 text-purple-900 font-bold"
+                          : "text-purple-900/80 hover:bg-purple-50 hover:text-purple-950"
                       }`}
                     >
                       {p.label}
                     </button>
-                  </motion.li>
+                  </li>
                 ))}
-                <motion.li
-                  initial={{ opacity: 0, x: -16 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: navPills.length * 0.05, duration: 0.25 }}
-                >
+                <li>
                   <button
                     onClick={() => handleScrollTo("terms")}
-                    className="w-full text-left py-2.5 px-4 rounded-xl text-sm font-semibold text-foreground hover:bg-primary/5 hover:text-primary transition-colors"
+                    className="w-full text-left py-2.5 px-4 rounded-2xl text-purple-900/80 hover:bg-purple-50 hover:text-purple-950 transition-colors"
                   >
-                    Terms & Conditions
+                    Terms & FAQ
                   </button>
-                </motion.li>
-                <motion.li
-                  initial={{ opacity: 0, x: -16 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: (navPills.length + 1) * 0.05, duration: 0.25 }}
-                >
-                  <div className="pt-2 mt-2 border-t border-border/50">
-                    <Link
-                      to="/custom-orders"
-                      onClick={() => setOpen(false)}
-                      className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl text-sm font-bold btn-gradient text-white shadow-md"
-                    >
-                      <Sparkles size={15} className="text-amber-200" />
-                      Custom Bespoke Orders ✨
-                    </Link>
-                  </div>
-                </motion.li>
-                {isAdmin && (
-                  <motion.li
-                    initial={{ opacity: 0, x: -16 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: (navPills.length + 2) * 0.05, duration: 0.25 }}
+                </li>
+                <li className="pt-3">
+                  <Link
+                    to="/custom-orders"
+                    onClick={() => setOpen(false)}
+                    className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-2xl text-sm font-bold btn-gradient text-white shadow-md"
                   >
+                    <Sparkles size={16} className="text-amber-200" />
+                    Bespoke Custom Orders ✨
+                  </Link>
+                </li>
+                {isAdmin && (
+                  <li className="pt-2">
                     <Link
                       to="/admin"
                       onClick={() => setOpen(false)}
-                      className="w-full block py-2.5 px-4 rounded-xl text-sm font-medium text-muted-foreground hover:text-primary transition-colors"
+                      className="w-full block py-2.5 px-4 rounded-2xl text-xs font-bold text-purple-600 bg-purple-50 hover:bg-purple-100 transition-colors text-center"
                     >
-                      Admin Dashboard
+                      Admin Dashboard CMS
                     </Link>
-                  </motion.li>
+                  </li>
                 )}
               </ul>
             </motion.div>
           )}
         </AnimatePresence>
-      </nav>
+      </header>
 
       <ContactModal open={contactOpen} onClose={() => setContactOpen(false)} />
     </>

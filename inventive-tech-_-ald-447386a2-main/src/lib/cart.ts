@@ -111,3 +111,11 @@ export function parsePrice(price: string) {
 export function getCartTotal(items = getCartItems()) {
   return items.reduce((sum, item) => sum + parsePrice(item.price) * item.quantity, 0);
 }
+
+export const CART_DRAWER_OPEN_EVENT = "iq_cart_drawer_open";
+export const FREE_SHIPPING_THRESHOLD = 999;
+
+export function openCartDrawer() {
+  window.dispatchEvent(new Event(CART_DRAWER_OPEN_EVENT));
+}
+

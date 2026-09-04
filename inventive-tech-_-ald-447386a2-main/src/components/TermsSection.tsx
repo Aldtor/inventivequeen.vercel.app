@@ -1,32 +1,32 @@
 import { useState } from "react";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, Crown, Sparkles } from "lucide-react";
 import { FadeIn } from "@/components/motion/FadeIn";
 import { AnimatePresence, motion } from "framer-motion";
 
 const terms = [
   {
-    title: "Order Processing Time",
-    content: "All crochet creations are handmade to order. Standard processing time is 3–7 business days depending on complexity. Custom or bulk orders may take longer — we'll confirm timeline before starting.",
+    title: "Order Processing & Turnaround Time",
+    content: "Every crochet creation is handmade to order. Standard crafting takes 3–5 business days depending on complexity and commission volume. For urgent birthdays or anniversary deadlines, please notify us during order placement for priority atelier processing.",
   },
   {
-    title: "Pricing & Payment",
-    content: "All prices listed are base prices and may vary based on customization, size upgrades, or additional details. Full payment is required before we begin crafting. We accept UPI, bank transfer, and Razorpay.",
+    title: "Transparent Pricing & Payment",
+    content: "All listed rates are baseline prices and cover materials, crafting time, and complimentary royal packaging. We accept UPI, Net Banking, credit/debit cards, and secure checkout via Razorpay SSL protection.",
   },
   {
-    title: "Customization Policy",
-    content: "We welcome custom requests! Send us reference photos, color preferences, and size requirements. A preview mockup will be shared for approval before crafting begins. Minor variations are natural in handmade work.",
+    title: "Customization & Mockup Approval",
+    content: "We celebrate bespoke creativity! Send us reference photos, custom outfit colors, or personalized hairstyles. We will confirm color details with you before crafting begins. As each piece is individually hand-stitched, tiny artistic nuances make each creation one-of-a-kind.",
   },
   {
-    title: "Shipping & Delivery",
-    content: "We ship Pan-India via trusted courier services. Shipping charges are calculated at checkout based on location. Every order is carefully bubble-wrapped and packed in aesthetic gift packaging.",
+    title: "Pan-India Shipping & Packaging",
+    content: "We deliver across all pincodes in India via express insured couriers. Every package is enclosed in aesthetic gift wrapping with satin ribbons, wax-sealed royal note, and heavy protective bubble wrap to ensure safe arrival.",
   },
   {
-    title: "Returns & Refunds",
-    content: "Due to the handmade and custom nature of our products, we do not accept returns or exchanges. If your item arrives damaged during shipping, please contact us within 48 hours with photos for resolution.",
+    title: "Care & Preservation Guide",
+    content: "Crafted with premium milk cotton and velvet yarns. For care, gently spot clean with mild soap and a damp cloth. Never machine wash, wring, or tumble dry. Keep bouquets out of harsh direct midday sunlight to maintain rich yarn pigmentation for decades.",
   },
   {
-    title: "Care Instructions",
-    content: "Crochet items are made with high-quality milk cotton yarn. Spot clean gently with mild soap and cold water. Do not machine wash, wring, or tumble dry. Keep away from direct sunlight for color preservation.",
+    title: "Returns & Damaged In Transit Policy",
+    content: "Due to the custom and personalized nature of commissioned crochet art, orders cannot be returned once crafted. If your parcel incurs any transit damage, reach out to us with an unboxing video/photo within 48 hours for an immediate complimentary remake or resolution.",
   },
 ];
 
@@ -36,47 +36,48 @@ const TermsSection = () => {
   const toggle = (i: number) => setOpenIndex(openIndex === i ? null : i);
 
   return (
-    <section id="terms" className="py-20 md:py-28 relative">
-      <div className="container max-w-3xl relative z-10">
-        <div className="text-center mb-12">
+    <section id="terms" className="py-20 md:py-28 relative overflow-hidden">
+      <div className="container max-w-4xl relative z-10">
+        <div className="text-center max-w-xl mx-auto mb-14">
           <FadeIn>
-            <div className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-primary/8 border border-primary/15 text-primary text-xs uppercase tracking-[0.22em] font-semibold mb-4">
-              <span>📜</span> Policies
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white border border-purple-200 shadow-sm text-purple-900 text-xs uppercase tracking-[0.2em] font-bold mb-4">
+              <Crown size={13} className="text-amber-500" />
+              <span>Policies & Atelier Care</span>
             </div>
           </FadeIn>
           <FadeIn delay={0.1}>
-            <h2 className="font-display text-3xl md:text-4xl font-bold text-foreground text-balance">
-              Terms & Conditions
+            <h2 className="font-display text-3xl md:text-5xl font-black text-purple-950 text-balance">
+              Terms & Ordering Policies
             </h2>
           </FadeIn>
           <FadeIn delay={0.15}>
-            <p className="mt-3 text-sm text-muted-foreground leading-relaxed">
-              Please read through our policies before placing an order.
+            <p className="mt-4 text-base text-purple-900/75 leading-relaxed font-normal">
+              Everything you need to know about processing timelines, gift packaging, shipping, and yarn care.
             </p>
           </FadeIn>
         </div>
 
         <FadeIn delay={0.2}>
-          <div className="space-y-3">
+          <div className="space-y-3.5">
             {terms.map((term, i) => (
               <div
                 key={term.title}
-                className={`rounded-2xl border transition-all duration-300 ${
+                className={`rounded-2xl border transition-all duration-300 overflow-hidden ${
                   openIndex === i
-                    ? "bg-card border-primary/20 shadow-luxury"
-                    : "bg-card/60 border-border/50 shadow-luxury-sm hover:border-border/80"
+                    ? "bg-white border-purple-400 shadow-luxury"
+                    : "bg-white/80 border-purple-100 hover:border-purple-300 shadow-sm"
                 }`}
               >
                 <button
                   onClick={() => toggle(i)}
-                  className="w-full flex items-center justify-between p-5 text-left"
+                  className="w-full flex items-center justify-between p-5 sm:p-6 text-left"
                 >
-                  <h3 className={`font-display text-base font-bold transition-colors ${openIndex === i ? "text-primary" : "text-foreground"}`}>
+                  <h3 className={`font-display text-base sm:text-lg font-bold transition-colors ${openIndex === i ? "text-purple-700" : "text-purple-950"}`}>
                     {term.title}
                   </h3>
                   <ChevronDown
                     size={18}
-                    className={`text-muted-foreground transition-transform duration-300 flex-shrink-0 ml-4 ${openIndex === i ? "rotate-180 text-primary" : ""}`}
+                    className={`text-purple-600 transition-transform duration-300 flex-shrink-0 ml-4 ${openIndex === i ? "rotate-180" : ""}`}
                   />
                 </button>
 
@@ -89,7 +90,7 @@ const TermsSection = () => {
                       transition={{ duration: 0.25, ease: "easeOut" }}
                       className="overflow-hidden"
                     >
-                      <p className="px-5 pb-5 text-sm text-muted-foreground leading-relaxed">
+                      <p className="px-5 sm:px-6 pb-6 text-sm text-purple-900/80 leading-relaxed font-normal">
                         {term.content}
                       </p>
                     </motion.div>

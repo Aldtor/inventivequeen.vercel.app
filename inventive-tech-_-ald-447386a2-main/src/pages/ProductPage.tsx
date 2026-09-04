@@ -1,629 +1,327 @@
+import { useState, useMemo } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
-import { useState, useEffect, useRef } from "react";
-import {
-  Heart,
-  Clock,
-  Truck,
-  Gift,
-  ChevronLeft,
-  ChevronRight,
-  Play,
-  X,
-  Check,
-  Package,
-  Pencil,
-  Scissors,
-  ShoppingCart,
-  Droplets,
-  ChevronDown,
-  Shield,
-} from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
-import { categories, type Product } from "@/lib/products";
+import { ArrowLeft, Check, Minus, Plus, ShoppingBag, Star, Truck, Sparkles, Heart } from "lucide-react";
+import { motion } from "framer-motion";
+import { toast } from "sonner";
+import { SiteHeader } from "@/components/SiteHeader";
+import { allCatalogItems, type ShopItem } from "./ShopPage";
 import { useProducts } from "@/lib/cms-products";
-import { addCartItem } from "@/lib/cart";
-import { addRecentlyViewed } from "@/lib/recentlyViewed";
-import { getProductPricing, isNewArrival } from "@/lib/product-display";
-import { Button } from "@/components/ui/button";
-import { FadeIn } from "@/components/motion/FadeIn";
-import { StaggerChildren, StaggerItem } from "@/components/motion/StaggerChildren";
+import { addCartItem, openCartDrawer } from "@/lib/cart";
 
-/* Zoom Modal */
-const ZoomModal = ({
-  src,
-  alt,
-  onClose,
-}: {
-  src: string;
-  alt: string;
-  onClose: () => void;
-}) => (
-  <div
-    className="fixed inset-0 z-[60] flex items-center justify-center bg-foreground/50 backdrop-blur-md cursor-zoom-out"
-    onClick={onClose}
-  >
-    <button
-      onClick={onClose}
-      className="absolute top-4 right-4 p-2.5 rounded-full glass-card text-foreground hover:bg-white transition-all active:scale-95 shadow-luxury"
-      aria-label="Close zoom"
-    >
-      <X size={20} />
-    </button>
-    <img
-      src={src}
-      alt={alt}
-      className="max-h-[85vh] max-w-[90vw] rounded-2xl object-contain shadow-2xl"
-    />
-  </div>
-);
-
-/* Image Gallery */
-const ImageGallery = ({ images, name }: { images: string[]; name: string }) => {
-  const [active, setActive] = useState(0);
-  const [zoomed, setZoomed] = useState(false);
-
-  return (
-    <>
-      {zoomed && (
-        <ZoomModal
-          src={images[active]}
-          alt={name}
-          onClose={() => setZoomed(false)}
-        />
-      )}
-      <div className="flex flex-col gap-3">
-        <div
-          className="aspect-square overflow-hidden rounded-2xl bg-gradient-to-br from-purple-50/40 via-white to-pink-50/20 shadow-luxury-lg cursor-zoom-in group border border-border/30"
-          onClick={() => setZoomed(true)}
-        >
-          <AnimatePresence mode="wait">
-            <motion.img
-              key={active}
-              src={images[active]}
-              alt={name}
-              initial={{ opacity: 0.6 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0.6 }}
-              transition={{ duration: 0.3 }}
-              className="w-full h-full object-contain group-hover:scale-[1.03] transition-transform duration-500 ease-out"
-            />
-          </AnimatePresence>
-        </div>
-        {images.length > 1 && (
-          <div className="flex gap-2 overflow-x-auto pb-1">
-            {images.map((img, i) => (
-              <button
-                key={i}
-                onClick={() => setActive(i)}
-                className={`w-16 h-16 md:w-20 md:h-20 rounded-xl overflow-hidden border-2 transition-all duration-200 active:scale-95 flex-shrink-0 bg-white ${
-                  i === active
-                    ? "border-primary shadow-luxury"
-                    : "border-border/40 opacity-60 hover:opacity-100"
-                }`}
-              >
-                <img
-                  src={img}
-                  alt={`${name} ${i + 1}`}
-                  className="w-full h-full object-contain bg-white"
-                />
-              </button>
-            ))}
-          </div>
-        )}
-      </div>
-    </>
-  );
-};
-
-/* Color Picker */
-const ColorPicker = ({
-  colors,
-  selected,
-  onSelect,
-}: {
-  colors: { name: string; value: string }[];
-  selected: string | null;
-  onSelect: (name: string) => void;
-}) => (
-  <div>
-    <p className="font-body text-sm font-medium text-foreground mb-2.5">
-      Select Colour
-    </p>
-    <div className="flex gap-3">
-      {colors.map((c) => (
-        <button
-          key={c.name}
-          onClick={() => onSelect(c.name)}
-          className={`relative w-11 h-11 rounded-full border-2 transition-all duration-200 active:scale-90 ${
-            selected === c.name
-              ? "border-primary scale-110 shadow-royal"
-              : "border-border/50 hover:scale-105 hover:border-primary/30"
-          }`}
-          style={{ backgroundColor: c.value }}
-          aria-label={c.name}
-          title={c.name}
-        >
-          {selected === c.name && (
-            <span className="absolute inset-0 flex items-center justify-center">
-              <Check size={16} className="text-foreground drop-shadow" />
-            </span>
-          )}
-        </button>
-      ))}
-    </div>
-    {selected && (
-      <p className="mt-2 text-xs text-muted-foreground">
-        Selected: <span className="font-semibold text-foreground">{selected}</span>
-      </p>
-    )}
-  </div>
-);
-
-/* Bouquet Color Dropdown */
-const BouquetColorDropdown = ({
-  colors,
-  selected,
-  onSelect,
-}: {
-  colors: { name: string; value: string }[];
-  selected: string | null;
-  onSelect: (name: string) => void;
-}) => (
-  <div>
-    <label className="font-body text-sm font-medium text-foreground block mb-2.5">
-      Select Colour
-    </label>
-    <select
-      value={selected ?? ""}
-      onChange={(e) => onSelect(e.target.value)}
-      className="w-full rounded-xl border border-border/50 bg-card px-4 py-3 text-sm font-body text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/30 transition-all"
-    >
-      <option value="" disabled>
-        Choose a colour...
-      </option>
-      {colors.map((c) => (
-        <option key={c.name} value={c.name}>
-          {c.name}
-        </option>
-      ))}
-    </select>
-  </div>
-);
-
-/* Expandable Section */
-const ExpandableSection = ({
-  title,
-  children,
-  defaultOpen = false,
-}: {
-  title: string;
-  children: React.ReactNode;
-  defaultOpen?: boolean;
-}) => {
-  const [isOpen, setIsOpen] = useState(defaultOpen);
-
-  return (
-    <div className="border-t border-border/60">
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        className="w-full flex items-center justify-between py-4 text-left group"
-        aria-expanded={isOpen}
-      >
-        <span className="font-body text-sm font-semibold text-foreground uppercase tracking-[0.1em]">
-          {title}
-        </span>
-        <ChevronDown
-          size={16}
-          className={`text-muted-foreground transition-transform duration-200 ${
-            isOpen ? "rotate-180" : ""
-          }`}
-        />
-      </button>
-      <AnimatePresence>
-        {isOpen && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: "auto", opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.2, ease: "easeInOut" }}
-            className="overflow-hidden"
-          >
-            <div className="pb-5 text-sm text-muted-foreground leading-relaxed">
-              {children}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
-  );
-};
-
-/* Trust Badges */
-const trustItems = [
-  { icon: Heart, label: "Handmade Item" },
-  { icon: Clock, label: "Made in 2-3 Days" },
-  { icon: Truck, label: "Delivery in 3-7 Days" },
-  { icon: Gift, label: "Perfect for Gifting" },
-];
-
-/* Default bouquet options */
-const defaultBouquetColors = [
-  { name: "Red", value: "hsl(0 70% 55%)" },
-  { name: "Yellow", value: "hsl(45 90% 60%)" },
-  { name: "Pink", value: "hsl(350 60% 75%)" },
-];
-
-/* Product Page */
-const ProductPage = () => {
-  const { id } = useParams<{ id: string }>();
+export default function ProductPage() {
+  const { id, slug } = useParams<{ id?: string; slug?: string }>();
+  const productKey = slug || id || "lavender-bear";
+  const { products: cmsProducts } = useProducts();
   const navigate = useNavigate();
-  const { products } = useProducts();
-  const product = products.find((p) => p.id === id);
-  const stickyRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    if (product) addRecentlyViewed(product.id);
+  const product = useMemo(() => {
+    // Check in allCatalogItems first
+    const found = allCatalogItems.find(
+      (p) => p.slug === productKey || p.id === productKey
+    );
+    if (found) return found;
+
+    // Check in cmsProducts
+    const cmsFound = cmsProducts.find((p) => p.id === productKey);
+    if (cmsFound) {
+      return {
+        id: cmsFound.id,
+        slug: cmsFound.id,
+        name: cmsFound.name,
+        price: cmsFound.price,
+        rawPrice: parseInt(cmsFound.price.replace(/[^\d]/g, "")) || 999,
+        category: cmsFound.type as any,
+        categoryLabel: cmsFound.type.charAt(0).toUpperCase() + cmsFound.type.slice(1),
+        note: cmsFound.tagline || "Handcrafted Crochet",
+        img: cmsFound.images[0] || "",
+        desc: cmsFound.description,
+        story: "Each stitch is woven by hand with certified soft cotton yarn in our royal atelier.",
+        details: [
+          "100% premium milk-cotton yarn",
+          "Handmade with slow craftsmanship",
+          "Gift-ready signature packaging",
+          "Dust-resistant & long-lasting",
+        ],
+        rating: 5.0,
+        reviews: 48,
+        bestseller: true,
+        madeToOrder: true,
+      } as ShopItem;
+    }
+
+    // Default fallback
+    return allCatalogItems[0];
+  }, [productKey, cmsProducts]);
+
+  const [qty, setQty] = useState(1);
+  const [selectedColor, setSelectedColor] = useState<string | null>(null);
+  const [added, setAdded] = useState(false);
+
+  const related = useMemo(() => {
+    return allCatalogItems
+      .filter((p) => p.category === product.category && p.id !== product.id)
+      .slice(0, 3);
   }, [product]);
 
-  useEffect(() => {
-    window.scrollTo(0, 0);
-  }, [id]);
-
-  const [selectedColor, setSelectedColor] = useState<string | null>(null);
-  const [bouquetColor, setBouquetColor] = useState<string | null>(null);
-  const [customChanges, setCustomChanges] = useState("");
-  const [cartFeedback, setCartFeedback] = useState("");
-
-
-  const isTeddy = product?.type === "teddy";
-  const isBouquet = product?.type === "bouquet";
-  const customRequest = customChanges.trim();
-  const hasCustomColourRequest = isBouquet && customRequest.length > 0;
-  const needsSelection = isTeddy || isBouquet;
-
-  const canBuy =
-    !needsSelection ||
-    (isTeddy && selectedColor !== null) ||
-    (isBouquet && (bouquetColor !== null || hasCustomColourRequest));
-
-  const handleBuyNow = () => {
-    if (!product || !canBuy) return;
-    const params = new URLSearchParams({ product: product.id });
-    const chosenColor = isBouquet ? bouquetColor ?? (hasCustomColourRequest ? "Custom colour requested" : null) : selectedColor;
-    if (chosenColor) params.set("color", chosenColor);
-    if (customRequest) params.set("custom", customRequest);
-    navigate(`/checkout?${params.toString()}`);
-  };
-
   const handleAddToCart = () => {
-    if (!product || !canBuy) return;
-    addCartItem(product, {
-      color: isBouquet ? bouquetColor ?? (hasCustomColourRequest ? "Custom colour requested" : null) : selectedColor,
-      custom: customRequest,
-    });
-    setCartFeedback("Added to cart");
-    window.setTimeout(() => setCartFeedback(""), 1600);
-  };
-
-  // Related products (same category, excluding current)
-  const relatedProducts = product
-    ? products.filter((p) => p.type === product.type && p.id !== product.id).slice(0, 4)
-    : [];
-
-  const categoryInfo = product
-    ? categories.find((c) => c.slug === product.type)
-    : null;
-  const pricing = product ? getProductPricing(product) : null;
-  const newArrival = product ? isNewArrival(product) : false;
-
-  if (!product) {
-    return (
-      <div className="min-h-screen">
-        <Navbar />
-        <div className="container py-32 text-center">
-          <h1 className="font-display text-3xl font-bold text-foreground">
-            Product Not Found
-          </h1>
-          <p className="mt-3 text-muted-foreground">
-            The product you're looking for doesn't exist.
-          </p>
-          <Link to="/">
-            <Button variant="outline" className="mt-6">
-              <ChevronLeft size={16} /> Back to Home
-            </Button>
-          </Link>
-        </div>
-        <Footer />
-      </div>
+    addCartItem(
+      {
+        id: product.id,
+        name: product.name,
+        price: product.price,
+        type: "bouquet",
+        tagline: product.desc,
+        description: product.desc,
+        images: [product.img],
+        isActive: true,
+      },
+      {
+        color: selectedColor || undefined,
+      }
     );
-  }
+
+    setAdded(true);
+    toast.success(`${product.name} added to your basket!`, {
+      description: `${qty} × ${product.price} · Prepared by our royal atelier`,
+    });
+    openCartDrawer();
+
+    setTimeout(() => {
+      setAdded(false);
+    }, 1800);
+  };
 
   return (
-    <div className="min-h-screen">
-      <Navbar />
+    <div className="min-h-screen bg-[#FAF8F5] text-[#461c48] font-sans">
+      <SiteHeader />
 
-      <div className="container py-6 md:py-10">
-        {/* Breadcrumbs */}
-        <FadeIn>
-          <nav aria-label="Breadcrumb" className="mb-6 md:mb-8">
-            <ol className="flex items-center gap-1.5 text-xs font-body text-muted-foreground">
-              <li>
-                <Link to="/" className="hover:text-primary transition-colors">Home</Link>
-              </li>
-              <li><ChevronRight size={12} /></li>
-              {categoryInfo && (
-                <>
-                  <li>
-                    <Link to={`/category/${product.type}`} className="hover:text-primary transition-colors">
-                      {categoryInfo.title}
-                    </Link>
-                  </li>
-                  <li><ChevronRight size={12} /></li>
-                </>
-              )}
-              <li className="text-foreground font-medium line-clamp-1">{product.name}</li>
-            </ol>
-          </nav>
-        </FadeIn>
+      <main className="relative overflow-x-hidden pb-24 pt-32 sm:pt-36">
+        <div className="mx-auto max-w-6xl px-6">
+          {/* Breadcrumb */}
+          <div>
+            <Link
+              to="/shop"
+              className="inline-flex items-center gap-2 text-[11px] uppercase tracking-[0.2em] text-muted-foreground transition-colors hover:text-purple-700 font-semibold"
+            >
+              <ArrowLeft className="h-3.5 w-3.5" /> Back to collection
+            </Link>
+          </div>
 
-        {/* Main grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-14">
-          <FadeIn>
-            <ImageGallery images={product.images} name={product.name} />
-          </FadeIn>
+          {/* Product Showcase */}
+          <div className="mt-10 grid gap-14 lg:grid-cols-2 items-start">
+            {/* Left Photo Showcase */}
+            <div className="tilt-scene">
+              <div className="overflow-hidden rounded-[2.5rem] glass-card border border-purple-200/80 shadow-lift bg-white/80 p-2">
+                <motion.img
+                  src={product.img}
+                  alt={product.name}
+                  width={912}
+                  height={1104}
+                  className="aspect-[4/5] w-full rounded-[2rem] object-cover"
+                  initial={{ scale: 1.05 }}
+                  animate={{ scale: 1 }}
+                  transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
+                />
+              </div>
+            </div>
 
-          {/* Details - sticky on desktop */}
-          <div ref={stickyRef}>
-            <div className="md:sticky md:top-24 flex flex-col gap-6">
-              <FadeIn delay={0.1}>
-                <div>
-                  <div className="flex flex-wrap items-center gap-2">
-                    {newArrival && (
-                      <span className="rounded-full bg-primary text-primary-foreground px-2.5 py-1 text-[10px] font-body font-semibold">NEW</span>
-                    )}
-                    {pricing?.hasDiscount && (
-                      <span className="rounded-full bg-foreground text-background px-2.5 py-1 text-[10px] font-body font-semibold">{pricing.discountPercent}% OFF</span>
-                    )}
-                  </div>
-                  <h1 className="mt-3 font-display text-2xl md:text-3xl font-bold text-foreground leading-tight">
-                    {product.name}
-                  </h1>
-                  <div className="mt-3 flex flex-wrap items-baseline gap-3">
-                    <p className="font-display text-xl md:text-2xl font-semibold text-primary">
-                      {pricing?.sellingPrice ?? product.price}
-                    </p>
-                    {pricing?.hasDiscount && <p className="text-sm text-muted-foreground line-through">{pricing.originalPrice}</p>}
-                  </div>
-                  <p className="mt-3 text-muted-foreground font-body italic text-pretty">
-                    {product.tagline}
-                  </p>
-                </div>
-              </FadeIn>
+            {/* Right Details */}
+            <div className="flex flex-col justify-center">
+              <div>
+                <span className="text-xs uppercase tracking-[0.3em] text-purple-700 font-bold">
+                  {product.note}
+                </span>
+                <h1 className="mt-3 font-display text-4xl text-plum sm:text-5xl font-medium tracking-tight">
+                  {product.name}
+                </h1>
 
-              {/* Shipping info inline */}
-              <FadeIn delay={0.15}>
-                <div className="flex flex-wrap gap-4 py-3">
-                  {trustItems.slice(0, 3).map((t) => (
-                    <span key={t.label} className="inline-flex items-center gap-1.5 text-xs text-muted-foreground font-body">
-                      <t.icon size={13} className="text-primary" />
-                      {t.label}
+                {/* Badges */}
+                <div className="mt-4 flex flex-wrap items-center gap-2">
+                  <span className="flex items-center gap-1.5 rounded-full bg-white/80 border border-purple-200/70 px-3 py-1 text-xs text-muted-foreground shadow-sm">
+                    <Star className="h-3.5 w-3.5 fill-purple-600 text-purple-600" />
+                    <span className="font-semibold text-plum">{product.rating}</span> · {product.reviews} reviews
+                  </span>
+                  {product.madeToOrder && (
+                    <span className="rounded-full bg-purple-100 px-3 py-1 text-[10px] uppercase tracking-[0.16em] font-bold text-purple-900">
+                      Made to order
                     </span>
-                  ))}
-                </div>
-              </FadeIn>
-
-              {/* Variations */}
-              <FadeIn delay={0.2}>
-                <div className="flex flex-col gap-5">
-                  {isTeddy && product.colors && (
-                    <ColorPicker
-                      colors={product.colors}
-                      selected={selectedColor}
-                      onSelect={setSelectedColor}
-                    />
                   )}
+                  {product.bestseller && (
+                    <span className="rounded-full btn-royal px-3 py-1 text-[10px] uppercase tracking-[0.16em] font-bold shadow-sm">
+                      Bestseller
+                    </span>
+                  )}
+                </div>
+              </div>
 
-                  {isBouquet && (
-                    <div className="space-y-2">
-                      <BouquetColorDropdown
-                        colors={product.flowerColors ?? defaultBouquetColors}
-                        selected={bouquetColor}
-                        onSelect={setBouquetColor}
-                      />
-                      <p className="text-xs text-muted-foreground">
-                        If your colour is not listed, write your colour in the customise order box below.
-                      </p>
-                      {bouquetColor && (
-                        <p className="text-xs text-muted-foreground">
-                          Selected colour: <span className="font-semibold text-foreground">{bouquetColor}</span>
-                        </p>
-                      )}
+              {/* Price & Description */}
+              <div className="mt-6 border-t border-purple-200/60 pt-6">
+                <div className="flex items-baseline gap-3">
+                  <span className="font-display text-3xl sm:text-4xl font-bold text-purple-950">
+                    {product.price}
+                  </span>
+                  <span className="text-xs text-muted-foreground uppercase tracking-wider font-medium">
+                    (All taxes included)
+                  </span>
+                </div>
+                <p className="mt-4 max-w-md leading-relaxed text-muted-foreground text-sm sm:text-base">
+                  {product.desc}
+                </p>
+              </div>
+
+              {/* Craft Details Checklist */}
+              <ul className="mt-7 space-y-2.5 border-t border-purple-200/60 pt-6">
+                {product.details.map((detail) => (
+                  <li key={detail} className="flex items-center gap-3 text-xs sm:text-sm text-plum font-medium">
+                    <div className="flex h-5 w-5 items-center justify-center rounded-full bg-purple-100 text-purple-700 shrink-0">
+                      <Check className="h-3 w-3" />
                     </div>
-                  )}
-                </div>
-              </FadeIn>
+                    <span>{detail}</span>
+                  </li>
+                ))}
+              </ul>
 
-              {/* Custom Changes / Customisation */}
-              <FadeIn delay={0.23}>
-                <div className="glass-card rounded-2xl p-5 shadow-luxury-sm space-y-2.5">
-                  <div className="flex items-center gap-2">
-                    <Pencil size={15} className="text-primary" />
-                    <p className="font-body text-sm font-bold text-foreground">
-                      Bespoke Customization Request
-                    </p>
-                    <span className="text-[10px] uppercase tracking-wider text-primary font-body font-bold ml-auto bg-purple-500/10 border border-purple-500/20 px-2.5 py-0.5 rounded-full">
-                      Optional
-                    </span>
-                  </div>
-                  <p className="text-xs text-muted-foreground font-body leading-relaxed">
-                    Want another flower colour, name embroidery, custom outfit, or size change? Let us know:
-                  </p>
-                  <textarea
-                    value={customChanges}
-                    onChange={(e) => setCustomChanges(e.target.value)}
-                    placeholder="E.g. I want lavender & cream roses, stitch name 'Aarav' on ribbon, wrap with gold paper..."
-                    rows={3}
-                    className="w-full rounded-xl border border-border/50 bg-card px-4 py-3 text-sm font-body text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/30 transition-all duration-200 resize-none"
-                    aria-label="Write custom changes for this product"
-                  />
-                </div>
-              </FadeIn>
-
-              {/* Buttons */}
-              <FadeIn delay={0.25}>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 pt-2">
-                  <Button
-                    variant="outline"
-                    size="lg"
-                    disabled={!canBuy}
-                    onClick={handleAddToCart}
-                    className="w-full rounded-2xl text-sm font-bold border-2 border-border/60 hover:border-primary hover:bg-primary/5 active:scale-[0.97] transition-all duration-200"
+              {/* Quantity and Add to Basket */}
+              <div className="mt-8 flex flex-wrap items-center gap-4">
+                {/* Quantity */}
+                <div className="flex items-center rounded-full border border-purple-200 bg-white p-1 shadow-sm">
+                  <button
+                    onClick={() => setQty((q) => Math.max(1, q - 1))}
+                    aria-label="Decrease quantity"
+                    className="rounded-full p-2.5 text-muted-foreground transition-colors hover:bg-purple-100 hover:text-plum"
                   >
-                    <ShoppingCart size={17} className="text-primary" />
-                    Add to Bag
-                  </Button>
-                  <Button
-                    size="lg"
-                    disabled={!canBuy}
-                    onClick={handleBuyNow}
-                    className="w-full rounded-2xl text-sm font-bold btn-gradient text-white shadow-royal-glow hover:shadow-luxury-lg active:scale-[0.97] transition-all duration-200"
+                    <Minus className="h-4 w-4" />
+                  </button>
+                  <span className="w-10 text-center text-sm font-semibold text-plum">{qty}</span>
+                  <button
+                    onClick={() => setQty((q) => q + 1)}
+                    aria-label="Increase quantity"
+                    className="rounded-full p-2.5 text-muted-foreground transition-colors hover:bg-purple-100 hover:text-plum"
                   >
-                    Instant Buy Now ✨
-                  </Button>
+                    <Plus className="h-4 w-4" />
+                  </button>
                 </div>
 
-                {cartFeedback && (
-                  <p className="text-xs text-primary font-body font-medium mt-3">
-                    {cartFeedback}
-                  </p>
-                )}
+                {/* Add to Basket CTA */}
+                <button
+                  onClick={handleAddToCart}
+                  className="inline-flex flex-1 items-center justify-center gap-2 rounded-full btn-royal px-8 py-3.5 text-xs sm:text-sm font-semibold uppercase tracking-[0.16em] shadow-lg hover:shadow-xl transition-all"
+                >
+                  <ShoppingBag className="h-4 w-4" />
+                  <span>{added ? "Added to basket!" : "Add to basket"}</span>
+                </button>
+              </div>
 
-                {needsSelection && !canBuy && (
-                  <p className="text-xs text-destructive font-body mt-3">
-                    {isTeddy
-                      ? "Please select a colour before buying."
-                      : "Please select a colour or write your colour in the custom box before buying."}
-                  </p>
-                )}
-              </FadeIn>
-
-              {/* Expandable sections */}
-              <FadeIn delay={0.3}>
-                <div>
-                  <ExpandableSection title="About This Product" defaultOpen>
-                    <p className="text-pretty">{product.description}</p>
-                  </ExpandableSection>
-
-                  <ExpandableSection title="Materials & Dimensions">
-                    <ul className="space-y-2">
-                      <li className="flex items-start gap-2">
-                        <Package size={14} className="text-primary mt-0.5 flex-shrink-0" />
-                        <span>Premium soft acrylic / cotton yarn</span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <Scissors size={14} className="text-primary mt-0.5 flex-shrink-0" />
-                        <span>Handcrafted with 5mm crochet hooks</span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <Shield size={14} className="text-primary mt-0.5 flex-shrink-0" />
-                        <span>Safety-tested stuffing material (for plush items)</span>
-                      </li>
-                    </ul>
-                  </ExpandableSection>
-
-                  <ExpandableSection title="Care Guide">
-                    <ul className="space-y-2">
-                      <li className="flex items-start gap-2">
-                        <Droplets size={14} className="text-primary mt-0.5 flex-shrink-0" />
-                        <span>Spot clean gently with mild soap and water</span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <span className="text-primary mt-0.5 flex-shrink-0 text-sm">*</span>
-                        <span>Avoid machine washing or tumble drying</span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <span className="text-primary mt-0.5 flex-shrink-0 text-sm">*</span>
-                        <span>Keep away from direct sunlight for prolonged periods</span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <span className="text-primary mt-0.5 flex-shrink-0 text-sm">*</span>
-                        <span>Store in a cool, dry place when not on display</span>
-                      </li>
-                    </ul>
-                  </ExpandableSection>
-
-                  <ExpandableSection title="Shipping & Delivery">
-                    <ul className="space-y-2">
-                      <li className="flex items-start gap-2">
-                        <Truck size={14} className="text-primary mt-0.5 flex-shrink-0" />
-                        <span>Pan-India delivery via trusted courier partners</span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <Clock size={14} className="text-primary mt-0.5 flex-shrink-0" />
-                        <span>Crafting: 2-3 days - Delivery: 3-7 business days</span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <Gift size={14} className="text-primary mt-0.5 flex-shrink-0" />
-                        <span>Lovingly packed and gift-ready on request</span>
-                      </li>
-                    </ul>
-                  </ExpandableSection>
-                </div>
-              </FadeIn>
+              {/* Shipping & Packaging Assurance */}
+              <div className="mt-8 flex items-center gap-3 rounded-2xl glass-card border border-purple-200/70 p-4 text-xs text-muted-foreground shadow-sm bg-white/70">
+                <Truck className="h-5 w-5 shrink-0 text-purple-700" />
+                <span>
+                  Free courier shipping on orders over ₹999 · Dispatches in 3–5 business days · Signature gift packaging included.
+                </span>
+              </div>
             </div>
           </div>
-        </div>
 
-        {/* Related Products */}
-        {relatedProducts.length > 0 && (
-          <div className="mt-20 md:mt-28">
-            <FadeIn>
-              <h2 className="font-display text-2xl md:text-3xl font-bold text-foreground text-center">
-                You May Also Like
+          {/* The Story Section */}
+          <section className="mt-28 grid items-center gap-14 lg:grid-cols-2 border-t border-purple-200/60 pt-20">
+            <div>
+              <p className="text-xs uppercase tracking-[0.42em] text-purple-700 font-bold">The story</p>
+              <h2 className="mt-4 font-display text-3xl sm:text-4xl font-medium text-plum">
+                Made <span className="italic text-gradient">slowly</span>, with intention
               </h2>
-              <p className="mt-3 text-center text-muted-foreground text-sm">
-                More handmade creations from the same collection
+              <p className="mt-6 max-w-lg leading-relaxed text-muted-foreground text-sm sm:text-base">
+                {product.story}
               </p>
-            </FadeIn>
+              <div className="mt-8 flex items-center gap-3 text-xs text-purple-900 font-semibold">
+                <span className="h-2 w-2 rounded-full bg-purple-600 animate-pulse" />
+                <span>Individually numbered & handmade in our atelier</span>
+              </div>
+            </div>
 
-            <StaggerChildren className="mt-10 grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-              {relatedProducts.map((p) => (
-                <StaggerItem key={p.id}>
-                  <Link
-                    to={`/product/${p.id}`}
-                    className="group card-lift overflow-hidden rounded-2xl bg-card border border-border/40 shadow-luxury-sm block"
+            <div className="tilt-scene">
+              <div className="overflow-hidden rounded-[2.5rem] tilt-3d shadow-lift border border-purple-200/70 bg-white p-2">
+                <img
+                  src={product.img}
+                  alt={`${product.name} craftsmanship detail`}
+                  loading="lazy"
+                  className="aspect-square w-full rounded-[2rem] object-cover"
+                />
+              </div>
+            </div>
+          </section>
+
+          {/* Related Pieces */}
+          {related.length > 0 && (
+            <section className="mt-28 border-t border-purple-200/60 pt-20">
+              <div className="text-center">
+                <p className="text-xs uppercase tracking-[0.42em] text-purple-700 font-bold">
+                  You may also love
+                </p>
+                <h2 className="mt-4 font-display text-3xl sm:text-4xl font-medium text-plum">
+                  More from <span className="italic text-gradient">{product.categoryLabel}</span>
+                </h2>
+              </div>
+
+              <div className="mt-12 grid gap-8 tilt-scene sm:grid-cols-2 lg:grid-cols-3">
+                {related.map((p) => (
+                  <article
+                    key={p.id}
+                    className="group overflow-hidden rounded-3xl glass-card tilt-3d border border-purple-200/70 shadow-soft bg-white/80 hover:bg-white transition-all flex flex-col"
                   >
-                    <div className="aspect-square overflow-hidden bg-gradient-to-br from-purple-50/30 via-white to-pink-50/15 relative">
+                    <Link to={`/product/${p.slug}`} className="relative overflow-hidden aspect-[4/3] w-full block">
                       <img
-                        src={p.images[0]}
+                        src={p.img}
                         alt={p.name}
                         loading="lazy"
-                        className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-700 ease-out"
+                        className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
                       />
-                    </div>
-                    <div className="p-4 md:p-5">
-                      <h3 className="font-body text-sm md:text-base font-medium text-foreground leading-snug line-clamp-1">
-                        {p.name}
-                      </h3>
-                      <p className="mt-1.5 font-display text-base font-semibold text-primary">
-                        {p.price}
-                      </p>
-                    </div>
-                  </Link>
-                </StaggerItem>
-              ))}
-            </StaggerChildren>
-          </div>
-        )}
-      </div>
+                      <span className="absolute left-4 top-4 rounded-full bg-white/90 px-3 py-1 text-[11px] uppercase tracking-[0.2em] font-medium text-plum shadow-sm">
+                        {p.note}
+                      </span>
+                    </Link>
 
-      <Footer />
+                    <div className="flex flex-col flex-1 justify-between p-6">
+                      <div>
+                        <Link to={`/product/${p.slug}`}>
+                          <h3 className="font-display text-xl text-plum font-medium tracking-tight group-hover:text-purple-700 transition-colors">
+                            {p.name}
+                          </h3>
+                        </Link>
+                        <p className="mt-2 text-xs leading-relaxed text-muted-foreground line-clamp-2">
+                          {p.desc}
+                        </p>
+                      </div>
+
+                      <div className="mt-5 flex items-center justify-between border-t border-purple-100 pt-4">
+                        <span className="font-display text-xl font-bold text-purple-950">
+                          {p.price}
+                        </span>
+                        <Link
+                          to={`/product/${p.slug}`}
+                          className="rounded-full border border-purple-300/80 bg-purple-50/60 px-4 py-1.5 text-xs uppercase tracking-wider font-semibold text-plum hover:btn-royal hover:border-transparent transition-all"
+                        >
+                          View Piece
+                        </Link>
+                      </div>
+                    </div>
+                  </article>
+                ))}
+              </div>
+            </section>
+          )}
+        </div>
+      </main>
+
+      {/* Footer */}
+      <footer className="border-t border-purple-200/60 py-12 bg-white/60">
+        <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-6 px-6 text-sm text-muted-foreground sm:flex-row">
+          <div className="flex items-center gap-3">
+            <span className="font-display text-plum font-semibold text-base">Inventive Queen</span>
+            <span className="text-[10px] uppercase tracking-wider text-purple-600 font-medium">Royal Crochet Atelier</span>
+          </div>
+          <p className="text-xs">© {new Date().getFullYear()} Inventive Queen — Crocheted with love & care</p>
+        </div>
+      </footer>
     </div>
   );
-};
-
-export default ProductPage;
-
-
+}

@@ -8,6 +8,9 @@ import { AuthProvider } from "@/lib/auth";
 import { ProductsProvider } from "@/lib/cms-products";
 import Index from "./pages/Index.tsx";
 
+import { CartDrawer } from "@/components/CartDrawer";
+import ShopPage from "./pages/ShopPage.tsx";
+
 /* Code-split non-critical routes for smaller initial bundle */
 const ProductPage = lazy(() => import("./pages/ProductPage.tsx"));
 const CheckoutPage = lazy(() => import("./pages/CheckoutPage.tsx"));
@@ -21,6 +24,10 @@ const AdminDashboard = lazy(() => import("./pages/AdminDashboard.tsx"));
 const PolicyPage = lazy(() => import("./pages/PolicyPage.tsx"));
 const CustomOrdersPage = lazy(() => import("./pages/CustomOrdersPage.tsx"));
 const CategoryPage = lazy(() => import("./pages/CategoryPage.tsx"));
+const AboutAtelierPage = lazy(() => import("./pages/AboutAtelierPage.tsx"));
+const ReviewsPage = lazy(() => import("./pages/ReviewsPage.tsx"));
+const HowToOrderPage = lazy(() => import("./pages/HowToOrderPage.tsx"));
+const FaqPage = lazy(() => import("./pages/FaqPage.tsx"));
 const NotFound = lazy(() => import("./pages/NotFound.tsx"));
 
 const queryClient = new QueryClient();
@@ -40,9 +47,12 @@ const App = () => (
       <AuthProvider>
         <ProductsProvider>
           <BrowserRouter>
+            <CartDrawer />
             <Suspense fallback={<PageLoader />}>
               <Routes>
                 <Route path="/" element={<Index />} />
+                <Route path="/shop" element={<ShopPage />} />
+                <Route path="/shop/:slug" element={<ProductPage />} />
                 <Route path="/product/:id" element={<ProductPage />} />
                 <Route path="/cart" element={<CartPage />} />
                 <Route path="/checkout" element={<CheckoutPage />} />
@@ -59,6 +69,10 @@ const App = () => (
                 <Route path="/policy/:slug" element={<PolicyPage />} />
                 <Route path="/custom-orders" element={<CustomOrdersPage />} />
                 <Route path="/category/:slug" element={<CategoryPage />} />
+                <Route path="/about" element={<AboutAtelierPage />} />
+                <Route path="/reviews" element={<ReviewsPage />} />
+                <Route path="/how-to-order" element={<HowToOrderPage />} />
+                <Route path="/faq" element={<FaqPage />} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
               </Routes>
