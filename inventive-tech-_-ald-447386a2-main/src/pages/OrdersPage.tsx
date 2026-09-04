@@ -6,12 +6,13 @@ import Footer from "@/components/Footer";
 import { useAuth } from "@/lib/auth";
 import { isSupabaseConfigured, supabase, type DbOrder, type OrderStatus } from "@/lib/supabase";
 import { FadeIn } from "@/components/motion/FadeIn";
+import { StaggerChildren, StaggerItem } from "@/components/motion/StaggerChildren";
 
-const statusMeta: Record<OrderStatus, { label: string; icon: typeof Clock; className: string }> = {
-  pending: { label: "Order Placed", icon: Clock, className: "bg-amber-500/10 border-amber-500/20 text-amber-700" },
+const statusMeta: Record<OrderStatus, { label: string; icon: typeof Clock; className: string; pulse?: boolean }> = {
+  pending: { label: "Order Placed", icon: Clock, className: "bg-amber-500/10 border-amber-500/20 text-amber-700", pulse: true },
   confirmed: { label: "Confirmed", icon: CheckCircle, className: "bg-sky-500/10 border-sky-500/20 text-sky-700" },
-  crafting: { label: "In Hand-Crafting", icon: Package, className: "bg-purple-500/10 border-purple-500/20 text-purple-700" },
-  shipped: { label: "Dispatched", icon: Truck, className: "bg-indigo-500/10 border-indigo-500/20 text-indigo-700" },
+  crafting: { label: "In Hand-Crafting", icon: Package, className: "bg-purple-500/10 border-purple-500/20 text-purple-700", pulse: true },
+  shipped: { label: "Dispatched", icon: Truck, className: "bg-indigo-500/10 border-indigo-500/20 text-indigo-700", pulse: true },
   delivered: { label: "Delivered", icon: CheckCircle, className: "bg-emerald-500/10 border-emerald-500/20 text-emerald-700" },
   cancelled: { label: "Cancelled", icon: Clock, className: "bg-neutral-500/10 border-neutral-500/20 text-neutral-700" },
 };
@@ -48,10 +49,14 @@ const OrdersPage = () => {
   }, [loading, user]);
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#FAF8F5] text-[#461c48] font-sans selection:bg-purple-200 selection:text-purple-900">
+    <div className="min-h-screen flex flex-col bg-transparent text-[#461c48] font-sans selection:bg-purple-200 selection:text-purple-900">
       <SiteHeader />
 
-      <main className="flex-1 pt-28 sm:pt-36">
+      <main className="flex-1 pt-28 sm:pt-36 relative">
+        {/* Decorative Orbs */}
+        <div className="decorative-orb w-64 h-64 bg-purple-400/10 -top-16 -right-20" style={{ animationDelay: "0s" }} />
+        <div className="decorative-orb w-48 h-48 bg-pink-300/10 bottom-32 -left-12" style={{ animationDelay: "5s" }} />
+
         <section className="bg-fairytale-mesh border-b border-border/40 py-12 md:py-16 text-center relative overflow-hidden">
           <div className="container relative z-10">
             <FadeIn>
@@ -68,7 +73,7 @@ const OrdersPage = () => {
           </div>
         </section>
 
-        <div className="container py-10 md:py-14 max-w-4xl">
+        <div className="container py-10 md:py-14 max-w-4xl relative z-10">
           {!isSupabaseConfigured ? (
             <EmptyState
               title="Supabase is not configured"
@@ -102,11 +107,13 @@ const OrdersPage = () => {
               actionTo="/"
             />
           ) : (
-            <div className="space-y-5">
+            <StaggerChildren className="space-y-5" staggerDelay={0.1}>
               {orders.map((order) => (
-                <OrderCard key={order.id} order={order} />
+                <StaggerItem key={order.id}>
+                  <OrderCard order={order} />
+                </StaggerItem>
               ))}
-            </div>
+            </StaggerChildren>
           )}
         </div>
       </main>
@@ -121,7 +128,7 @@ function OrderCard({ order }: { order: DbOrder }) {
   const Icon = meta.icon;
 
   return (
-    <article className="glass-card rounded-3xl shadow-luxury-sm hover:shadow-luxury border border-border/50 overflow-hidden transition-all duration-300">
+    <article className="glass-card rounded-3xl shadow-luxury-sm hover:shadow-luxury border border-border/50 overflow-hidden transition-all duration-300 card-hover-glow">
       <div className="p-5 sm:p-6 border-b border-border/40 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 bg-secondary/30">
         <div>
           <div className="flex items-center gap-2">
@@ -137,7 +144,7 @@ function OrderCard({ order }: { order: DbOrder }) {
             })}
           </p>
         </div>
-        <span className={`inline-flex items-center gap-1.5 rounded-full px-3.5 py-1 text-xs font-semibold border ${meta.className} w-fit`}>
+        <span className={`inline-flex items-center gap-1.5 rounded-full px-3.5 py-1 text-xs font-semibold border ${meta.className} w-fit ${meta.pulse ? "pulse-dot" : ""}`}>
           <Icon size={13} />
           {meta.label}
         </span>
@@ -145,9 +152,9 @@ function OrderCard({ order }: { order: DbOrder }) {
 
       <div className="p-5 sm:p-6 space-y-4">
         {(order.order_items ?? []).map((item) => (
-          <div key={item.id} className="flex gap-4 items-center">
+          <div key={item.id} className="flex gap-4 items-center group">
             {item.image_url && (
-              <div className="w-16 h-16 rounded-2xl overflow-hidden bg-gradient-to-br from-purple-50 via-white to-pink-50 p-1.5 flex items-center justify-center border border-border/40 shadow-sm flex-shrink-0">
+              <div className="w-16 h-16 rounded-2xl overflow-hidden bg-gradient-to-br from-purple-50 via-white to-pink-50 p-1.5 flex items-center justify-center border border-border/40 shadow-sm flex-shrink-0 group-hover:shadow-md transition-shadow">
                 <img
                   src={item.image_url}
                   alt={item.product_name}
@@ -202,22 +209,24 @@ function EmptyState({
   actionTo: string;
 }) {
   return (
-    <div className="max-w-md mx-auto text-center py-16 px-6 glass-card rounded-3xl shadow-luxury border border-border/50">
-      <div className="mx-auto w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center text-primary mb-4">
-        <ShoppingBag size={28} />
+    <FadeIn>
+      <div className="max-w-md mx-auto text-center py-16 px-6 glass-card rounded-3xl shadow-luxury border border-border/50">
+        <div className="mx-auto w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center text-primary mb-4">
+          <ShoppingBag size={28} />
+        </div>
+        <h2 className="font-display text-2xl font-bold text-foreground">{title}</h2>
+        <p className="mt-2 text-xs sm:text-sm text-muted-foreground leading-relaxed">{description}</p>
+        <div className="mt-6">
+          <Link
+            to={actionTo}
+            className="inline-flex items-center gap-2 px-6 py-3 rounded-full btn-gradient text-white text-xs font-bold shadow-royal-glow hover:-translate-y-0.5 transition-all"
+          >
+            <Sparkles size={14} className="text-amber-200" />
+            <span>{actionLabel}</span>
+          </Link>
+        </div>
       </div>
-      <h2 className="font-display text-2xl font-bold text-foreground">{title}</h2>
-      <p className="mt-2 text-xs sm:text-sm text-muted-foreground leading-relaxed">{description}</p>
-      <div className="mt-6">
-        <Link
-          to={actionTo}
-          className="inline-flex items-center gap-2 px-6 py-3 rounded-full btn-gradient text-white text-xs font-bold shadow-royal-glow"
-        >
-          <Sparkles size={14} className="text-amber-200" />
-          <span>{actionLabel}</span>
-        </Link>
-      </div>
-    </div>
+    </FadeIn>
   );
 }
 

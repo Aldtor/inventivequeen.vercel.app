@@ -1,12 +1,13 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { KeyRound, Mail, Phone, ShoppingBag, UserRound, Sparkles, type LucideIcon } from "lucide-react";
+import { KeyRound, Mail, Phone, ShoppingBag, UserRound, Sparkles, Lock, type LucideIcon } from "lucide-react";
 import { SiteHeader } from "@/components/SiteHeader";
 import Footer from "@/components/Footer";
 import { useAuth } from "@/lib/auth";
 import { getAuthRedirectUrl } from "@/lib/auth-redirect";
 import { isSupabaseConfigured, supabase } from "@/lib/supabase";
 import { FadeIn } from "@/components/motion/FadeIn";
+import { StaggerChildren, StaggerItem } from "@/components/motion/StaggerChildren";
 
 const AccountPage = () => {
   const { user, profile, loading } = useAuth();
@@ -53,10 +54,14 @@ const AccountPage = () => {
   const email = user?.email ?? profile?.email ?? "";
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#FAF8F5] text-[#461c48] font-sans selection:bg-purple-200 selection:text-purple-900">
+    <div className="min-h-screen flex flex-col bg-transparent text-[#461c48] font-sans selection:bg-purple-200 selection:text-purple-900">
       <SiteHeader />
 
-      <main className="flex-1 pt-28 sm:pt-36">
+      <main className="flex-1 pt-28 sm:pt-36 relative">
+        {/* Decorative Orbs */}
+        <div className="decorative-orb w-64 h-64 bg-purple-400/10 -top-16 -right-20" style={{ animationDelay: "0s" }} />
+        <div className="decorative-orb w-48 h-48 bg-pink-300/10 bottom-32 -left-12" style={{ animationDelay: "5s" }} />
+
         <section className="bg-fairytale-mesh border-b border-border/40 py-12 md:py-16 text-center relative overflow-hidden">
           <div className="container relative z-10">
             <FadeIn>
@@ -73,7 +78,7 @@ const AccountPage = () => {
           </div>
         </section>
 
-        <div className="container py-10 md:py-14 max-w-3xl">
+        <div className="container py-10 md:py-14 max-w-3xl relative z-10">
           {!isSupabaseConfigured ? (
             <EmptyState
               title="Supabase is not configured"
@@ -96,8 +101,11 @@ const AccountPage = () => {
             <FadeIn>
               <section className="glass-card rounded-3xl shadow-luxury-lg border border-border/60 p-6 md:p-8 space-y-6">
                 <div className="flex items-start gap-4 pb-5 border-b border-border/40">
-                  <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center flex-shrink-0 text-primary">
-                    <UserRound size={28} />
+                  {/* Avatar with gradient ring */}
+                  <div className="w-14 h-14 rounded-2xl p-0.5 bg-gradient-to-tr from-primary via-pink-400 to-amber-300 flex items-center justify-center flex-shrink-0 shadow-md">
+                    <div className="w-full h-full rounded-[0.65rem] bg-primary/10 flex items-center justify-center text-primary">
+                      <UserRound size={26} />
+                    </div>
                   </div>
                   <div className="min-w-0">
                     <p className="font-display text-xl font-bold text-foreground">Royal Member</p>
@@ -114,11 +122,17 @@ const AccountPage = () => {
                   </div>
                 </div>
 
-                <div className="grid sm:grid-cols-3 gap-3">
-                  <AccountFact label="Email" value={email} icon={Mail} />
-                  <AccountFact label="Full Name" value={profile?.full_name || "Not specified"} icon={UserRound} />
-                  <AccountFact label="Phone" value={profile?.phone || "Not specified"} icon={Phone} />
-                </div>
+                <StaggerChildren className="grid sm:grid-cols-3 gap-3" staggerDelay={0.08}>
+                  <StaggerItem>
+                    <AccountFact label="Email" value={email} icon={Mail} />
+                  </StaggerItem>
+                  <StaggerItem>
+                    <AccountFact label="Full Name" value={profile?.full_name || "Not specified"} icon={UserRound} />
+                  </StaggerItem>
+                  <StaggerItem>
+                    <AccountFact label="Phone" value={profile?.phone || "Not specified"} icon={Phone} />
+                  </StaggerItem>
+                </StaggerChildren>
 
                 <form onSubmit={handleChangePassword} className="rounded-2xl glass-panel p-5 space-y-4 border border-border/50">
                   <div className="flex items-center gap-2">
@@ -126,22 +140,28 @@ const AccountPage = () => {
                     <p className="font-body text-xs uppercase tracking-wider font-bold text-foreground">Update Password</p>
                   </div>
                   <div className="grid sm:grid-cols-2 gap-3">
-                    <input
-                      type="password"
-                      value={password}
-                      onChange={(event) => setPassword(event.target.value)}
-                      placeholder="New password (min 6 chars)"
-                      minLength={6}
-                      className="w-full rounded-2xl border border-border/60 bg-card px-4 py-3 text-sm font-body text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-primary/20"
-                    />
-                    <input
-                      type="password"
-                      value={confirmPassword}
-                      onChange={(event) => setConfirmPassword(event.target.value)}
-                      placeholder="Confirm new password"
-                      minLength={6}
-                      className="w-full rounded-2xl border border-border/60 bg-card px-4 py-3 text-sm font-body text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-primary/20"
-                    />
+                    <div className="relative group">
+                      <Lock size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground group-focus-within:text-purple-600 transition-colors" />
+                      <input
+                        type="password"
+                        value={password}
+                        onChange={(event) => setPassword(event.target.value)}
+                        placeholder="New password (min 6 chars)"
+                        minLength={6}
+                        className="w-full rounded-2xl border border-border/60 bg-card pl-10 pr-4 py-3 text-sm font-body text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-primary/30 transition-all"
+                      />
+                    </div>
+                    <div className="relative group">
+                      <Lock size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground group-focus-within:text-purple-600 transition-colors" />
+                      <input
+                        type="password"
+                        value={confirmPassword}
+                        onChange={(event) => setConfirmPassword(event.target.value)}
+                        placeholder="Confirm new password"
+                        minLength={6}
+                        className="w-full rounded-2xl border border-border/60 bg-card pl-10 pr-4 py-3 text-sm font-body text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-primary/30 transition-all"
+                      />
+                    </div>
                   </div>
                   {message && (
                     <p className="text-xs text-primary font-medium bg-primary/8 border border-primary/15 rounded-xl px-4 py-3">
@@ -152,10 +172,19 @@ const AccountPage = () => {
                     <button
                       type="submit"
                       disabled={saving}
-                      className="flex-1 py-3 px-5 rounded-2xl btn-gradient text-white text-xs font-bold shadow-royal-glow hover:shadow-luxury disabled:opacity-40 transition-all flex items-center justify-center gap-2"
+                      className="flex-1 py-3 px-5 rounded-2xl btn-gradient text-white text-xs font-bold shadow-royal-glow hover:shadow-luxury disabled:opacity-40 transition-all flex items-center justify-center gap-2 hover:-translate-y-0.5"
                     >
-                      <Sparkles size={14} className="text-amber-200" />
-                      <span>{saving ? "Updating..." : "Save Password"}</span>
+                      {saving ? (
+                        <>
+                          <div className="w-4 h-4 rounded-full border-2 border-white/40 border-t-white animate-spin" />
+                          <span>Updating...</span>
+                        </>
+                      ) : (
+                        <>
+                          <Sparkles size={14} className="text-amber-200" />
+                          <span>Save Password</span>
+                        </>
+                      )}
                     </button>
                     <button
                       type="button"
@@ -188,7 +217,7 @@ function AccountFact({
   icon: LucideIcon;
 }) {
   return (
-    <div className="rounded-2xl glass-panel p-4 border border-border/40">
+    <div className="rounded-2xl glass-panel p-4 border border-border/40 card-hover-glow">
       <div className="flex items-center gap-2 text-[11px] uppercase tracking-[0.12em] text-muted-foreground font-body font-semibold">
         <Icon size={13} className="text-primary" />
         {label}
@@ -210,21 +239,24 @@ function EmptyState({
   actionTo: string;
 }) {
   return (
-    <div className="max-w-md mx-auto text-center py-16 px-6 glass-card rounded-3xl shadow-luxury border border-border/50">
-      <div className="mx-auto w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center text-primary mb-4">
-        <ShoppingBag size={28} />
+    <FadeIn>
+      <div className="max-w-md mx-auto text-center py-16 px-6 glass-card rounded-3xl shadow-luxury border border-border/50">
+        <div className="mx-auto w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center text-primary mb-4">
+          <ShoppingBag size={28} />
+        </div>
+        <h2 className="font-display text-2xl font-bold text-foreground">{title}</h2>
+        <p className="mt-2 text-xs sm:text-sm text-muted-foreground leading-relaxed">{description}</p>
+        <div className="mt-6">
+          <Link
+            to={actionTo}
+            className="inline-flex items-center gap-2 px-6 py-3 rounded-full btn-gradient text-white text-xs font-bold shadow-royal-glow hover:-translate-y-0.5 transition-all"
+          >
+            <Sparkles size={14} className="text-amber-200" />
+            <span>{actionLabel}</span>
+          </Link>
+        </div>
       </div>
-      <h2 className="font-display text-2xl font-bold text-foreground">{title}</h2>
-      <p className="mt-2 text-xs sm:text-sm text-muted-foreground leading-relaxed">{description}</p>
-      <div className="mt-6">
-        <Link
-          to={actionTo}
-          className="inline-flex items-center gap-2 px-6 py-3 rounded-full btn-gradient text-white text-xs font-bold shadow-royal-glow"
-        >
-          <span>{actionLabel}</span>
-        </Link>
-      </div>
-    </div>
+    </FadeIn>
   );
 }
 

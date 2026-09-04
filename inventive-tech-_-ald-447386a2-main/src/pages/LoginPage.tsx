@@ -1,7 +1,7 @@
 import { useState } from "react";
 import type { ReactNode } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { KeyRound, Lock, Mail, UserRound, Sparkles, ArrowRight } from "lucide-react";
+import { KeyRound, Lock, Mail, UserRound, Sparkles, ArrowRight, ShieldCheck, Eye, EyeOff } from "lucide-react";
 import { SiteHeader } from "@/components/SiteHeader";
 import Footer from "@/components/Footer";
 import { useAuth } from "@/lib/auth";
@@ -126,10 +126,13 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#FAF8F5] text-[#461c48] font-sans selection:bg-purple-200 selection:text-purple-900">
+    <div className="min-h-screen flex flex-col bg-transparent text-[#461c48] font-sans selection:bg-purple-200 selection:text-purple-900">
       <SiteHeader />
 
       <main className="flex-1 py-28 md:py-36 flex items-center justify-center relative overflow-hidden">
+        {/* Decorative Floating Orbs */}
+        <div className="decorative-orb w-80 h-80 bg-purple-400/15 top-0 left-1/4" style={{ animationDelay: "0s" }} />
+        <div className="decorative-orb w-56 h-56 bg-pink-300/12 bottom-20 right-1/4" style={{ animationDelay: "4s" }} />
         <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-96 h-96 bg-primary/10 rounded-full blur-3xl pointer-events-none" />
 
         <div className="container max-w-md px-4 relative z-10">
@@ -149,7 +152,7 @@ const LoginPage = () => {
                   <div className="space-y-2.5 pt-2">
                     <Link
                       to="/orders"
-                      className="w-full inline-flex items-center justify-center gap-2 py-3 px-4 rounded-2xl btn-gradient text-white text-sm font-bold shadow-royal-glow hover:shadow-luxury transition-all"
+                      className="w-full inline-flex items-center justify-center gap-2 py-3 px-4 rounded-2xl btn-gradient text-white text-sm font-bold shadow-royal-glow hover:shadow-luxury transition-all hover:-translate-y-0.5"
                     >
                       <Sparkles size={15} className="text-amber-200" />
                       View My Royal Orders 👑
@@ -165,7 +168,7 @@ const LoginPage = () => {
               ) : (
                 <>
                   <div className="text-center">
-                    <div className="relative mx-auto w-18 h-18 w-20 h-20 rounded-full p-1.5 bg-gradient-to-tr from-primary via-pink-400 to-amber-300 shadow-royal flex items-center justify-center mb-4 animate-glow-pulse">
+                    <div className="relative mx-auto w-20 h-20 rounded-full p-1.5 bg-gradient-to-tr from-primary via-pink-400 to-amber-300 shadow-royal flex items-center justify-center mb-4 animate-success-ring">
                       <img src={logo} alt="Inventive Queen" className="w-full h-full rounded-full object-cover" />
                       <span className="absolute -bottom-1 -right-1 text-base select-none">👑</span>
                     </div>
@@ -180,14 +183,14 @@ const LoginPage = () => {
                   </div>
 
                   {mode !== "forgot" && (
-                    <div className="mt-6 grid grid-cols-2 rounded-2xl bg-secondary/70 p-1 border border-border/40">
+                    <div className="mt-6 grid grid-cols-2 rounded-2xl bg-secondary/70 p-1 border border-border/40 relative">
                       <button
                         type="button"
                         onClick={() => {
                           setMode("signin");
                           setMessage("");
                         }}
-                        className={`py-2 rounded-xl text-xs font-bold transition-all ${
+                        className={`py-2.5 rounded-xl text-xs font-bold transition-all duration-300 ${
                           mode === "signin" ? "bg-card text-foreground shadow-sm shadow-black/5" : "text-muted-foreground hover:text-foreground"
                         }`}
                       >
@@ -199,7 +202,7 @@ const LoginPage = () => {
                           setMode("signup");
                           setMessage("");
                         }}
-                        className={`py-2 rounded-xl text-xs font-bold transition-all ${
+                        className={`py-2.5 rounded-xl text-xs font-bold transition-all duration-300 ${
                           mode === "signup" ? "bg-card text-foreground shadow-sm shadow-black/5" : "text-muted-foreground hover:text-foreground"
                         }`}
                       >
@@ -229,7 +232,7 @@ const LoginPage = () => {
                       <button
                         type="submit"
                         disabled={loading}
-                        className="w-full py-3.5 rounded-2xl btn-gradient text-white text-xs font-bold shadow-royal-glow hover:shadow-luxury active:scale-95 disabled:opacity-40 transition-all flex items-center justify-center gap-2"
+                        className="w-full py-3.5 rounded-2xl btn-gradient text-white text-xs font-bold shadow-royal-glow hover:shadow-luxury active:scale-95 disabled:opacity-40 transition-all flex items-center justify-center gap-2 hover:-translate-y-0.5"
                       >
                         <Sparkles size={14} className="text-amber-200" />
                         <span>{loading ? "Sending link..." : "Send Reset Link"}</span>
@@ -295,10 +298,19 @@ const LoginPage = () => {
                       <button
                         type="submit"
                         disabled={loading}
-                        className="w-full py-3.5 rounded-2xl btn-gradient text-white text-xs font-bold shadow-royal-glow hover:shadow-luxury active:scale-95 disabled:opacity-40 transition-all flex items-center justify-center gap-2"
+                        className="w-full py-3.5 rounded-2xl btn-gradient text-white text-xs font-bold shadow-royal-glow hover:shadow-luxury active:scale-95 disabled:opacity-40 transition-all flex items-center justify-center gap-2 hover:-translate-y-0.5"
                       >
-                        <Sparkles size={14} className="text-amber-200" />
-                        <span>{loading ? "Processing..." : mode === "signin" ? "Sign In to Atelier" : "Create Royal Account ✨"}</span>
+                        {loading ? (
+                          <>
+                            <div className="w-4 h-4 rounded-full border-2 border-white/40 border-t-white animate-spin" />
+                            <span>Processing...</span>
+                          </>
+                        ) : (
+                          <>
+                            <Sparkles size={14} className="text-amber-200" />
+                            <span>{mode === "signin" ? "Sign In to Atelier" : "Create Royal Account ✨"}</span>
+                          </>
+                        )}
                       </button>
 
                       {mode === "signin" && (
@@ -317,6 +329,19 @@ const LoginPage = () => {
                       )}
                     </form>
                   )}
+
+                  {/* Trust Badges */}
+                  <div className="mt-6 pt-5 border-t border-border/40 flex items-center justify-center gap-4 text-[10px] text-muted-foreground">
+                    <span className="flex items-center gap-1">
+                      <ShieldCheck size={12} className="text-emerald-500" />
+                      Secure Login
+                    </span>
+                    <span className="w-px h-3 bg-border/60" />
+                    <span className="flex items-center gap-1">
+                      <Lock size={11} className="text-purple-500" />
+                      Privacy Protected
+                    </span>
+                  </div>
                 </>
               )}
             </div>
@@ -353,8 +378,8 @@ function InputField({
   return (
     <div className="space-y-1.5 text-left">
       <label className="font-body text-xs font-semibold text-foreground uppercase tracking-wider">{label}</label>
-      <div className="relative">
-        {icon && <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground">{icon}</span>}
+      <div className="relative group">
+        {icon && <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground group-focus-within:text-purple-600 transition-colors">{icon}</span>}
         <input
           type={type}
           name={name}
@@ -364,7 +389,7 @@ function InputField({
           maxLength={maxLength}
           minLength={minLength}
           required
-          className={`w-full rounded-2xl border border-border/70 bg-card px-4 py-3 text-sm font-body text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/30 transition-all ${
+          className={`w-full rounded-2xl border border-border/70 bg-card px-4 py-3 text-sm font-body text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/40 transition-all ${
             icon ? "pl-10" : ""
           }`}
         />
