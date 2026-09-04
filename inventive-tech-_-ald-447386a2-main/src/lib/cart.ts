@@ -19,6 +19,29 @@ export interface CartItemOptions {
   color?: string | null;
   flowers?: string[];
   custom?: string;
+  price?: string;
+}
+
+const GIFT_WRAP_KEY = "iq_gift_wrap";
+export const GIFT_WRAP_PRICE = 149;
+
+export interface GiftWrapOption {
+  enabled: boolean;
+  note?: string;
+}
+
+export function getGiftWrapOption(): GiftWrapOption {
+  try {
+    const raw = localStorage.getItem(GIFT_WRAP_KEY);
+    return raw ? JSON.parse(raw) : { enabled: false, note: "" };
+  } catch {
+    return { enabled: false, note: "" };
+  }
+}
+
+export function setGiftWrapOption(enabled: boolean, note = "") {
+  localStorage.setItem(GIFT_WRAP_KEY, JSON.stringify({ enabled, note }));
+  emitCartUpdated();
 }
 
 function emitCartUpdated() {
@@ -31,6 +54,7 @@ function createCartItemId(productId: string, options: CartItemOptions = {}) {
     options.color ?? "",
     (options.flowers ?? []).join(","),
     options.custom?.trim() ?? "",
+    options.price ?? "",
   ].join("|");
 }
 
@@ -68,7 +92,7 @@ export function addCartItem(product: Product, options: CartItemOptions = {}) {
       id,
       productId: product.id,
       name: product.name,
-      price: product.price,
+      price: options.price || product.price,
       image: product.images[0],
       quantity: 1,
       color: options.color ?? undefined,

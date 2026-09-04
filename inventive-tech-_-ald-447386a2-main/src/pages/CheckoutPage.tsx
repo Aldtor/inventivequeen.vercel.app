@@ -1,12 +1,13 @@
 import { useState, useMemo, useRef } from "react";
 import { Link, useSearchParams, useNavigate } from "react-router-dom";
 import { useProducts } from "@/lib/cms-products";
-import { clearCart, getCartItems, getCartTotal, parsePrice, type CartItem } from "@/lib/cart";
-import { Heart, Package, Clock, Shield, Gift, Lock, Truck, ChevronLeft, Check, Sparkles, ArrowRight, Crown, ShieldCheck } from "lucide-react";
+import { clearCart, getCartItems, getCartTotal, parsePrice, type CartItem, getGiftWrapOption, GIFT_WRAP_PRICE } from "@/lib/cart";
+import { Heart, Package, Clock, Shield, Gift, Lock, Truck, ChevronLeft, Check, Sparkles, ArrowRight, Crown, ShieldCheck, MessageCircle } from "lucide-react";
 import { FadeIn } from "@/components/motion/FadeIn";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/lib/auth";
 import { isSupabaseConfigured, supabase } from "@/lib/supabase";
+import { toast } from "sonner";
 import logo from "@/assets/logo.png";
 
 const RAZORPAY_SCRIPT_URL = "https://checkout.razorpay.com/v1/checkout.js";
@@ -135,21 +136,25 @@ export default function CheckoutPage() {
   const selectedColor = params.get("color");
   const selectedFlowers = params.get("flowers");
   const customChanges = params.get("custom");
-  const isCartCheckout = params.get("cart") === "1";
+  const customPrice = params.get("price");
+  const isCartCheckout = params.get("cart") === "1" || !productId;
 
   const product = products.find((p) => p.id === productId);
   const cartItems = useMemo(() => (isCartCheckout ? getCartItems() : []), [isCartCheckout]);
+  const giftWrap = useMemo(() => getGiftWrapOption(), []);
 
   const checkoutItems = useMemo<CartItem[]>(() => {
     if (isCartCheckout) return cartItems;
     if (!product) return [];
+
+    const displayPrice = customPrice ? `₹${Number(customPrice).toLocaleString("en-IN")}` : product.price;
 
     return [
       {
         id: `${product.id}|direct`,
         productId: product.id,
         name: product.name,
-        price: product.price,
+        price: displayPrice,
         image: product.images[0],
         quantity: 1,
         color: selectedColor ?? undefined,
@@ -157,17 +162,20 @@ export default function CheckoutPage() {
         custom: customChanges ?? undefined,
       },
     ];
-  }, [cartItems, customChanges, isCartCheckout, product, selectedColor, selectedFlowers]);
+  }, [cartItems, customChanges, isCartCheckout, product, selectedColor, selectedFlowers, customPrice]);
 
-  const orderTotal = useMemo(() => getCartTotal(checkoutItems), [checkoutItems]);
-  const payLabel = isCartCheckout ? `Rs. ${orderTotal}` : checkoutItems[0]?.price ?? "";
+  const rawItemsTotal = useMemo(() => getCartTotal(checkoutItems), [checkoutItems]);
+  const giftWrapTotal = (giftWrap.enabled && isCartCheckout) ? GIFT_WRAP_PRICE : 0;
+  const shippingFee = rawItemsTotal >= 999 || rawItemsTotal === 0 ? 0 : 99;
+  const orderTotal = rawItemsTotal + giftWrapTotal + shippingFee;
+  const payLabel = `₹${orderTotal.toLocaleString("en-IN")}`;
 
   const [form, setForm] = useState({
     name: "",
     phone: "",
     address: "",
     pincode: "",
-    giftNote: "",
+    giftNote: giftWrap.note || "",
   });
   const [isPaying, setIsPaying] = useState(false);
   const [paymentError, setPaymentError] = useState("");
@@ -367,6 +375,21 @@ export default function CheckoutPage() {
     }
   };
 
+  const handleWhatsAppCheckout = () => {
+    if (!form.name || !form.phone || !form.address || !form.pincode) {
+      setAttempted(true);
+      toast.error("Please fill in your delivery details first.");
+      formRef.current?.scrollIntoView({ behavior: "smooth" });
+      return;
+    }
+
+    const itemsText = checkoutItems.map((i) => `• ${i.name} (Qty: ${i.quantity}) - ${i.price}${i.color ? ` [${i.color}]` : ""}${i.custom ? ` [${i.custom}]` : ""}`).join("\n");
+    const text = encodeURIComponent(
+      `Hello Inventive Queen Atelier! 👑\n\nI would like to place an order via WhatsApp:\n\n*Customer Details:*\n• Name: ${form.name.trim()}\n• Phone: ${form.phone.trim()}\n• Delivery Address: ${form.address.trim()}\n• Pincode: ${form.pincode.trim()}\n${form.giftNote ? `• Gift Card Note: "${form.giftNote.trim()}"\n` : ""}\n*Order Items:*\n${itemsText}\n\n• Items Subtotal: ₹${rawItemsTotal.toLocaleString("en-IN")}${giftWrapTotal > 0 ? `\n• Wax-Sealed Gift Box: +₹${giftWrapTotal}` : ""}\n• Courier Delivery: ${shippingFee === 0 ? "FREE" : `₹${shippingFee}`}\n• *Total Payable:* ₹${orderTotal.toLocaleString("en-IN")}\n\nPlease share payment QR code / confirmation to initiate crafting!`
+    );
+    window.open(`https://wa.me/917892305330?text=${text}`, "_blank");
+  };
+
   if (checkoutItems.length === 0) {
     return (
       <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4">
@@ -512,14 +535,34 @@ export default function CheckoutPage() {
               ))}
             </div>
 
-            {isCartCheckout && (
-              <div className="mt-5 pt-4 border-t border-purple-100 flex items-center justify-between">
-                <span className="font-body text-xs uppercase tracking-wider text-purple-600 font-bold">Subtotal</span>
-                <span className="font-display text-xl font-black text-purple-700">
-                  Rs. {orderTotal}
+            <div className="mt-5 pt-4 border-t border-purple-100 space-y-2">
+              <div className="flex items-center justify-between text-xs text-muted-foreground">
+                <span>Items Subtotal</span>
+                <span className="font-semibold text-plum">₹{rawItemsTotal.toLocaleString("en-IN")}</span>
+              </div>
+              {giftWrapTotal > 0 && (
+                <div className="flex items-center justify-between text-xs text-muted-foreground">
+                  <span>Wax-Sealed Gift Box</span>
+                  <span className="font-semibold text-purple-700">+₹{giftWrapTotal}</span>
+                </div>
+              )}
+              <div className="flex items-center justify-between text-xs text-muted-foreground">
+                <span>Courier Delivery</span>
+                <span>
+                  {shippingFee === 0 ? (
+                    <strong className="text-emerald-700 font-bold uppercase tracking-wider text-[11px]">Free</strong>
+                  ) : (
+                    `₹${shippingFee}`
+                  )}
                 </span>
               </div>
-            )}
+              <div className="flex items-center justify-between border-t border-purple-100 pt-2">
+                <span className="font-body text-xs uppercase tracking-wider text-purple-950 font-bold">Total Payable</span>
+                <span className="font-display text-xl font-black text-purple-950">
+                  ₹{orderTotal.toLocaleString("en-IN")}
+                </span>
+              </div>
+            </div>
           </section>
         </FadeIn>
 
@@ -647,16 +690,26 @@ export default function CheckoutPage() {
             className="w-full py-4 px-6 rounded-2xl font-body font-bold text-xs uppercase tracking-wider text-white btn-gradient shadow-luxury hover:shadow-luxury-lg active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2"
           >
             <Sparkles size={16} className="text-amber-200" />
-            <span>{isPaying ? "Opening Razorpay Gateway..." : `Pay Now ${payLabel}`}</span>
+            <span>{isPaying ? "Opening Razorpay Gateway..." : `Pay Online via Razorpay · ${payLabel}`}</span>
           </button>
+
+          <button
+            type="button"
+            onClick={handleWhatsAppCheckout}
+            className="w-full py-3.5 px-6 rounded-2xl font-body font-bold text-xs uppercase tracking-wider border-2 border-emerald-300 bg-emerald-50 text-emerald-950 hover:bg-emerald-100 active:scale-[0.98] transition-all flex items-center justify-center gap-2 shadow-xs"
+          >
+            <MessageCircle size={16} className="text-emerald-600" />
+            <span>Order via WhatsApp & Pay with UPI QR</span>
+          </button>
+
           {paymentError && (
             <p className="text-center font-body text-xs text-rose-600 bg-rose-50 border border-rose-200 p-3 rounded-2xl font-semibold">
               {paymentError}
             </p>
           )}
-          <div className="flex items-center justify-center gap-2 text-xs text-purple-900/60 font-semibold">
-            <Lock size={13} className="text-emerald-600" />
-            <span>Encrypted 256-bit SSL transaction via Razorpay</span>
+          <div className="flex items-center justify-center gap-2 text-xs text-purple-900/60 font-semibold text-center">
+            <Lock size={13} className="text-emerald-600 shrink-0" />
+            <span>Encrypted 256-bit SSL transaction via Razorpay & WhatsApp Atelier Support</span>
           </div>
         </div>
       </div>

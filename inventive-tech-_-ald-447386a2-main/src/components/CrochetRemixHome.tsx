@@ -13,6 +13,9 @@ import {
   Palette,
   ShieldCheck,
   Play,
+  Leaf,
+  Package,
+  Truck,
 } from "lucide-react";
 import { toast } from "sonner";
 import { addCartItem, openCartDrawer } from "@/lib/cart";
@@ -234,15 +237,11 @@ export default function CrochetRemixHome() {
                 initial={{ opacity: 0, y: 16 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-                className="inline-flex items-center gap-2.5 rounded-full border border-purple-300/80 bg-gradient-to-r from-purple-50/90 via-white to-amber-50/70 px-4 py-1.5 shadow-[0_4px_16px_rgba(84,27,92,0.06)] backdrop-blur-xl"
+                className="inline-flex items-center gap-2 rounded-full border border-purple-200/60 bg-white/80 px-4 py-1.5 shadow-sm backdrop-blur-md"
               >
-                <span className="flex h-5 w-5 items-center justify-center rounded-full bg-amber-400/20 text-amber-600 shadow-inner">
-                  <Crown size={12} className="fill-amber-400 text-amber-500" />
+                <span className="text-[10.5px] font-bold uppercase tracking-[0.22em] text-purple-800/90">
+                  Inventive Queen · Crochet Atelier
                 </span>
-                <span className="text-[10.5px] font-black uppercase tracking-[0.24em] text-purple-950">
-                  Royal Haute Crochet Atelier
-                </span>
-                <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
               </motion.div>
 
               <motion.h1
@@ -291,126 +290,94 @@ export default function CrochetRemixHome() {
                 </Link>
               </motion.div>
 
-              {/* Trust Cards */}
+              {/* Trust Signals */}
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ duration: 0.9, delay: 0.4 }}
-                className="mt-9 flex flex-wrap items-center gap-3 text-xs font-bold text-purple-950"
+                className="mt-9 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs text-purple-900/70"
               >
-                <div className="flex items-center gap-2 bg-white/90 px-3.5 py-1.5 rounded-full border border-purple-200/80 shadow-xs backdrop-blur-md">
-                  <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-                  <span>Ready to ship in 3–5 days</span>
-                </div>
-                <div className="flex items-center gap-1.5 bg-white/90 px-3.5 py-1.5 rounded-full border border-purple-200/80 shadow-xs backdrop-blur-md">
+                <span className="flex items-center gap-1.5">
+                  <Truck size={13} className="text-purple-500" />
+                  <span className="font-medium">Ships in 3–5 days</span>
+                </span>
+                <span className="hidden sm:inline text-purple-300">|</span>
+                <span className="flex items-center gap-1.5">
                   <Star size={13} className="fill-amber-400 text-amber-400" />
-                  <span>500+ Verified Patron Gifts</span>
-                </div>
-                <div className="flex items-center gap-1.5 bg-white/90 px-3.5 py-1.5 rounded-full border border-purple-200/80 shadow-xs backdrop-blur-md">
-                  <ShieldCheck size={14} className="text-purple-600" />
-                  <span>Pan-India Delivery</span>
-                </div>
+                  <span className="font-medium">500+ happy customers</span>
+                </span>
+                <span className="hidden sm:inline text-purple-300">|</span>
+                <span className="flex items-center gap-1.5">
+                  <Leaf size={13} className="text-emerald-500" />
+                  <span className="font-medium">100% milk cotton yarn</span>
+                </span>
               </motion.div>
             </div>
 
-            {/* Right Hero Visual Showcase (Royal Haute Atelier Brand Emblem & Floating Badges) */}
+            {/* Right — Hero Product Showcase */}
             <motion.div
               style={{ y: heroY, scale: heroScale }}
               className="lg:col-span-5 relative"
             >
               <div className="relative mx-auto max-w-sm sm:max-w-md">
-                {/* Radiant Ambient Royal Aura Behind */}
-                <div className="absolute -inset-6 rounded-[3.5rem] bg-gradient-to-tr from-purple-500/30 via-pink-300/30 to-amber-300/35 blur-3xl -z-10" />
+                {/* Soft ambient glow behind */}
+                <div className="absolute -inset-4 rounded-[2.8rem] bg-purple-300/20 blur-2xl -z-10" />
 
-                {/* Decorative Dashed Embroidery Stitch Ring */}
-                <div className="absolute -inset-3.5 rounded-[3.4rem] border-2 border-dashed border-purple-300/60 pointer-events-none -z-10 animate-pulse" />
-
-                {/* Main Royal Atelier Emblem Showcase Card */}
-                <div className="relative overflow-hidden rounded-[3rem] glass-card border-2 border-white/95 shadow-[0_24px_70px_-15px_rgba(84,27,92,0.22)] bg-gradient-to-b from-white/95 via-purple-50/60 to-white/95 backdrop-blur-2xl p-6 sm:p-7 text-center group">
-                  {/* Subtle Inner Ambient Glow */}
-                  <div className="absolute top-0 inset-x-0 h-32 bg-gradient-to-b from-purple-200/40 to-transparent pointer-events-none -z-10" />
-                  <div className="absolute -bottom-10 -right-10 w-40 h-40 bg-amber-200/30 rounded-full blur-2xl pointer-events-none -z-10" />
-
-                  {/* Top Atelier Ribbon Tag */}
-                  <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-purple-100/90 border border-purple-200/80 shadow-xs mb-3">
-                    <Sparkles size={11} className="text-amber-500 fill-amber-400" />
-                    <span className="text-[10px] font-black uppercase tracking-[0.2em] text-purple-950">
-                      Signature Royal Crest
-                    </span>
-                    <Sparkles size={11} className="text-amber-500 fill-amber-400" />
-                  </div>
-
-                  {/* High-Resolution Brand Character Emblem */}
-                  <div className="relative mx-auto w-56 h-56 sm:w-64 sm:h-64 rounded-[2.2rem] overflow-hidden bg-gradient-to-b from-purple-100/60 via-white to-pink-50/60 border border-purple-200/60 shadow-inner flex items-center justify-center p-2 transition-transform duration-700 group-hover:scale-[1.03]">
+                {/* Main Product Image */}
+                <div className="overflow-hidden rounded-[2.4rem] border border-white/80 shadow-[0_16px_48px_-12px_rgba(84,27,92,0.18)] bg-white p-2">
+                  <div className="overflow-hidden rounded-[2rem] relative group">
                     <img
-                      src={logo}
-                      alt="Inventive Queen Royal Crochet Atelier Emblem"
-                      className="w-full h-full object-contain drop-shadow-[0_12px_24px_rgba(84,27,92,0.18)]"
+                      src={heroLuxuryAtelier}
+                      alt="Handcrafted crochet bouquets and amigurumi by Inventive Queen"
+                      className="w-full aspect-[4/5] object-cover transition-transform duration-700 group-hover:scale-[1.04]"
                     />
-                    {/* Delicate Corner Embroidery Accent */}
-                    <div className="absolute top-2 right-2 flex items-center gap-0.5 text-amber-500">
-                      <Crown size={14} className="fill-amber-400" />
-                    </div>
-                  </div>
-
-                  {/* Atelier Brand Title & Credo */}
-                  <div className="mt-4">
-                    <h2 className="font-display text-xl sm:text-2xl font-black tracking-wider text-plum">
-                      INVENTIVE QUEEN
-                    </h2>
-                    <p className="text-[11px] font-bold uppercase tracking-[0.28em] bg-gradient-to-r from-purple-700 via-pink-600 to-amber-600 bg-clip-text text-transparent mt-0.5">
-                      Haute Crochet Atelier
-                    </p>
-                    <div className="mt-2.5 flex items-center justify-center gap-2 text-[10px] font-semibold text-purple-900/70">
-                      <span>✦ 100% Hand-Stitched</span>
-                      <span>•</span>
-                      <span>✦ Heirloom Keepsakes</span>
-                    </div>
+                    {/* Soft bottom fade */}
+                    <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black/20 to-transparent pointer-events-none" />
                   </div>
                 </div>
 
-                {/* Floating Badge 1: 5-Star Patron Rating */}
+                {/* Badge: 5-Star Rating */}
                 <motion.div
-                  initial={{ opacity: 0, y: -15 }}
+                  initial={{ opacity: 0, y: -12 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.5, duration: 0.6 }}
-                  className="absolute -right-3 sm:-right-6 -top-3 glass-card px-4 py-2 rounded-2xl border border-white/95 shadow-xl bg-white/95 flex items-center gap-2 backdrop-blur-xl"
+                  transition={{ delay: 0.5, duration: 0.5 }}
+                  className="absolute -right-2 sm:-right-4 top-4 bg-white/95 backdrop-blur-md px-3.5 py-2 rounded-xl border border-purple-100/80 shadow-md flex items-center gap-1.5"
                 >
-                  <div className="flex gap-0.5 text-amber-400">
+                  <div className="flex gap-0.5">
                     {Array.from({ length: 5 }).map((_, i) => (
-                      <Star key={i} size={12} className="fill-amber-400 text-amber-400" />
+                      <Star key={i} size={11} className="fill-amber-400 text-amber-400" />
                     ))}
                   </div>
-                  <span className="text-[11px] font-black text-plum">5.0 Heirloom</span>
+                  <span className="text-[10.5px] font-semibold text-purple-900">5.0</span>
                 </motion.div>
 
-                {/* Floating Badge 2: 100% Milk Cotton Info Card */}
+                {/* Badge: Milk Cotton */}
                 <motion.div
-                  initial={{ opacity: 0, x: -25 }}
+                  initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.65, duration: 0.6 }}
-                  className="absolute -left-4 sm:-left-8 bottom-12 glass-card px-4 py-3 rounded-2xl border border-purple-200/90 shadow-xl bg-white/95 flex items-center gap-3 backdrop-blur-xl max-w-[210px]"
+                  transition={{ delay: 0.65, duration: 0.5 }}
+                  className="absolute -left-3 sm:-left-5 bottom-20 bg-white/95 backdrop-blur-md px-3.5 py-2.5 rounded-xl border border-purple-100/80 shadow-md flex items-center gap-2.5"
                 >
-                  <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-purple-600 to-indigo-600 text-white flex items-center justify-center text-base shadow-sm shrink-0">
-                    🧶
+                  <div className="w-8 h-8 rounded-lg bg-emerald-50 border border-emerald-200/60 flex items-center justify-center shrink-0">
+                    <Leaf size={15} className="text-emerald-600" />
                   </div>
                   <div className="text-left">
-                    <p className="text-xs font-bold text-plum leading-tight">100% Milk Cotton</p>
-                    <p className="text-[9.5px] text-muted-foreground leading-tight mt-0.5">Velvety soft & skin safe</p>
+                    <p className="text-[11px] font-semibold text-purple-900 leading-tight">100% Milk Cotton</p>
+                    <p className="text-[9.5px] text-purple-600/70 leading-tight mt-0.5">Skin-safe & velvety soft</p>
                   </div>
                 </motion.div>
 
-                {/* Floating Badge 3: Wax-Sealed Unboxing */}
+                {/* Badge: Gift Packaging */}
                 <motion.div
-                  initial={{ opacity: 0, x: 25 }}
+                  initial={{ opacity: 0, x: 20 }}
                   animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.75, duration: 0.6 }}
-                  className="absolute -right-2 sm:-right-4 bottom-4 glass-card px-3.5 py-2 rounded-2xl border border-amber-300/80 shadow-lg bg-white/95 flex items-center gap-2 backdrop-blur-md text-left"
+                  transition={{ delay: 0.75, duration: 0.5 }}
+                  className="absolute -right-1 sm:-right-3 bottom-6 bg-white/95 backdrop-blur-md px-3 py-2 rounded-xl border border-purple-100/80 shadow-md flex items-center gap-2 text-left"
                 >
-                  <span className="text-base select-none">🎁</span>
+                  <Package size={15} className="text-purple-500 shrink-0" />
                   <div>
-                    <p className="text-[10.5px] font-bold text-plum leading-tight">Wax-Sealed Unboxing</p>
-                    <p className="text-[9px] text-purple-700 font-semibold">Signature ribbon pack</p>
+                    <p className="text-[10.5px] font-semibold text-purple-900 leading-tight">Wax-sealed packaging</p>
+                    <p className="text-[9px] text-purple-600/70">Ribbon & tissue wrap</p>
                   </div>
                 </motion.div>
               </div>

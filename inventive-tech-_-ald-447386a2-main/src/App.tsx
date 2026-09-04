@@ -49,9 +49,9 @@ const GlobalAtelierBackground = () => (
       alt="Inventive Queen Atelier Background"
       className="w-full h-full object-cover object-right-top fixed inset-0 scale-100"
     />
-    {/* Delicate ambient overlay: keeps text 100% readable while letting the lovely lavender silk & crochet companions shine through as the website background */}
-    <div className="absolute inset-0 bg-gradient-to-r from-white/95 via-white/85 via-55% to-white/30" />
-    <div className="absolute inset-0 bg-gradient-to-b from-white/30 via-transparent via-50% to-[#FAF8F5]/90" />
+    {/* Ambient overlay — lets the lavender silk & crochet companions peek through while keeping text readable */}
+    <div className="absolute inset-0 bg-gradient-to-r from-white/92 via-white/80 via-55% to-white/25" />
+    <div className="absolute inset-0 bg-gradient-to-b from-white/25 via-transparent via-50% to-[#FAF8F5]/85" />
   </div>
 );
 

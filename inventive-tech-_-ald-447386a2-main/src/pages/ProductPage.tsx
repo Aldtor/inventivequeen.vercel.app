@@ -55,8 +55,24 @@ export default function ProductPage() {
   }, [productKey, cmsProducts]);
 
   const [qty, setQty] = useState(1);
-  const [selectedColor, setSelectedColor] = useState<string | null>(null);
+  const [selectedColor, setSelectedColor] = useState<string>("Original Atelier Palette");
+  const [includeGiftBox, setIncludeGiftBox] = useState(false);
+  const [giftBoxNote, setGiftBoxNote] = useState("");
+  const [openSection, setOpenSection] = useState<string | null>("craft");
   const [added, setAdded] = useState(false);
+
+  const productColors = [
+    { name: "Original Atelier Palette", class: "from-purple-500 to-indigo-500" },
+    { name: "Pastel Lavender", class: "from-purple-300 to-purple-400" },
+    { name: "Dusty Rose Pink", class: "from-pink-300 to-rose-400" },
+    { name: "Forest Mint Sage", class: "from-emerald-300 to-teal-400" },
+    { name: "Golden Honey", class: "from-amber-300 to-amber-500" },
+  ];
+
+  const rawUnitPrice = product.rawPrice || parseInt(product.price.replace(/[^\d]/g, "")) || 999;
+  const giftBoxFee = includeGiftBox ? 149 : 0;
+  const totalItemPrice = rawUnitPrice * qty + giftBoxFee;
+  const qualifiesForFreeShipping = totalItemPrice >= 999;
 
   const related = useMemo(() => {
     return allCatalogItems
@@ -78,6 +94,7 @@ export default function ProductPage() {
       },
       {
         color: selectedColor || undefined,
+        custom: includeGiftBox ? `Wax-Sealed Gift Box${giftBoxNote ? `: "${giftBoxNote}"` : ""}` : undefined,
       }
     );
 
@@ -91,6 +108,10 @@ export default function ProductPage() {
       setAdded(false);
     }, 1800);
   };
+
+  const whatsappOrderUrl = `https://wa.me/917892305330?text=${encodeURIComponent(
+    `Hello Inventive Queen Atelier! 👑\n\nI would like to order this handcrafted piece:\n• Piece: ${product.name} (${product.price})\n• Quantity: ${qty}\n• Selected Palette: ${selectedColor}\n• Gift Packaging: ${includeGiftBox ? `Yes (+₹149)${giftBoxNote ? ` - Note: "${giftBoxNote}"` : ""}` : "Standard Atelier Wrap"}\n• Total Amount: ₹${totalItemPrice.toLocaleString("en-IN")}\n\nPlease confirm availability and dispatch schedule!`
+  )}`;
 
   return (
     <div className="min-h-screen bg-transparent text-[#461c48] font-sans">
@@ -170,20 +191,84 @@ export default function ProductPage() {
                 </p>
               </div>
 
-              {/* Craft Details Checklist */}
-              <ul className="mt-7 space-y-2.5 border-t border-purple-200/60 pt-6">
-                {product.details.map((detail) => (
-                  <li key={detail} className="flex items-center gap-3 text-xs sm:text-sm text-plum font-medium">
-                    <div className="flex h-5 w-5 items-center justify-center rounded-full bg-purple-100 text-purple-700 shrink-0">
-                      <Check className="h-3 w-3" />
-                    </div>
-                    <span>{detail}</span>
-                  </li>
-                ))}
-              </ul>
+              {/* Color Theme Selector Swatches */}
+              <div className="mt-6 border-t border-purple-200/60 pt-6">
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-xs font-bold uppercase tracking-wider text-purple-950">
+                    Palette Swatch: <span className="text-purple-700 font-semibold">{selectedColor}</span>
+                  </span>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {productColors.map((color) => {
+                    const active = selectedColor === color.name;
+                    return (
+                      <button
+                        key={color.name}
+                        type="button"
+                        onClick={() => setSelectedColor(color.name)}
+                        className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold transition-all border ${
+                          active
+                            ? "bg-purple-900 text-white border-purple-900 shadow-sm"
+                            : "bg-white text-purple-950 border-purple-200 hover:border-purple-300"
+                        }`}
+                      >
+                        <span className={`w-3.5 h-3.5 rounded-full bg-gradient-to-tr ${color.class} shadow-xs`} />
+                        <span>{color.name}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
 
-              {/* Quantity and Add to Basket */}
-              <div className="mt-8 flex flex-wrap items-center gap-4">
+              {/* Luxury Gift Packaging Option */}
+              <div className="mt-6 border-t border-purple-200/60 pt-6">
+                <label className={`flex items-start gap-3 p-4 rounded-2xl border transition-all cursor-pointer ${
+                  includeGiftBox ? "bg-purple-50/80 border-purple-500 shadow-sm" : "bg-white border-purple-200/80 hover:border-purple-300"
+                }`}>
+                  <input
+                    type="checkbox"
+                    checked={includeGiftBox}
+                    onChange={(e) => setIncludeGiftBox(e.target.checked)}
+                    className="w-4 h-4 mt-0.5 rounded text-purple-600 focus:ring-purple-400 cursor-pointer"
+                  />
+                  <div className="flex-1 text-xs">
+                    <div className="flex items-center justify-between">
+                      <span className="font-bold text-purple-950">👑 Signature Wax-Sealed Gift Box Pack</span>
+                      <span className="font-black text-purple-700">+₹149</span>
+                    </div>
+                    <p className="text-muted-foreground mt-0.5">
+                      Premium rigid box, satin ribbon wrap, dried floral sprig & handwritten wax-sealed message card.
+                    </p>
+                    {includeGiftBox && (
+                      <input
+                        type="text"
+                        value={giftBoxNote}
+                        onChange={(e) => setGiftBoxNote(e.target.value)}
+                        placeholder="Personal gift card note (e.g. 'Happy Birthday Priya! With love, Arjun')..."
+                        className="mt-2.5 w-full rounded-xl border border-purple-200 bg-white px-3 py-2 text-xs text-purple-950 placeholder:text-purple-400 focus:outline-none focus:ring-1 focus:ring-purple-500"
+                      />
+                    )}
+                  </div>
+                </label>
+              </div>
+
+              {/* Free Shipping Alert Bar */}
+              <div className="mt-4 px-4 py-2.5 rounded-xl bg-purple-50 border border-purple-200/60 flex items-center justify-between text-xs">
+                <span className="text-purple-900 font-medium flex items-center gap-1.5">
+                  <Truck size={14} className="text-purple-600" />
+                  {qualifiesForFreeShipping ? (
+                    <span className="text-emerald-700 font-bold">✨ You qualify for FREE Pan-India Courier Shipping!</span>
+                  ) : (
+                    <span>Add <strong className="font-bold text-purple-950">₹{999 - totalItemPrice}</strong> more for free courier delivery</span>
+                  )}
+                </span>
+                <span className="text-purple-700 font-black">
+                  Total: ₹{totalItemPrice.toLocaleString("en-IN")}
+                </span>
+              </div>
+
+              {/* Quantity and Actions */}
+              <div className="mt-6 flex flex-wrap items-center gap-3">
                 {/* Quantity */}
                 <div className="flex items-center rounded-full border border-purple-200 bg-white p-1 shadow-sm">
                   <button
@@ -209,33 +294,94 @@ export default function ProductPage() {
                   className="inline-flex flex-1 items-center justify-center gap-2 rounded-full btn-royal px-8 py-3.5 text-xs sm:text-sm font-semibold uppercase tracking-[0.16em] shadow-lg hover:shadow-xl transition-all"
                 >
                   <ShoppingBag className="h-4 w-4" />
-                  <span>{added ? "Added to basket!" : "Add to basket"}</span>
+                  <span>{added ? "Added to basket!" : `Add to Basket · ₹${totalItemPrice.toLocaleString("en-IN")}`}</span>
                 </button>
               </div>
 
-              {/* Shipping & Packaging Assurance */}
-              <div className="mt-8 flex items-center gap-3 rounded-2xl glass-card border border-purple-200/80 p-4 text-xs text-muted-foreground shadow-sm bg-white/80">
-                <Truck className="h-5 w-5 shrink-0 text-purple-700" />
-                <span>
-                  Free courier shipping on orders over ₹999 · Dispatches in 3–5 business days · Signature wax-sealed gift packaging included.
-                </span>
-              </div>
-
-              {/* Direct Customization Inquiry */}
-              <div className="mt-4 flex flex-wrap items-center justify-between gap-3 p-4 rounded-2xl bg-purple-50/70 border border-purple-200/80 text-xs">
-                <div className="flex items-center gap-2">
-                  <Sparkles size={15} className="text-amber-500" />
-                  <span className="font-semibold text-plum">Want a different size or custom color?</span>
-                </div>
+              {/* WhatsApp Inquiry Button */}
+              <div className="mt-3">
                 <a
-                  href={`https://wa.me/917892305330?text=Hi%20Inventive%20Queen!%20I%20would%20like%20to%20customize%20the%20${encodeURIComponent(product.name)}.`}
+                  href={whatsappOrderUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-600 text-white font-bold text-[11px] uppercase tracking-wider hover:bg-emerald-700 transition-colors shadow-xs"
+                  className="w-full inline-flex items-center justify-center gap-2 rounded-full border-2 border-emerald-300 hover:border-emerald-500 bg-emerald-50 text-emerald-950 py-3 text-xs sm:text-sm font-bold hover:bg-emerald-100 active:scale-[0.98] transition-all shadow-xs"
                 >
-                  <MessageCircle size={13} />
-                  <span>Ask on WhatsApp</span>
+                  <MessageCircle size={16} className="text-emerald-600" />
+                  <span>Chat & Order with Artisan on WhatsApp</span>
                 </a>
+              </div>
+
+              {/* Accordion Tabs for Craft, Care, Shipping */}
+              <div className="mt-8 border-t border-purple-200/60 pt-6 space-y-3">
+                {/* Accordion 1: Craftsmanship */}
+                <div className="rounded-2xl border border-purple-200/70 overflow-hidden bg-white/70">
+                  <button
+                    type="button"
+                    onClick={() => setOpenSection(openSection === "craft" ? null : "craft")}
+                    className="w-full flex items-center justify-between px-5 py-3.5 text-left text-xs sm:text-sm font-bold text-purple-950 hover:bg-purple-50/50 transition-colors"
+                  >
+                    <span className="flex items-center gap-2">
+                      <Sparkles size={15} className="text-amber-500" />
+                      Slow Craftsmanship & Yarn Specs
+                    </span>
+                    <span className="text-purple-600 font-black">{openSection === "craft" ? "−" : "+"}</span>
+                  </button>
+                  {openSection === "craft" && (
+                    <div className="px-5 pb-4 pt-1 text-xs text-muted-foreground leading-relaxed border-t border-purple-100 bg-purple-50/20">
+                      <ul className="space-y-1.5 list-disc list-inside">
+                        {product.details.map((detail) => (
+                          <li key={detail} className="text-plum">{detail}</li>
+                        ))}
+                        <li>100% hypoallergenic combed milk-cotton yarn</li>
+                        <li>High-tension micro-stitches prevents sagging or fraying over years</li>
+                      </ul>
+                    </div>
+                  )}
+                </div>
+
+                {/* Accordion 2: Care Guide */}
+                <div className="rounded-2xl border border-purple-200/70 overflow-hidden bg-white/70">
+                  <button
+                    type="button"
+                    onClick={() => setOpenSection(openSection === "care" ? null : "care")}
+                    className="w-full flex items-center justify-between px-5 py-3.5 text-left text-xs sm:text-sm font-bold text-purple-950 hover:bg-purple-50/50 transition-colors"
+                  >
+                    <span className="flex items-center gap-2">
+                      <Heart size={15} className="text-rose-500" />
+                      Longevity & Flower Care
+                    </span>
+                    <span className="text-purple-600 font-black">{openSection === "care" ? "−" : "+"}</span>
+                  </button>
+                  {openSection === "care" && (
+                    <div className="px-5 pb-4 pt-1 text-xs text-muted-foreground leading-relaxed border-t border-purple-100 bg-purple-50/20 space-y-1.5">
+                      <p>• <strong>No Water Needed:</strong> These blooms last indefinitely without wilting.</p>
+                      <p>• <strong>Dusting:</strong> Use a soft blush brush or hairdryer on cool, low setting occasionally.</p>
+                      <p>• <strong>Pliable Stems:</strong> Stems contain gentle craft wire so you can bend or arrange them in any vase.</p>
+                    </div>
+                  )}
+                </div>
+
+                {/* Accordion 3: Shipping */}
+                <div className="rounded-2xl border border-purple-200/70 overflow-hidden bg-white/70">
+                  <button
+                    type="button"
+                    onClick={() => setOpenSection(openSection === "shipping" ? null : "shipping")}
+                    className="w-full flex items-center justify-between px-5 py-3.5 text-left text-xs sm:text-sm font-bold text-purple-950 hover:bg-purple-50/50 transition-colors"
+                  >
+                    <span className="flex items-center gap-2">
+                      <ShieldCheck size={15} className="text-purple-600" />
+                      Packaging & Insured Delivery
+                    </span>
+                    <span className="text-purple-600 font-black">{openSection === "shipping" ? "−" : "+"}</span>
+                  </button>
+                  {openSection === "shipping" && (
+                    <div className="px-5 pb-4 pt-1 text-xs text-muted-foreground leading-relaxed border-t border-purple-100 bg-purple-50/20 space-y-1.5">
+                      <p>• <strong>Turnaround:</strong> Made to order in 3–5 business days in our royal atelier.</p>
+                      <p>• <strong>Courier:</strong> Shipped via premium air express (Delhivery / Bluedart) across all pin codes in India.</p>
+                      <p>• <strong>Transit Protection:</strong> Wrapped in protective honeycomb wrap and shipped in rigid shock-proof boxes.</p>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           </div>

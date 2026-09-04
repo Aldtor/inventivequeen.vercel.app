@@ -1,6 +1,6 @@
 import { useMemo, useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Minus, Plus, ShoppingBag, Trash2, Sparkles, ArrowRight, ShieldCheck, Truck, ArrowLeft } from "lucide-react";
+import { Minus, Plus, ShoppingBag, Trash2, Sparkles, ArrowRight, ShieldCheck, Truck, ArrowLeft, Gift, MessageCircle } from "lucide-react";
 import { SiteHeader } from "@/components/SiteHeader";
 import Footer from "@/components/Footer";
 import {
@@ -12,14 +12,22 @@ import {
   updateCartItemQuantity,
   FREE_SHIPPING_THRESHOLD,
   CART_UPDATED_EVENT,
+  getGiftWrapOption,
+  setGiftWrapOption,
+  GIFT_WRAP_PRICE,
   type CartItem,
+  type GiftWrapOption,
 } from "@/lib/cart";
 
 export default function CartPage() {
   const navigate = useNavigate();
   const [items, setItems] = useState<CartItem[]>(getCartItems());
+  const [giftWrap, setGiftWrap] = useState<GiftWrapOption>(getGiftWrapOption());
 
-  const sync = () => setItems(getCartItems());
+  const sync = () => {
+    setItems(getCartItems());
+    setGiftWrap(getGiftWrapOption());
+  };
 
   useEffect(() => {
     sync();
@@ -211,10 +219,55 @@ export default function CartPage() {
                 </h2>
 
                 <div className="mt-6 space-y-3.5 text-sm text-muted-foreground">
+                  {/* Gift Wrap Toggle */}
+                  <div className="rounded-2xl border border-purple-200/80 bg-purple-50/60 p-4">
+                    <label className="flex items-start gap-3 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={giftWrap.enabled}
+                        onChange={(e) => {
+                          setGiftWrapOption(e.target.checked, giftWrap.note);
+                          setGiftWrap({ enabled: e.target.checked, note: giftWrap.note });
+                        }}
+                        className="w-4 h-4 mt-0.5 rounded text-purple-600 focus:ring-purple-400 cursor-pointer"
+                      />
+                      <div className="flex-1 text-xs">
+                        <div className="flex items-center justify-between">
+                          <span className="font-bold text-purple-950 flex items-center gap-1.5">
+                            <Gift size={14} className="text-purple-600" />
+                            Wax-Sealed Gift Packaging
+                          </span>
+                          <span className="font-black text-purple-700">+₹{GIFT_WRAP_PRICE}</span>
+                        </div>
+                        <p className="text-muted-foreground mt-0.5">
+                          Rigid luxury box, satin ribbon & handwritten wax-sealed card
+                        </p>
+                        {giftWrap.enabled && (
+                          <input
+                            type="text"
+                            value={giftWrap.note || ""}
+                            onChange={(e) => {
+                              setGiftWrapOption(true, e.target.value);
+                              setGiftWrap({ enabled: true, note: e.target.value });
+                            }}
+                            placeholder="Personal message for calligraphy gift card..."
+                            className="mt-2.5 w-full rounded-xl border border-purple-200 bg-white px-3 py-1.5 text-xs text-purple-950 placeholder:text-purple-400 focus:outline-none focus:ring-1 focus:ring-purple-400"
+                          />
+                        )}
+                      </div>
+                    </label>
+                  </div>
+
                   <div className="flex justify-between">
-                    <span>Items ({itemCount})</span>
+                    <span>Items Subtotal ({itemCount})</span>
                     <span className="font-semibold text-plum">₹{subtotal.toLocaleString("en-IN")}</span>
                   </div>
+                  {giftWrap.enabled && (
+                    <div className="flex justify-between">
+                      <span>Wax-Sealed Gift Pack</span>
+                      <span className="font-semibold text-purple-700">+₹{GIFT_WRAP_PRICE}</span>
+                    </div>
+                  )}
                   <div className="flex justify-between">
                     <span>Atelier Shipping</span>
                     <span>
@@ -225,15 +278,11 @@ export default function CartPage() {
                       )}
                     </span>
                   </div>
-                  <div className="flex justify-between">
-                    <span>Signature Gift Wrap</span>
-                    <span className="text-emerald-700 font-bold uppercase tracking-wider text-xs">Complimentary</span>
-                  </div>
 
                   <div className="border-t border-purple-200/60 pt-4 flex justify-between items-baseline">
                     <span className="font-display text-lg font-bold text-plum">Total</span>
                     <span className="font-display text-2xl font-black text-purple-950">
-                      ₹{(subtotal + (remainingForFreeShipping === 0 ? 0 : 99)).toLocaleString("en-IN")}
+                      ₹{(subtotal + (giftWrap.enabled ? GIFT_WRAP_PRICE : 0) + (remainingForFreeShipping === 0 ? 0 : 99)).toLocaleString("en-IN")}
                     </span>
                   </div>
                 </div>
@@ -246,6 +295,22 @@ export default function CartPage() {
                     <span>Proceed to Checkout</span>
                     <ArrowRight className="h-4 w-4" />
                   </button>
+
+                  <button
+                    onClick={() => {
+                      const itemsText = items.map((i) => `• ${i.name} (Qty: ${i.quantity}) - ${i.price}${i.color ? ` [${i.color}]` : ""}${i.custom ? ` [${i.custom}]` : ""}`).join("\n");
+                      const finalTotal = subtotal + (giftWrap.enabled ? GIFT_WRAP_PRICE : 0) + (remainingForFreeShipping === 0 ? 0 : 99);
+                      const text = encodeURIComponent(
+                        `Hello Inventive Queen Atelier! 👑\n\nI would like to order my basket:\n${itemsText}\n\n• Items Subtotal: ₹${subtotal.toLocaleString("en-IN")}\n• Gift Packaging: ${giftWrap.enabled ? `Yes (+₹${GIFT_WRAP_PRICE})${giftWrap.note ? ` - Note: "${giftWrap.note}"` : ""}` : "Standard"}\n• Total Amount: ₹${finalTotal.toLocaleString("en-IN")}\n\nPlease confirm order and payment instructions!`
+                      );
+                      window.open(`https://wa.me/917892305330?text=${text}`, "_blank");
+                    }}
+                    className="w-full rounded-full border border-emerald-300 bg-emerald-50 py-3 text-xs font-bold text-emerald-900 hover:bg-emerald-100 transition-colors flex items-center justify-center gap-2"
+                  >
+                    <MessageCircle size={15} className="text-emerald-600" />
+                    <span>Order via WhatsApp Direct</span>
+                  </button>
+
                   <button
                     onClick={() => navigate("/shop")}
                     className="w-full rounded-full border border-purple-200 bg-white py-3 text-xs font-semibold text-plum hover:bg-purple-50 transition-colors"

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { Clock, MessageCircle, Palette, Package, HelpCircle, ChevronRight, Check, ShoppingBag, ShoppingCart, ChevronDown, Sparkles, Wand2, Crown, ShieldCheck, Heart, Gift } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -60,26 +60,64 @@ const colorThemes = [
   { label: "Warm Sunset", class: "from-amber-400 to-orange-500" },
 ];
 
+const categoryFilters = [
+  { id: "all", label: "All Formats" },
+  { id: "bouquet", label: "Forever Flowers" },
+  { id: "doll", label: "Keepsake Dolls" },
+  { id: "keychain", label: "Pocket Charms" },
+  { id: "bookmark", label: "Bookmarks" },
+];
+
 const CustomOrdersPage = () => {
   const navigate = useNavigate();
   const { products } = useProducts();
+  const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
   const [details, setDetails] = useState("");
   const [selectedColorTheme, setSelectedColorTheme] = useState<string>("Royal Lavender");
   const [includeFairyLights, setIncludeFairyLights] = useState(false);
   const [includeGiftCard, setIncludeGiftCard] = useState(false);
+  const [includeRush, setIncludeRush] = useState(false);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [cartFeedback, setCartFeedback] = useState("");
 
-  const activeProductId = selectedProductId || products[0]?.id || "mixed-rose-grand-bouquet";
+  const filteredProducts = useMemo(() => {
+    if (selectedCategory === "all") return products;
+    return products.filter((p) => {
+      const type = (p.type || "").toLowerCase();
+      if (selectedCategory === "bouquet") return type.includes("bouquet") || type.includes("flower");
+      if (selectedCategory === "doll") return type.includes("doll") || type.includes("teddy") || type.includes("amigurumi");
+      if (selectedCategory === "keychain") return type.includes("keychain") || type.includes("charm");
+      if (selectedCategory === "bookmark") return type.includes("bookmark");
+      return true;
+    });
+  }, [products, selectedCategory]);
+
+  const activeProductId = selectedProductId || filteredProducts[0]?.id || products[0]?.id || "mixed-rose-grand-bouquet";
   const selectedProduct = products.find((p) => p.id === activeProductId) || products[0];
+
+  const rawBasePrice = useMemo(() => {
+    if (!selectedProduct) return 999;
+    return parseInt(selectedProduct.price.replace(/[^\d]/g, "")) || 999;
+  }, [selectedProduct]);
+
+  const addOnsTotal = useMemo(() => {
+    let sum = 0;
+    if (includeFairyLights) sum += 150;
+    if (includeGiftCard) sum += 99;
+    if (includeRush) sum += 250;
+    return sum;
+  }, [includeFairyLights, includeGiftCard, includeRush]);
+
+  const calculatedTotal = rawBasePrice + addOnsTotal;
 
   const fullCustomText = () => {
     const parts = [];
     if (selectedColorTheme) parts.push(`Theme: ${selectedColorTheme}`);
     if (details.trim()) parts.push(`Notes: ${details.trim()}`);
-    if (includeFairyLights) parts.push(`Add-on: Fairy Lights Included`);
-    if (includeGiftCard) parts.push(`Add-on: Wax-Sealed Personalized Gift Note`);
+    if (includeFairyLights) parts.push(`Add-on: Warm Fairy Lights (+₹150)`);
+    if (includeGiftCard) parts.push(`Add-on: Wax-Sealed Gift Card (+₹99)`);
+    if (includeRush) parts.push(`Add-on: 48h Priority Rush (+₹250)`);
     return parts.join(" | ");
   };
 
@@ -88,22 +126,33 @@ const CustomOrdersPage = () => {
     const params = new URLSearchParams({
       product: selectedProduct.id,
       custom: fullCustomText(),
+      price: String(calculatedTotal),
     });
     navigate(`/checkout?${params.toString()}`);
   };
 
   const handleAddToCart = () => {
     if (!selectedProduct) return;
-    addCartItem(selectedProduct, { custom: fullCustomText() });
-    setCartFeedback("✨ Custom commission added to your royal bag!");
+    addCartItem(
+      {
+        ...selectedProduct,
+        price: `₹${calculatedTotal.toLocaleString("en-IN")}`,
+      },
+      {
+        custom: fullCustomText(),
+        color: selectedColorTheme,
+        price: `₹${calculatedTotal.toLocaleString("en-IN")}`,
+      }
+    );
+    setCartFeedback(`✨ ${selectedProduct.name} (Customized · ₹${calculatedTotal.toLocaleString("en-IN")}) added to your royal basket!`);
     openCartDrawer();
-    window.setTimeout(() => setCartFeedback(""), 2500);
+    window.setTimeout(() => setCartFeedback(""), 3000);
   };
 
   const handleWhatsAppOrder = () => {
     if (!selectedProduct) return;
     const text = encodeURIComponent(
-      `Hello Inventive Queen Atelier! 👑\nI would like to commission a bespoke piece:\n- Base: ${selectedProduct.name} (${selectedProduct.price})\n- Details: ${fullCustomText()}\n\nPlease let me know the turnaround time and dispatch details!`
+      `Hello Inventive Queen Atelier! 👑\n\nI would like to commission a bespoke handcrafted piece:\n• Base Design: ${selectedProduct.name} (Base: ${selectedProduct.price})\n• Aesthetic Palette: ${selectedColorTheme}\n• Add-ons:${includeFairyLights ? "\n  - Warm LED Fairy Lights (+₹150)" : ""}${includeGiftCard ? "\n  - Wax-Sealed Handwritten Card (+₹99)" : ""}${includeRush ? "\n  - 48-Hour Priority Rush (+₹250)" : ""}${!includeFairyLights && !includeGiftCard && !includeRush ? " None" : ""}\n• Personal Notes: ${details.trim() || "Standard royal atelier craft"}\n\n• Estimated Total: ₹${calculatedTotal.toLocaleString("en-IN")}\n• Turnaround: ${includeRush ? "48-Hour Express Dispatch" : "3–5 Business Days"}\n\nPlease confirm availability and payment details!`
     );
     window.open(`https://wa.me/?text=${text}`, "_blank");
   };
@@ -151,9 +200,9 @@ const CustomOrdersPage = () => {
                 </p>
               </div>
 
-              {/* Step 1: Base Product Selection Grid */}
+              {/* Step 1: Base Product Selection with Category Tabs */}
               <div className="space-y-4 mb-10">
-                <div className="flex items-center justify-between">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                   <label className="font-display text-base sm:text-lg font-bold text-purple-950 flex items-center gap-2">
                     <span className="w-7 h-7 rounded-full bg-purple-700 text-white text-xs font-black flex items-center justify-center font-body shadow-xs">
                       1
@@ -161,14 +210,33 @@ const CustomOrdersPage = () => {
                     <span>Select Base Design</span>
                   </label>
                   {selectedProduct && (
-                    <span className="text-xs text-purple-800 font-bold bg-purple-100 px-3 py-1 rounded-full border border-purple-200">
+                    <span className="text-xs text-purple-800 font-bold bg-purple-100 px-3 py-1 rounded-full border border-purple-200 self-start sm:self-auto">
                       Selected: {selectedProduct.name} ({selectedProduct.price})
                     </span>
                   )}
                 </div>
 
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3.5">
-                  {products.slice(0, 8).map((p) => {
+                {/* Category Filter Pills */}
+                <div className="flex flex-wrap gap-1.5 pb-2">
+                  {categoryFilters.map((cat) => (
+                    <button
+                      key={cat.id}
+                      type="button"
+                      onClick={() => setSelectedCategory(cat.id)}
+                      className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-all ${
+                        selectedCategory === cat.id
+                          ? "bg-purple-900 text-white shadow-xs"
+                          : "bg-white text-purple-900/75 hover:bg-purple-50 border border-purple-200/80"
+                      }`}
+                    >
+                      {cat.label}
+                    </button>
+                  ))}
+                </div>
+
+                {/* Product Cards Grid */}
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3.5 max-h-[360px] overflow-y-auto pr-1">
+                  {filteredProducts.slice(0, 12).map((p) => {
                     const isSelected = selectedProduct?.id === p.id;
                     return (
                       <button
@@ -177,7 +245,7 @@ const CustomOrdersPage = () => {
                         onClick={() => setSelectedProductId(p.id)}
                         className={`group relative text-left rounded-2xl overflow-hidden border-2 transition-all duration-300 p-2.5 bg-white ${
                           isSelected
-                            ? "border-purple-600 shadow-luxury ring-2 ring-purple-400/30"
+                            ? "border-purple-600 shadow-luxury ring-2 ring-purple-400/30 scale-[1.01]"
                             : "border-purple-100 hover:border-purple-300 shadow-xs"
                         }`}
                       >
@@ -264,15 +332,15 @@ const CustomOrdersPage = () => {
                 </div>
 
                 <textarea
-                  rows={4}
+                  rows={3}
                   value={details}
                   onChange={(e) => setDetails(e.target.value)}
                   placeholder="Describe colors, character hair/outfit details, custom initials to embroider, or personal message for gift card..."
-                  className="w-full rounded-2xl border border-purple-200 bg-white px-4 py-3.5 text-sm font-body text-purple-950 placeholder:text-purple-900/40 focus:outline-none focus:ring-2 focus:ring-purple-400/40 focus:border-purple-500 transition-all resize-none shadow-sm"
+                  className="w-full rounded-2xl border border-purple-200 bg-white px-4 py-3 text-sm font-body text-purple-950 placeholder:text-purple-900/40 focus:outline-none focus:ring-2 focus:ring-purple-400/40 focus:border-purple-500 transition-all resize-none shadow-sm"
                 />
               </div>
 
-              {/* Step 4: Add-on Perks */}
+              {/* Step 4: Add-on Perks with Live Costs */}
               <div className="space-y-3 mb-10 pt-6 border-t border-purple-100">
                 <label className="font-display text-base sm:text-lg font-bold text-purple-950 flex items-center gap-2 mb-3">
                   <span className="w-7 h-7 rounded-full bg-purple-700 text-white text-xs font-black flex items-center justify-center font-body shadow-xs">
@@ -281,44 +349,135 @@ const CustomOrdersPage = () => {
                   <span>Royal Atelier Finishing Touches</span>
                 </label>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <label className="flex items-center gap-3 p-4 rounded-2xl bg-white border border-purple-200 cursor-pointer hover:border-purple-400 transition-all shadow-xs">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  <label className={`flex items-start gap-3 p-4 rounded-2xl border cursor-pointer transition-all ${
+                    includeFairyLights ? "bg-purple-50/80 border-purple-500 shadow-sm" : "bg-white border-purple-200 hover:border-purple-300 shadow-xs"
+                  }`}>
                     <input
                       type="checkbox"
                       checked={includeFairyLights}
                       onChange={(e) => setIncludeFairyLights(e.target.checked)}
-                      className="w-4 h-4 rounded text-purple-600 focus:ring-purple-400 cursor-pointer"
+                      className="w-4 h-4 mt-0.5 rounded text-purple-600 focus:ring-purple-400 cursor-pointer"
                     />
                     <div className="text-xs">
-                      <span className="font-bold text-purple-950 block">✨ Warm LED Fairy Lights (+Free)</span>
-                      <span className="text-purple-900/70">Adds magical evening glow to your bouquet or doll</span>
+                      <span className="font-bold text-purple-950 flex items-center justify-between">
+                        <span>✨ Warm Fairy Lights</span>
+                        <span className="text-purple-700 font-black">+₹150</span>
+                      </span>
+                      <span className="text-purple-900/70 mt-1 block">Adds fairy glow string with batteries</span>
                     </div>
                   </label>
 
-                  <label className="flex items-center gap-3 p-4 rounded-2xl bg-white border border-purple-200 cursor-pointer hover:border-purple-400 transition-all shadow-xs">
+                  <label className={`flex items-start gap-3 p-4 rounded-2xl border cursor-pointer transition-all ${
+                    includeGiftCard ? "bg-purple-50/80 border-purple-500 shadow-sm" : "bg-white border-purple-200 hover:border-purple-300 shadow-xs"
+                  }`}>
                     <input
                       type="checkbox"
                       checked={includeGiftCard}
                       onChange={(e) => setIncludeGiftCard(e.target.checked)}
-                      className="w-4 h-4 rounded text-purple-600 focus:ring-purple-400 cursor-pointer"
+                      className="w-4 h-4 mt-0.5 rounded text-purple-600 focus:ring-purple-400 cursor-pointer"
                     />
                     <div className="text-xs">
-                      <span className="font-bold text-purple-950 block">👑 Wax-Sealed Handwritten Note (+Free)</span>
-                      <span className="text-purple-900/70">Personalized keepsake message card with royal emblem</span>
+                      <span className="font-bold text-purple-950 flex items-center justify-between">
+                        <span>💌 Wax-Sealed Note</span>
+                        <span className="text-purple-700 font-black">+₹99</span>
+                      </span>
+                      <span className="text-purple-900/70 mt-1 block">Handwritten calligraphy keepsake note</span>
+                    </div>
+                  </label>
+
+                  <label className={`flex items-start gap-3 p-4 rounded-2xl border cursor-pointer transition-all ${
+                    includeRush ? "bg-purple-50/80 border-purple-500 shadow-sm" : "bg-white border-purple-200 hover:border-purple-300 shadow-xs"
+                  }`}>
+                    <input
+                      type="checkbox"
+                      checked={includeRush}
+                      onChange={(e) => setIncludeRush(e.target.checked)}
+                      className="w-4 h-4 mt-0.5 rounded text-purple-600 focus:ring-purple-400 cursor-pointer"
+                    />
+                    <div className="text-xs">
+                      <span className="font-bold text-purple-950 flex items-center justify-between">
+                        <span>⚡ Priority 48h Craft</span>
+                        <span className="text-purple-700 font-black">+₹250</span>
+                      </span>
+                      <span className="text-purple-900/70 mt-1 block">Expedited atelier stitch & fast dispatch</span>
                     </div>
                   </label>
                 </div>
               </div>
 
+              {/* ── Royal Commission Ticket Preview Card ── */}
+              {selectedProduct && (
+                <div className="mb-8 rounded-3xl bg-gradient-to-br from-purple-900 via-[#3B124B] to-purple-950 text-white p-6 sm:p-7 shadow-xl border border-amber-300/30 relative overflow-hidden">
+                  <div className="absolute -right-10 -bottom-10 w-40 h-40 rounded-full bg-amber-400/10 blur-3xl pointer-events-none" />
+                  
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-white/15">
+                    <div className="flex items-center gap-3">
+                      <div className="w-14 h-14 rounded-2xl bg-white/10 p-1.5 backdrop-blur-md border border-white/20 shrink-0">
+                        <img
+                          src={selectedProduct.images[0]}
+                          alt={selectedProduct.name}
+                          className="w-full h-full object-contain"
+                        />
+                      </div>
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <Crown size={12} className="text-amber-300" />
+                          <span className="text-[10px] font-bold uppercase tracking-[0.25em] text-amber-200">
+                            Atelier Commission Ticket
+                          </span>
+                        </div>
+                        <h3 className="font-display text-lg sm:text-xl font-bold text-white leading-tight">
+                          {selectedProduct.name}
+                        </h3>
+                      </div>
+                    </div>
+
+                    <div className="text-right sm:text-right">
+                      <span className="text-[10px] uppercase tracking-wider text-purple-200 block">Calculated Commission Total</span>
+                      <span className="font-display text-2xl sm:text-3xl font-black text-amber-300">
+                        ₹{calculatedTotal.toLocaleString("en-IN")}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+                    <div className="bg-white/10 backdrop-blur-md rounded-xl px-3 py-2 border border-white/10">
+                      <span className="text-[9.5px] uppercase tracking-wider text-purple-200 block">Color Palette</span>
+                      <span className="font-bold text-white truncate block mt-0.5">✦ {selectedColorTheme}</span>
+                    </div>
+
+                    <div className="bg-white/10 backdrop-blur-md rounded-xl px-3 py-2 border border-white/10">
+                      <span className="text-[9.5px] uppercase tracking-wider text-purple-200 block">Finishing Add-ons</span>
+                      <span className="font-bold text-white truncate block mt-0.5">
+                        {addOnsTotal > 0 ? `+₹${addOnsTotal} (${[includeFairyLights && "Lights", includeGiftCard && "Card", includeRush && "48h Rush"].filter(Boolean).join(", ")})` : "Standard Atelier"}
+                      </span>
+                    </div>
+
+                    <div className="bg-white/10 backdrop-blur-md rounded-xl px-3 py-2 border border-white/10">
+                      <span className="text-[9.5px] uppercase tracking-wider text-purple-200 block">Packaging</span>
+                      <span className="font-bold text-amber-200 truncate block mt-0.5">🎁 Wax-Sealed Gift Box</span>
+                    </div>
+
+                    <div className="bg-white/10 backdrop-blur-md rounded-xl px-3 py-2 border border-white/10">
+                      <span className="text-[9.5px] uppercase tracking-wider text-purple-200 block">Turnaround</span>
+                      <span className="font-bold text-white truncate block mt-0.5">
+                        {includeRush ? "⚡ 48h Priority" : "🕒 3–5 Days"}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               {/* Order Actions */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 pt-4 border-t border-purple-100">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 pt-2 border-t border-purple-100">
                 <button
                   type="button"
                   onClick={handleAddToCart}
                   className="w-full inline-flex items-center justify-center gap-2 rounded-2xl border-2 border-purple-200 hover:border-purple-600 bg-white text-purple-950 py-3.5 font-bold hover:bg-purple-50 active:scale-[0.98] transition-all text-xs sm:text-sm shadow-xs"
                 >
                   <ShoppingCart size={17} className="text-purple-700" />
-                  <span>Add to Bag</span>
+                  <span>Add to Bag (₹{calculatedTotal.toLocaleString("en-IN")})</span>
                 </button>
                 <button
                   type="button"
