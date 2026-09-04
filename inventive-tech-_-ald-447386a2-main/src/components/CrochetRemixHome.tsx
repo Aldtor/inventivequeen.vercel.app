@@ -313,28 +313,59 @@ export default function CrochetRemixHome() {
               </motion.div>
             </div>
 
-            {/* Right Hero Visual Showcase (Layered Luxury Haute Composition) */}
+            {/* Right Hero Visual Showcase (Royal Haute Atelier Brand Emblem & Floating Badges) */}
             <motion.div
               style={{ y: heroY, scale: heroScale }}
               className="lg:col-span-5 relative"
             >
               <div className="relative mx-auto max-w-sm sm:max-w-md">
-                {/* Radiant Ambient Aura Behind */}
-                <div className="absolute -inset-6 rounded-[3.5rem] bg-gradient-to-tr from-purple-400/35 via-pink-300/30 to-amber-200/40 blur-3xl -z-10" />
+                {/* Radiant Ambient Royal Aura Behind */}
+                <div className="absolute -inset-6 rounded-[3.5rem] bg-gradient-to-tr from-purple-500/30 via-pink-300/30 to-amber-300/35 blur-3xl -z-10" />
 
                 {/* Decorative Dashed Embroidery Stitch Ring */}
-                <div className="absolute -inset-3 rounded-[3.2rem] border-2 border-dashed border-purple-300/50 pointer-events-none -z-10" />
+                <div className="absolute -inset-3.5 rounded-[3.4rem] border-2 border-dashed border-purple-300/60 pointer-events-none -z-10 animate-pulse" />
 
-                {/* Main Framed Atelier Heirloom Portrait */}
-                <div className="overflow-hidden rounded-[2.8rem] glass-card border-2 border-white/90 shadow-[0_20px_60px_-15px_rgba(84,27,92,0.22)] bg-white p-2.5">
-                  <div className="overflow-hidden rounded-[2.2rem] relative">
+                {/* Main Royal Atelier Emblem Showcase Card */}
+                <div className="relative overflow-hidden rounded-[3rem] glass-card border-2 border-white/95 shadow-[0_24px_70px_-15px_rgba(84,27,92,0.22)] bg-gradient-to-b from-white/95 via-purple-50/60 to-white/95 backdrop-blur-2xl p-6 sm:p-7 text-center group">
+                  {/* Subtle Inner Ambient Glow */}
+                  <div className="absolute top-0 inset-x-0 h-32 bg-gradient-to-b from-purple-200/40 to-transparent pointer-events-none -z-10" />
+                  <div className="absolute -bottom-10 -right-10 w-40 h-40 bg-amber-200/30 rounded-full blur-2xl pointer-events-none -z-10" />
+
+                  {/* Top Atelier Ribbon Tag */}
+                  <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-purple-100/90 border border-purple-200/80 shadow-xs mb-3">
+                    <Sparkles size={11} className="text-amber-500 fill-amber-400" />
+                    <span className="text-[10px] font-black uppercase tracking-[0.2em] text-purple-950">
+                      Signature Royal Crest
+                    </span>
+                    <Sparkles size={11} className="text-amber-500 fill-amber-400" />
+                  </div>
+
+                  {/* High-Resolution Brand Character Emblem */}
+                  <div className="relative mx-auto w-56 h-56 sm:w-64 sm:h-64 rounded-[2.2rem] overflow-hidden bg-gradient-to-b from-purple-100/60 via-white to-pink-50/60 border border-purple-200/60 shadow-inner flex items-center justify-center p-2 transition-transform duration-700 group-hover:scale-[1.03]">
                     <img
-                      src={hero}
-                      alt="Inventive Queen luxury crochet bouquet and amigurumi"
-                      className="w-full aspect-[4/5] object-cover shadow-sm transition-transform duration-700 hover:scale-105"
+                      src={logo}
+                      alt="Inventive Queen Royal Crochet Atelier Emblem"
+                      className="w-full h-full object-contain drop-shadow-[0_12px_24px_rgba(84,27,92,0.18)]"
                     />
-                    {/* Soft gradient sheen at base of image */}
-                    <div className="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-[#461c48]/40 via-transparent to-transparent pointer-events-none" />
+                    {/* Delicate Corner Embroidery Accent */}
+                    <div className="absolute top-2 right-2 flex items-center gap-0.5 text-amber-500">
+                      <Crown size={14} className="fill-amber-400" />
+                    </div>
+                  </div>
+
+                  {/* Atelier Brand Title & Credo */}
+                  <div className="mt-4">
+                    <h2 className="font-display text-xl sm:text-2xl font-black tracking-wider text-plum">
+                      INVENTIVE QUEEN
+                    </h2>
+                    <p className="text-[11px] font-bold uppercase tracking-[0.28em] bg-gradient-to-r from-purple-700 via-pink-600 to-amber-600 bg-clip-text text-transparent mt-0.5">
+                      Haute Crochet Atelier
+                    </p>
+                    <div className="mt-2.5 flex items-center justify-center gap-2 text-[10px] font-semibold text-purple-900/70">
+                      <span>✦ 100% Hand-Stitched</span>
+                      <span>•</span>
+                      <span>✦ Heirloom Keepsakes</span>
+                    </div>
                   </div>
                 </div>
 
@@ -343,7 +374,7 @@ export default function CrochetRemixHome() {
                   initial={{ opacity: 0, y: -15 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.5, duration: 0.6 }}
-                  className="absolute -right-3 sm:-right-6 -top-3 glass-card px-4 py-2 rounded-2xl border border-white/90 shadow-xl bg-white/95 flex items-center gap-2 backdrop-blur-xl"
+                  className="absolute -right-3 sm:-right-6 -top-3 glass-card px-4 py-2 rounded-2xl border border-white/95 shadow-xl bg-white/95 flex items-center gap-2 backdrop-blur-xl"
                 >
                   <div className="flex gap-0.5 text-amber-400">
                     {Array.from({ length: 5 }).map((_, i) => (
@@ -363,7 +394,7 @@ export default function CrochetRemixHome() {
                   <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-purple-600 to-indigo-600 text-white flex items-center justify-center text-base shadow-sm shrink-0">
                     🧶
                   </div>
-                  <div>
+                  <div className="text-left">
                     <p className="text-xs font-bold text-plum leading-tight">100% Milk Cotton</p>
                     <p className="text-[9.5px] text-muted-foreground leading-tight mt-0.5">Velvety soft & skin safe</p>
                   </div>
@@ -374,7 +405,7 @@ export default function CrochetRemixHome() {
                   initial={{ opacity: 0, x: 25 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.75, duration: 0.6 }}
-                  className="absolute -right-2 sm:-right-4 bottom-4 glass-card px-3.5 py-2 rounded-2xl border border-amber-300/80 shadow-lg bg-white/95 flex items-center gap-2 backdrop-blur-md"
+                  className="absolute -right-2 sm:-right-4 bottom-4 glass-card px-3.5 py-2 rounded-2xl border border-amber-300/80 shadow-lg bg-white/95 flex items-center gap-2 backdrop-blur-md text-left"
                 >
                   <span className="text-base select-none">🎁</span>
                   <div>

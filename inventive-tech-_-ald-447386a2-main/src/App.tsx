@@ -32,10 +32,26 @@ const NotFound = lazy(() => import("./pages/NotFound.tsx"));
 
 const queryClient = new QueryClient();
 
+import heroBg from "@/assets/hero.jpg";
+
 /** Minimal loading fallback that matches the site's visual style */
 const PageLoader = () => (
   <div className="min-h-screen flex items-center justify-center bg-background">
     <div className="w-6 h-6 rounded-full border-2 border-primary border-t-transparent animate-spin" />
+  </div>
+);
+
+/** Global Luxury Background using the hero atelier image */
+const GlobalAtelierBackground = () => (
+  <div className="fixed inset-0 pointer-events-none -z-50 overflow-hidden select-none" aria-hidden="true">
+    <img
+      src={heroBg}
+      alt="Inventive Queen Atelier Background"
+      className="w-full h-full object-cover object-right-top fixed inset-0 scale-100"
+    />
+    {/* Delicate ambient overlay: keeps text 100% readable while letting the lovely lavender silk & crochet companions shine through as the website background */}
+    <div className="absolute inset-0 bg-gradient-to-r from-white/95 via-white/85 via-55% to-white/30" />
+    <div className="absolute inset-0 bg-gradient-to-b from-white/30 via-transparent via-50% to-[#FAF8F5]/90" />
   </div>
 );
 
@@ -47,6 +63,7 @@ const App = () => (
       <AuthProvider>
         <ProductsProvider>
           <BrowserRouter>
+            <GlobalAtelierBackground />
             <CartDrawer />
             <Suspense fallback={<PageLoader />}>
               <Routes>
