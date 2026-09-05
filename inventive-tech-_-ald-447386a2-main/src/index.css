@@ -102,20 +102,18 @@
     color: hsl(275 60% 13%);
   }
 
-  /* Smooth custom scrollbar in royal amethyst */
-  ::-webkit-scrollbar {
-    width: 9px;
+  /* Hide scrollbars globally across all browsers while keeping smooth scrolling */
+  html,
+  body,
+  * {
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
   }
-  ::-webkit-scrollbar-track {
-    background: hsl(275 35% 97%);
-  }
-  ::-webkit-scrollbar-thumb {
-    background: linear-gradient(180deg, hsl(270 65% 72%), hsl(285 60% 65%));
-    border-radius: 999px;
-    border: 2px solid hsl(275 35% 97%);
-  }
-  ::-webkit-scrollbar-thumb:hover {
-    background: linear-gradient(180deg, hsl(270 75% 58%), hsl(285 70% 52%));
+  ::-webkit-scrollbar,
+  *::-webkit-scrollbar {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
   }
 }
 
