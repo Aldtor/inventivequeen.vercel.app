@@ -11,6 +11,7 @@ import {
 import logo from "@/assets/logo.png";
 import { addToCart, getCartCount, parsePrice } from "@/lib/cart";
 import { useAuth } from "@/lib/auth";
+import { useStoreSettings } from "@/lib/store-settings";
 
 import bouquetRose from "@/assets/products/bouquets/product-bouquet-rose.png";
 import bouquetPastel from "@/assets/products/bouquets/product-bouquet-pastel.png";
@@ -77,17 +78,23 @@ function MoreMenu({ className = "" }: { className?: string }) {
 }
 
 function AnnouncementBar() {
+  const { settings } = useStoreSettings();
+
   return (
     <div className="relative overflow-hidden bg-lilac-deep text-primary-foreground">
       <div className="absolute inset-0 opacity-20 bg-gradient-to-r from-transparent via-white/10 to-transparent animate-pulse" />
       <div className="relative mx-auto flex max-w-6xl flex-wrap items-center justify-center gap-x-3 gap-y-1 px-4 py-2 text-center text-xs sm:text-sm">
-        <span className="skeu-badge">
-          ✨ Limited slots
-        </span>
-        <span>👑 Online Checkout with Razorpay is OPEN! Custom crochet made to order.</span>
-        <Link to="/how-to-order" className="font-semibold underline underline-offset-4 hover:text-white/90 transition-colors">
-          How to order →
-        </Link>
+        {settings.announcementBadge && (
+          <span className="skeu-badge">
+            {settings.announcementBadge}
+          </span>
+        )}
+        <span>{settings.announcementText}</span>
+        {settings.announcementLink && (
+          <Link to={settings.announcementLink} className="font-semibold underline underline-offset-4 hover:text-white/90 transition-colors">
+            {settings.announcementLinkLabel || "Learn more →"}
+          </Link>
+        )}
       </div>
     </div>
   );

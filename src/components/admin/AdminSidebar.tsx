@@ -1,6 +1,7 @@
 import {
   ExternalLink,
   LayoutDashboard,
+  Megaphone,
   Package,
   Settings,
   ShoppingBag,
@@ -8,7 +9,7 @@ import {
 import { Link } from "@tanstack/react-router";
 import logo from "@/assets/logo.png";
 
-export type AdminTab = "overview" | "orders" | "products" | "settings";
+export type AdminTab = "overview" | "orders" | "products" | "store" | "settings";
 
 interface AdminSidebarProps {
   activeTab: AdminTab;
@@ -19,6 +20,7 @@ const NAV_ITEMS: { id: AdminTab; title: string; icon: any }[] = [
   { id: "overview", title: "Overview", icon: LayoutDashboard },
   { id: "orders", title: "Orders CMS", icon: ShoppingBag },
   { id: "products", title: "Products CMS", icon: Package },
+  { id: "store", title: "Store & Banner", icon: Megaphone },
   { id: "settings", title: "Settings", icon: Settings },
 ];
 
