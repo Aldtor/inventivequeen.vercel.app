@@ -124,6 +124,7 @@ function RootShell({ children }: { children: ReactNode }) {
 }
 
 import { AuthProvider } from "../lib/auth";
+import { ProductsProvider } from "../lib/cms-products";
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
@@ -131,8 +132,10 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-        <Outlet />
+        <ProductsProvider>
+          {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
+          <Outlet />
+        </ProductsProvider>
       </AuthProvider>
     </QueryClientProvider>
   );

@@ -82,7 +82,23 @@ const GALLERY = [
   { src: catPlush, alt: "Category plush" },
 ];
 
+import { useProducts } from "@/lib/cms-products";
+
 function CharactersPage() {
+  const { products } = useProducts();
+  const cmsCharacters = products.filter((p) => p.type === "plushie" || p.type === "keychain");
+  const displayItems =
+    cmsCharacters.length > 0
+      ? cmsCharacters.map((p) => ({
+          name: p.name,
+          size: p.size || "Custom amigurumi",
+          price: p.sellingPrice || p.price,
+          note: p.tagline || p.description,
+          image: p.images[0] || whiteBearPink,
+          badge: p.badge,
+        }))
+      : ITEMS;
+
   return (
     <SiteLayout>
       <PageHeader
@@ -91,7 +107,7 @@ function CharactersPage() {
         description="For crochet pieces other than the human doll style — animals, mascots, characters, anything you can send me a photo of."
       />
       <div className="mx-auto grid max-w-6xl gap-6 px-4 py-16 sm:grid-cols-2 lg:grid-cols-3">
-        {ITEMS.map((item) => (
+        {displayItems.map((item) => (
           <PriceCard key={item.name} {...item} />
         ))}
       </div>

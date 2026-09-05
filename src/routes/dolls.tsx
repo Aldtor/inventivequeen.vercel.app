@@ -77,7 +77,23 @@ const DOLLS = [
 /* Gallery of past work */
 const GALLERY = [catKeepsakeDolls, dollsImg, minisImg, whiteBearPink, bearKeychain, owlKeychain];
 
+import { useProducts } from "@/lib/cms-products";
+
 function DollsPage() {
+  const { products } = useProducts();
+  const cmsDolls = products.filter((p) => p.type === "doll");
+  const displayDolls =
+    cmsDolls.length > 0
+      ? cmsDolls.map((p) => ({
+          name: p.name,
+          size: p.size || "Custom amigurumi",
+          price: p.sellingPrice || p.price,
+          note: p.tagline || p.description,
+          image: p.images[0] || dollsImg,
+          badge: p.badge,
+        }))
+      : DOLLS;
+
   return (
     <SiteLayout>
       <PageHeader
@@ -86,7 +102,7 @@ function DollsPage() {
         description="These are sample designs — all are customizable. Highly detailed dolls may need a small extra fee, just message me."
       />
       <div className="mx-auto grid max-w-6xl gap-6 px-4 py-16 sm:grid-cols-2 lg:grid-cols-3">
-        {DOLLS.map((doll) => (
+        {displayDolls.map((doll) => (
           <PriceCard key={doll.name} {...doll} />
         ))}
       </div>

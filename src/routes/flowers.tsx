@@ -80,7 +80,23 @@ const GALLERY = [
   { src: roseTagged, alt: "Rose bouquet tagged" },
 ];
 
+import { useProducts } from "@/lib/cms-products";
+
 function FlowersPage() {
+  const { products } = useProducts();
+  const cmsFlowers = products.filter((p) => p.type === "bouquet");
+  const displayFlowers =
+    cmsFlowers.length > 0
+      ? cmsFlowers.map((p) => ({
+          name: p.name,
+          size: p.size || "Hand-tied stem / wrap",
+          price: p.sellingPrice || p.price,
+          note: p.tagline || p.description,
+          image: p.images[0] || bouquetRose,
+          badge: p.badge,
+        }))
+      : FLOWERS;
+
   return (
     <SiteLayout>
       <PageHeader
@@ -89,7 +105,7 @@ function FlowersPage() {
         description="All prices include basic wrapping and ribbon. Want a flower that isn't listed? Send a photo and I'll see if I can make it."
       />
       <div className="mx-auto grid max-w-6xl gap-6 px-4 py-16 sm:grid-cols-2 lg:grid-cols-3">
-        {FLOWERS.map((flower) => (
+        {displayFlowers.map((flower) => (
           <PriceCard key={flower.name} {...flower} />
         ))}
       </div>

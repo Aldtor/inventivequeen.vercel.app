@@ -31,6 +31,7 @@ const MAIN_NAV = [
 
 const MORE_NAV = [
   { to: "/how-to-order", label: "How to order" },
+  { to: "/admin", label: "👑 Admin Panel" },
   { to: "/about", label: "About" },
   { to: "/faq", label: "FAQ" },
   { to: "/contact", label: "Contact" },
@@ -94,7 +95,7 @@ function AnnouncementBar() {
 function Header() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [cartCount, setCartCount] = useState(0);
-  const { user, profile, signOut } = useAuth();
+  const { user, profile, isAdmin, signOut } = useAuth();
 
   useEffect(() => {
     setCartCount(getCartCount());
@@ -157,6 +158,14 @@ function Header() {
             {/* Auth Button */}
             {user ? (
               <div className="flex items-center gap-1.5">
+                {isAdmin && (
+                  <Link
+                    to="/admin"
+                    className="bg-amber-100/90 text-amber-900 border border-amber-300/80 hidden items-center gap-1 rounded-full px-3 py-1.5 text-xs font-black sm:inline-flex hover:bg-amber-200 transition-colors shadow-sm"
+                  >
+                    👑 CMS
+                  </Link>
+                )}
                 <Link
                   to="/orders"
                   className="clay hidden items-center gap-1.5 rounded-full px-3 py-2 text-xs font-bold text-lilac-deep sm:inline-flex"
@@ -207,6 +216,15 @@ function Header() {
               {item.label}
             </Link>
           ))}
+          {isAdmin && (
+            <Link
+              to="/admin"
+              className="rounded-full px-3 py-1.5 text-xs sm:text-sm font-black whitespace-nowrap text-amber-900 bg-amber-100"
+              onClick={() => setMobileOpen(false)}
+            >
+              👑 CMS
+            </Link>
+          )}
           {!user && (
             <Link
               to="/login"
