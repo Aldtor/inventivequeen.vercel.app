@@ -2,7 +2,7 @@ import { Link, createFileRoute } from "@tanstack/react-router";
 import { Heart, Palette, Play, Quote, Sparkles, Star, Truck } from "lucide-react";
 
 import { INSTAGRAM_URL, SiteLayout } from "@/components/site/SiteLayout";
-import logo from "@/assets/logo.png.asset.json";
+import logo from "@/assets/logo.png";
 
 /* ─── Real product images ─── */
 import dollsImg from "@/assets/dolls.jpg";
@@ -237,7 +237,7 @@ function Home() {
             <div className="lilac-gradient absolute -inset-4 rounded-[3rem] opacity-40 blur-2xl" aria-hidden />
             <div className="liquid-glass float-slow relative rounded-4xl p-3">
               <img
-                src={logo.url}
+                src={logo}
                 alt="Inventive Queen crochet brand illustration"
                 width={900}
                 height={900}

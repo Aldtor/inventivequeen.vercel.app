@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { Heart, Palette, Sparkles, Truck } from "lucide-react";
 
 import { SiteLayout, PageHeader, OrderCta } from "@/components/site/SiteLayout";
-import logo from "@/assets/logo.png.asset.json";
+import logo from "@/assets/logo.png";
 
 /* Real product images for visual storytelling */
 import bouquetRose from "@/assets/products/bouquets/product-bouquet-rose.png";
@@ -81,7 +81,7 @@ function AboutPage() {
         <div className="grid items-center gap-12 lg:grid-cols-2">
           <div className="liquid-glass p-3">
             <img
-              src={logo.url}
+              src={logo}
               alt="Inventive Queen crochet brand illustration"
               width={900}
               height={900}

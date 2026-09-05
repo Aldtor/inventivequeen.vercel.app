@@ -8,9 +8,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import logo from "@/assets/logo.png.asset.json";
+import logo from "@/assets/logo.png";
 
-/* ---------- Product thumbnails for footer ---------- */
 import bouquetRose from "@/assets/products/bouquets/product-bouquet-rose.png";
 import bouquetPastel from "@/assets/products/bouquets/product-bouquet-pastel.png";
 import bearKeychain from "@/assets/products/keychains/product-yellow-bear-keychain.png";
@@ -99,7 +98,7 @@ function Header() {
           <Link to="/" className="group flex items-center gap-3">
             <span className="clay-soft rounded-full p-1 transition-transform duration-500 group-hover:scale-105">
               <img
-                src={logo.url}
+                src={logo}
                 alt="Inventive Queen logo"
                 width={48}
                 height={48}
@@ -200,7 +199,7 @@ function Footer() {
           <div className="flex items-center gap-3">
             <span className="clay-soft rounded-full p-1">
               <img
-                src={logo.url}
+                src={logo}
                 alt="Inventive Queen logo"
                 width={48}
                 height={48}
