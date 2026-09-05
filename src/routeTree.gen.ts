@@ -21,6 +21,7 @@ import { Route as FlowersRouteImport } from './routes/flowers'
 import { Route as HowToOrderRouteImport } from './routes/how-to-order'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as OrdersRouteImport } from './routes/orders'
+import { Route as ReviewsRouteImport } from './routes/reviews'
 import { Route as SuccessRouteImport } from './routes/success'
 import { Route as TermsRouteImport } from './routes/terms'
 
@@ -84,6 +85,11 @@ const OrdersRoute = OrdersRouteImport.update({
   path: '/orders',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ReviewsRoute = ReviewsRouteImport.update({
+  id: '/reviews',
+  path: '/reviews',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SuccessRoute = SuccessRouteImport.update({
   id: '/success',
   path: '/success',
@@ -108,6 +114,7 @@ export interface FileRoutesByFullPath {
   '/how-to-order': typeof HowToOrderRoute
   '/login': typeof LoginRoute
   '/orders': typeof OrdersRoute
+  '/reviews': typeof ReviewsRoute
   '/success': typeof SuccessRoute
   '/terms': typeof TermsRoute
 }
@@ -124,6 +131,7 @@ export interface FileRoutesByTo {
   '/how-to-order': typeof HowToOrderRoute
   '/login': typeof LoginRoute
   '/orders': typeof OrdersRoute
+  '/reviews': typeof ReviewsRoute
   '/success': typeof SuccessRoute
   '/terms': typeof TermsRoute
 }
@@ -141,6 +149,7 @@ export interface FileRoutesById {
   '/how-to-order': typeof HowToOrderRoute
   '/login': typeof LoginRoute
   '/orders': typeof OrdersRoute
+  '/reviews': typeof ReviewsRoute
   '/success': typeof SuccessRoute
   '/terms': typeof TermsRoute
 }
@@ -159,6 +168,7 @@ export interface FileRouteTypes {
     | '/how-to-order'
     | '/login'
     | '/orders'
+    | '/reviews'
     | '/success'
     | '/terms'
   fileRoutesByTo: FileRoutesByTo
@@ -175,6 +185,7 @@ export interface FileRouteTypes {
     | '/how-to-order'
     | '/login'
     | '/orders'
+    | '/reviews'
     | '/success'
     | '/terms'
   id:
@@ -191,6 +202,7 @@ export interface FileRouteTypes {
     | '/how-to-order'
     | '/login'
     | '/orders'
+    | '/reviews'
     | '/success'
     | '/terms'
   fileRoutesById: FileRoutesById
@@ -208,6 +220,7 @@ export interface RootRouteChildren {
   HowToOrderRoute: typeof HowToOrderRoute
   LoginRoute: typeof LoginRoute
   OrdersRoute: typeof OrdersRoute
+  ReviewsRoute: typeof ReviewsRoute
   SuccessRoute: typeof SuccessRoute
   TermsRoute: typeof TermsRoute
 }
@@ -298,6 +311,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OrdersRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/reviews': {
+      id: '/reviews'
+      path: '/reviews'
+      fullPath: '/reviews'
+      preLoaderRoute: typeof ReviewsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/success': {
       id: '/success'
       path: '/success'
@@ -328,6 +348,7 @@ const rootRouteChildren: RootRouteChildren = {
   HowToOrderRoute: HowToOrderRoute,
   LoginRoute: LoginRoute,
   OrdersRoute: OrdersRoute,
+  ReviewsRoute: ReviewsRoute,
   SuccessRoute: SuccessRoute,
   TermsRoute: TermsRoute,
 }

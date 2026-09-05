@@ -31,6 +31,7 @@ const MAIN_NAV = [
 
 const MORE_NAV = [
   { to: "/how-to-order", label: "How to order" },
+  { to: "/reviews", label: "Reviews & Stories" },
   { to: "/admin", label: "👑 Admin Panel" },
   { to: "/about", label: "About" },
   { to: "/faq", label: "FAQ" },

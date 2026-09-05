@@ -35,8 +35,8 @@ const SECTIONS = [
     text: "Prices are listed on each pricelist page and may change based on complexity, size, accessories or rush requests. Final quotes are sent before work begins.",
   },
   {
-    title: "3. Payment",
-    text: "Payment details are shared after your order is confirmed. Full payment or an agreed deposit is required before crafting starts. Orders are non-refundable once materials have been purchased or work has begun.",
+    title: "3. Secure Online Payment",
+    text: "Orders are paid online during checkout via Razorpay, supporting UPI, Debit/Credit cards, and NetBanking. Once payment is confirmed, your order is automatically scheduled for hand-crafting.",
   },
   {
     title: "4. Shipping",
