@@ -115,6 +115,22 @@
     width: 0 !important;
     height: 0 !important;
   }
+
+  html,
+  body {
+    cursor: url('/cursor.png') 0 0, auto !important;
+  }
+
+  a,
+  button,
+  [role="button"],
+  input[type="submit"],
+  input[type="button"],
+  select,
+  summary,
+  .clickable {
+    cursor: url('/cursor.png') 0 0, pointer !important;
+  }
 }
 
 /* ─── UTILITIES ───────────────────────────────────────────────── */
