@@ -24,7 +24,7 @@ export const Route = createFileRoute("/contact")({
       { property: "og:title", content: "Contact — Inventive Queen" },
       {
         property: "og:description",
-        content: "Send a message or DM on Instagram to order your custom crochet piece.",
+        content: "Get in touch with Inventive Queen for custom inquiries, bridal bouquets, or bulk crochet gifts.",
       },
       { property: "og:type", content: "article" },
       { property: "og:url", content: "/contact" },
@@ -36,16 +36,16 @@ export const Route = createFileRoute("/contact")({
 
 const CONTACT_METHODS = [
   {
-    icon: Instagram,
-    label: "Instagram",
-    value: "@inventivequeen",
-    href: INSTAGRAM_URL,
-  },
-  {
     icon: Mail,
     label: "Email",
     value: "hello@inventivequeen.com",
     href: "mailto:hello@inventivequeen.com",
+  },
+  {
+    icon: Instagram,
+    label: "Instagram",
+    value: "@inventivequeen",
+    href: INSTAGRAM_URL,
   },
   {
     icon: MapPin,
@@ -78,7 +78,7 @@ function ContactPage() {
       <PageHeader
         eyebrow="Contact"
         title="Let's make something together"
-        description="Have a question or ready to order? Send a message here or reach out on Instagram."
+        description="Have a question or custom design idea? Send an inquiry here or order directly from our pricelist."
       />
 
       <section className="mx-auto max-w-6xl px-4 py-16 relative">
@@ -101,8 +101,7 @@ function ContactPage() {
             <div className="liquid-glass p-6">
               <h2 className="font-display text-2xl font-bold text-lilac-deep">Get in touch</h2>
               <p className="mt-2 text-muted-foreground">
-                For fastest replies, send a DM on Instagram with your reference photo. Email works
-                too — I usually reply within 1–2 business days.
+                For custom bridal or bulk order inquiries, send a message using the form below or email us. We usually reply within 1–2 business days.
               </p>
               <ul className="mt-6 space-y-4">
                 {CONTACT_METHODS.map((method) => (

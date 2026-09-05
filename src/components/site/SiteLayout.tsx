@@ -1,6 +1,6 @@
-import { Link } from "@tanstack/react-router";
-import { ChevronDown, Instagram, Mail, Menu, Sparkles, X } from "lucide-react";
-import { useState, type ReactNode } from "react";
+import { Link, useNavigate } from "@tanstack/react-router";
+import { ChevronDown, Instagram, LogOut, Mail, Menu, Package, ShoppingBag, Sparkles, User as UserIcon, X } from "lucide-react";
+import { useEffect, useState, type ReactNode } from "react";
 
 import {
   DropdownMenu,
@@ -9,6 +9,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import logo from "@/assets/logo.png";
+import { addToCart, getCartCount, parsePrice } from "@/lib/cart";
+import { useAuth } from "@/lib/auth";
 
 import bouquetRose from "@/assets/products/bouquets/product-bouquet-rose.png";
 import bouquetPastel from "@/assets/products/bouquets/product-bouquet-pastel.png";
@@ -24,6 +26,7 @@ const MAIN_NAV = [
   { to: "/dolls", label: "Dolls" },
   { to: "/characters", label: "Characters" },
   { to: "/flowers", label: "Flowers" },
+  { to: "/orders", label: "My Orders" },
 ] as const;
 
 const MORE_NAV = [
@@ -79,9 +82,9 @@ function AnnouncementBar() {
         <span className="skeu-badge">
           ✨ Limited slots
         </span>
-        <span>👑 Custom crochet orders are OPEN! Making time: 1–2 weeks.</span>
+        <span>👑 Online Checkout with Razorpay is OPEN! Custom crochet made to order.</span>
         <Link to="/how-to-order" className="font-semibold underline underline-offset-4 hover:text-white/90 transition-colors">
-          Learn more →
+          How to order →
         </Link>
       </div>
     </div>
@@ -90,28 +93,39 @@ function AnnouncementBar() {
 
 function Header() {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [cartCount, setCartCount] = useState(0);
+  const { user, profile, signOut } = useAuth();
+
+  useEffect(() => {
+    setCartCount(getCartCount());
+    const handler = () => setCartCount(getCartCount());
+    window.addEventListener("cart-updated", handler);
+    return () => window.removeEventListener("cart-updated", handler);
+  }, []);
 
   return (
     <header className="sticky top-0 z-40">
       <div className="glass border-x-0 border-t-0">
-        <div className="mx-auto flex max-w-6xl items-center gap-4 px-4 py-3">
-          <Link to="/" className="group flex items-center gap-3">
+        <div className="mx-auto flex max-w-6xl items-center gap-3 px-4 py-3">
+          <Link to="/" className="group flex items-center gap-2.5">
             <span className="clay-soft rounded-full p-1 transition-transform duration-500 group-hover:scale-105">
               <img
                 src={logo}
                 alt="Inventive Queen logo"
                 width={48}
                 height={48}
-                className="size-11 rounded-full object-cover transition-transform duration-500 group-hover:rotate-6"
+                className="size-10 sm:size-11 rounded-full object-cover transition-transform duration-500 group-hover:rotate-6"
               />
             </span>
-            <span className="sheen-text font-display text-lg font-bold sm:text-xl">
+            <span className="sheen-text font-display text-base font-bold sm:text-xl">
               Inventive Queen
             </span>
           </Link>
-          <span className="liquid-glass hidden items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold text-lilac-deep sm:inline-flex">
-            <span className="size-2 animate-pulse rounded-full bg-lilac-deep" /> Orders OPEN
+
+          <span className="liquid-glass hidden items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold text-lilac-deep md:inline-flex">
+            <span className="size-2 animate-pulse rounded-full bg-emerald-500" /> Online Store
           </span>
+
           <nav className="ml-auto hidden items-center gap-1 lg:flex">
             {MAIN_NAV.map((item) => (
               <Link
@@ -119,44 +133,89 @@ function Header() {
                 to={item.to}
                 activeOptions={{ exact: item.to === "/" }}
                 activeProps={{ className: "glass text-lilac-deep" }}
-                className="rounded-full px-4 py-2 text-sm font-semibold text-muted-foreground transition-all hover:text-lilac-deep hover:bg-white/30"
+                className="rounded-full px-3.5 py-2 text-sm font-semibold text-muted-foreground transition-all hover:text-lilac-deep hover:bg-white/30"
               >
                 {item.label}
               </Link>
             ))}
             <MoreMenu />
           </nav>
-          <a
-            href={INSTAGRAM_URL}
-            target="_blank"
-            rel="noreferrer"
-            className="clay-primary liquid-btn ml-auto inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-bold lg:ml-0"
-          >
-            <Instagram className="size-4" /> Order
-          </a>
-          {/* Mobile menu toggle */}
-          <button
-            onClick={() => setMobileOpen(!mobileOpen)}
-            className="inline-flex items-center justify-center rounded-full p-2 text-lilac-deep lg:hidden hover:bg-white/30 transition-colors"
-            aria-label="Toggle mobile menu"
-          >
-            {mobileOpen ? <X className="size-5" /> : <Menu className="size-5" />}
-          </button>
+
+          <div className="ml-auto flex items-center gap-2 lg:ml-0">
+            {/* Basket Button */}
+            <Link
+              to="/checkout"
+              className="clay-primary liquid-btn inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs sm:text-sm font-bold shadow-md hover:scale-105 transition-transform"
+            >
+              <ShoppingBag className="size-4" />
+              <span>Basket</span>
+              <span className="flex size-5 items-center justify-center rounded-full bg-white text-xs font-black text-lilac-deep">
+                {cartCount}
+              </span>
+            </Link>
+
+            {/* Auth Button */}
+            {user ? (
+              <div className="flex items-center gap-1.5">
+                <Link
+                  to="/orders"
+                  className="clay hidden items-center gap-1.5 rounded-full px-3 py-2 text-xs font-bold text-lilac-deep sm:inline-flex"
+                  title={user.email ?? "Royal Account"}
+                >
+                  <UserIcon className="size-3.5" />
+                  <span className="max-w-[80px] truncate">{profile?.full_name || user.email?.split("@")[0]}</span>
+                </Link>
+                <button
+                  onClick={() => signOut()}
+                  className="rounded-full p-2 text-muted-foreground hover:bg-rose-50 hover:text-rose-600 transition-colors"
+                  title="Sign Out"
+                >
+                  <LogOut className="size-4" />
+                </button>
+              </div>
+            ) : (
+              <Link
+                to="/login"
+                className="clay hidden items-center gap-1.5 rounded-full px-3.5 py-2 text-xs font-bold text-lilac-deep sm:inline-flex hover:bg-white/40 transition-colors"
+              >
+                <UserIcon className="size-3.5" /> Sign In
+              </Link>
+            )}
+
+            {/* Mobile menu toggle */}
+            <button
+              onClick={() => setMobileOpen(!mobileOpen)}
+              className="inline-flex items-center justify-center rounded-full p-2 text-lilac-deep lg:hidden hover:bg-white/30 transition-colors"
+              aria-label="Toggle mobile menu"
+            >
+              {mobileOpen ? <X className="size-5" /> : <Menu className="size-5" />}
+            </button>
+          </div>
         </div>
+
         {/* Mobile nav */}
-        <nav className={`flex items-center gap-1 overflow-x-auto border-t border-white/40 px-4 py-2 lg:hidden transition-all duration-300 ${mobileOpen ? 'max-h-40 opacity-100' : 'max-h-0 opacity-0 overflow-hidden border-t-0 py-0'}`}>
+        <nav className={`flex items-center gap-1 overflow-x-auto border-t border-white/40 px-4 py-2 lg:hidden transition-all duration-300 ${mobileOpen ? 'max-h-48 opacity-100' : 'max-h-0 opacity-0 overflow-hidden border-t-0 py-0'}`}>
           {MAIN_NAV.map((item) => (
             <Link
               key={item.to}
               to={item.to}
               activeOptions={{ exact: item.to === "/" }}
               activeProps={{ className: "glass text-lilac-deep" }}
-              className="rounded-full px-3 py-1.5 text-sm font-semibold whitespace-nowrap text-muted-foreground"
+              className="rounded-full px-3 py-1.5 text-xs sm:text-sm font-semibold whitespace-nowrap text-muted-foreground"
               onClick={() => setMobileOpen(false)}
             >
               {item.label}
             </Link>
           ))}
+          {!user && (
+            <Link
+              to="/login"
+              className="rounded-full px-3 py-1.5 text-xs sm:text-sm font-semibold whitespace-nowrap text-lilac-deep font-bold"
+              onClick={() => setMobileOpen(false)}
+            >
+              Sign In
+            </Link>
+          )}
           <MoreMenu className="px-3 py-1.5" />
         </nav>
       </div>
@@ -174,11 +233,9 @@ function Footer() {
         </p>
         <div className="grid grid-cols-3 gap-3 sm:grid-cols-6">
           {FOOTER_GALLERY.map((item) => (
-            <a
+            <Link
               key={item.alt}
-              href={INSTAGRAM_URL}
-              target="_blank"
-              rel="noreferrer"
+              to="/dolls"
               className="clay-soft img-hover-zoom group overflow-hidden rounded-2xl p-1"
             >
               <img
@@ -189,7 +246,7 @@ function Footer() {
                 loading="lazy"
                 className="aspect-square w-full rounded-xl object-cover"
               />
-            </a>
+            </Link>
           ))}
         </div>
       </div>
@@ -318,8 +375,35 @@ export function PriceCard({
   image: string;
   badge?: string;
 }) {
+  const navigate = useNavigate();
+  const [added, setAdded] = useState(false);
+  const numPrice = parsePrice(price);
+
+  const handleAddToCart = () => {
+    addToCart({
+      id: name.toLowerCase().replace(/\s+/g, "-"),
+      name,
+      price,
+      numericPrice: numPrice || 999,
+      image,
+    });
+    setAdded(true);
+    setTimeout(() => setAdded(false), 2000);
+  };
+
+  const handleBuyNow = () => {
+    addToCart({
+      id: name.toLowerCase().replace(/\s+/g, "-"),
+      name,
+      price,
+      numericPrice: numPrice || 999,
+      image,
+    });
+    navigate({ to: "/checkout" });
+  };
+
   return (
-    <article className="clay-glow group overflow-hidden img-hover-zoom">
+    <article className="clay-glow group overflow-hidden img-hover-zoom flex flex-col justify-between">
       <div className="relative z-10 p-2.5">
         {badge && (
           <span className="skeu-badge absolute top-5 right-5 z-20">
@@ -337,19 +421,31 @@ export function PriceCard({
         {/* Hover shine overlay */}
         <div className="absolute inset-2.5 rounded-[1.6rem] bg-gradient-to-tr from-transparent via-white/20 to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100 pointer-events-none" />
       </div>
-      <div className="relative z-10 space-y-2 px-6 pb-6">
-        <h3 className="font-display text-xl font-bold text-lilac-deep">{name}</h3>
-        <p className="text-sm text-muted-foreground">{size}</p>
-        <p className="text-lg font-extrabold">{price}</p>
-        {note ? <p className="text-xs text-muted-foreground">{note}</p> : null}
-        <a
-          href={INSTAGRAM_URL}
-          target="_blank"
-          rel="noreferrer"
-          className="inline-flex items-center gap-1.5 pt-2 text-sm font-bold text-primary hover:underline transition-colors"
-        >
-          <Instagram className="size-3.5" /> Order this →
-        </a>
+      <div className="relative z-10 space-y-2.5 px-6 pb-6 flex-1 flex flex-col justify-between">
+        <div>
+          <h3 className="font-display text-xl font-bold text-lilac-deep">{name}</h3>
+          <p className="text-sm text-muted-foreground">{size}</p>
+          <p className="text-lg font-extrabold text-foreground mt-1">{price}</p>
+          {note ? <p className="text-xs text-muted-foreground mt-1">{note}</p> : null}
+        </div>
+
+        <div className="pt-3 flex items-center gap-2">
+          <button
+            onClick={handleBuyNow}
+            className="clay-primary liquid-btn flex-1 rounded-full py-2.5 px-4 text-xs sm:text-sm font-bold shadow-md hover:scale-102 active:scale-95 transition-all text-center"
+          >
+            Buy Now
+          </button>
+          <button
+            onClick={handleAddToCart}
+            className={`clay rounded-full py-2.5 px-3.5 text-xs sm:text-sm font-bold transition-all ${
+              added ? "bg-emerald-100 text-emerald-800 border-emerald-300" : "text-lilac-deep hover:bg-white/40"
+            }`}
+            title="Add to Basket"
+          >
+            {added ? "Added ✓" : "+ Basket"}
+          </button>
+        </div>
       </div>
     </article>
   );
@@ -378,14 +474,12 @@ export function OrderCta({ title, text }: { title: string; text: string }) {
           <h2 className="sheen-text text-3xl font-extrabold">{title}</h2>
           <p className="mt-3 text-muted-foreground">{text}</p>
           <div className="mt-7 flex flex-wrap justify-center gap-3">
-            <a
-              href={INSTAGRAM_URL}
-              target="_blank"
-              rel="noreferrer"
+            <Link
+              to="/checkout"
               className="clay-primary liquid-btn inline-flex items-center gap-2 rounded-full px-6 py-3 font-bold"
             >
-              <Instagram className="size-4" /> Order on Instagram
-            </a>
+              <ShoppingBag className="size-4" /> Go to Checkout
+            </Link>
             <Link
               to="/how-to-order"
               className="clay inline-flex items-center rounded-full px-6 py-3 font-bold text-lilac-deep"

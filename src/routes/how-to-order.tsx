@@ -33,20 +33,20 @@ export const Route = createFileRoute("/how-to-order")({
 
 const STEPS = [
   {
-    title: "Check the pricelist",
-    text: "For dolls, pick the variation you want (mini, regular, seated, chunky). For flowers, choose from the list — if it isn't there, send a photo and I'll see if I can make it. For animals and characters, send a reference picture.",
+    title: "1. Pick Your Crochet Creations",
+    text: "Browse through our Dolls, Characters, and Everlasting Flower pricelists. Click 'Buy Now' or '+ Basket' on any piece to add it to your order with real-time price calculation.",
     icon: "📋",
     image: bouquetRose,
   },
   {
-    title: "Send me a message",
-    text: "Message me with a reference picture of what you'd like made. We'll discuss quantity, design details and the deadline for your order.",
-    icon: "💬",
+    title: "2. Sign In & Enter Delivery Details",
+    text: "Before checking out, log in with your existing account or create a new Royal Account. Then enter your recipient name, 10-digit phone number, street address, and optional gift note.",
+    icon: "👑",
     image: bearKeychain,
   },
   {
-    title: "Confirm and pay",
-    text: "Once we've agreed on everything, you'll fill in the order form I send you. It covers shipping information and payment details.",
+    title: "3. Pay via Razorpay & Track Live",
+    text: "Click 'Pay with Razorpay' for instant 100% secure payment (UPI, Cards, NetBanking). As soon as your order is confirmed, follow its progress live on your 'My Orders' page!",
     icon: "✅",
     image: whiteBear,
   },
@@ -57,18 +57,18 @@ function HowToOrderPage() {
     <SiteLayout>
       <PageHeader
         eyebrow="How to order"
-        title="Ordering is easy"
-        description="Here's the whole process, from picking a design to getting your parcel on its way."
+        title="Direct Online Ordering"
+        description="Place your order online in 3 simple steps, pay securely with Razorpay, and track your parcel live."
       />
 
       <div className="mx-auto max-w-3xl px-4 py-16">
         {/* Status badge */}
         <div className="liquid-glass p-6 text-center pulse-soft">
           <h2 className="font-display text-lg font-bold text-lilac-deep">
-            🟢 Custom orders are currently OPEN!
+            🟢 Online Orders &amp; Razorpay Checkout are LIVE!
           </h2>
           <p className="mt-2 text-sm text-muted-foreground">
-            Now taking custom plushies, character dolls and crochet bouquet orders.
+            Handcrafted amigurumi dolls, plushies and crochet bouquet orders shipped nationwide.
           </p>
         </div>
 
@@ -99,25 +99,23 @@ function HowToOrderPage() {
 
         {/* CTA */}
         <div className="mt-14 text-center">
-          <h2 className="sheen-text text-3xl font-extrabold">Message me to start</h2>
+          <h2 className="sheen-text text-3xl font-extrabold">Ready to Order?</h2>
           <div className="mt-6 flex flex-wrap justify-center gap-3">
-            <a
-              href={INSTAGRAM_URL}
-              target="_blank"
-              rel="noreferrer"
-              className="clay-primary liquid-btn inline-flex items-center gap-2 rounded-full px-6 py-3 font-bold"
+            <Link
+              to="/checkout"
+              className="clay-primary liquid-btn inline-flex items-center gap-2 rounded-full px-7 py-3.5 font-bold shadow-lg"
             >
-              <Instagram className="size-4" /> Order on Instagram
-            </a>
+              Go to Checkout
+            </Link>
             <Link
               to="/dolls"
-              className="clay inline-flex items-center rounded-full px-6 py-3 font-bold text-lilac-deep"
+              className="clay inline-flex items-center rounded-full px-6 py-3.5 font-bold text-lilac-deep hover:bg-white/40"
             >
               Doll pricelist
             </Link>
             <Link
               to="/flowers"
-              className="clay inline-flex items-center rounded-full px-6 py-3 font-bold text-lilac-deep"
+              className="clay inline-flex items-center rounded-full px-6 py-3.5 font-bold text-lilac-deep hover:bg-white/40"
             >
               Flower pricelist
             </Link>

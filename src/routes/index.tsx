@@ -1,7 +1,7 @@
 import { Link, createFileRoute } from "@tanstack/react-router";
 import { Heart, Palette, Play, Quote, Sparkles, Star, Truck } from "lucide-react";
 
-import { INSTAGRAM_URL, SiteLayout } from "@/components/site/SiteLayout";
+import { SiteLayout } from "@/components/site/SiteLayout";
 import logo from "@/assets/logo.png";
 
 /* ─── Real product images ─── */
@@ -383,14 +383,12 @@ function Home() {
           ))}
         </div>
         <div className="mt-10 text-center">
-          <a
-            href={INSTAGRAM_URL}
-            target="_blank"
-            rel="noreferrer"
+          <Link
+            to="/dolls"
             className="clay-primary liquid-btn inline-flex rounded-full px-7 py-3.5 font-bold"
           >
-            See more on Instagram
-          </a>
+            Explore Complete Pricelist &amp; Order
+          </Link>
         </div>
       </section>
 
@@ -439,7 +437,7 @@ function Home() {
         </div>
       </section>
 
-      {/* ═══════ INSTAGRAM GALLERY ═══════ */}
+      {/* ═══════ CREATIONS GALLERY ═══════ */}
       <section className="mx-auto max-w-6xl px-4 py-20">
         <p className="text-center text-xs font-bold tracking-[0.18em] text-primary uppercase">
           <Sparkles className="inline size-3 mr-1" /> Gallery
@@ -449,11 +447,9 @@ function Home() {
         </h2>
         <div className="mt-12 grid grid-cols-2 gap-4 sm:grid-cols-4">
           {INSTAGRAM_GALLERY.map((item) => (
-            <a
+            <Link
               key={item.alt}
-              href={INSTAGRAM_URL}
-              target="_blank"
-              rel="noreferrer"
+              to="/dolls"
               className="liquid-glass img-hover-zoom group overflow-hidden p-1.5 hover-lift"
             >
               <img
@@ -465,9 +461,9 @@ function Home() {
                 className="aspect-square w-full rounded-[1.2rem] object-cover"
               />
               <div className="absolute inset-1.5 rounded-[1.2rem] bg-lilac-deep/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
-                <span className="text-white font-bold text-sm">View on IG →</span>
+                <span className="text-white font-bold text-sm">Shop Creations →</span>
               </div>
-            </a>
+            </Link>
           ))}
         </div>
       </section>
