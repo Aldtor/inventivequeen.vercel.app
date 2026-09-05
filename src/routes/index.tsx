@@ -243,9 +243,15 @@ function Home() {
                 height={900}
                 className="aspect-square w-full rounded-3xl object-cover"
               />
-              <span className="skeu-badge absolute -bottom-4 -left-4 z-20 text-sm px-5 py-2">
-                👑 Made just for you
-              </span>
+              <div className="absolute bottom-5 left-5 z-20 flex items-center gap-2.5 rounded-full border border-white/90 bg-white/90 px-4 py-2 shadow-2xl backdrop-blur-md transition-all duration-300 hover:scale-105 hover:shadow-lilac-deep/20">
+                <span className="flex size-7 items-center justify-center rounded-full bg-gradient-to-br from-amber-100 to-amber-200 text-sm shadow-sm">
+                  👑
+                </span>
+                <span className="font-display text-xs sm:text-sm font-bold tracking-wide text-foreground">
+                  Made just for you
+                </span>
+                <span className="size-2 rounded-full bg-emerald-500 animate-pulse" title="Custom orders open" />
+              </div>
             </div>
             <div className="float-slower relative mt-8 grid grid-cols-4 gap-3">
               {HERO_THUMBNAILS.map((item) => (
