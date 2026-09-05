@@ -6,11 +6,15 @@ import {
   ArrowRight,
   ArrowUp,
   BadgePercent,
+  AlertTriangle,
+  Boxes,
   Calendar,
   CalendarCheck,
   Check,
   CheckCircle2,
+  CheckSquare,
   Clock,
+  Columns,
   Copy,
   Crown,
   Download,
@@ -24,6 +28,8 @@ import {
   HelpCircle,
   ImagePlus,
   IndianRupee,
+  Kanban,
+  List,
   Lock,
   Megaphone,
   MessageCircle,
@@ -38,6 +44,7 @@ import {
   ShieldCheck,
   ShoppingBag,
   Sparkles,
+  Square,
   Star,
   Tag,
   Trash2,
@@ -54,11 +61,14 @@ import { StatCard } from "@/components/admin/StatCard";
 import { RevenueChart } from "@/components/admin/RevenueChart";
 import { OrderStatusChart } from "@/components/admin/OrderStatusChart";
 import { PackingSlipModal } from "@/components/admin/PackingSlipModal";
+import { GiftNotePrintModal } from "@/components/admin/GiftNotePrintModal";
+import { OrderKanbanBoard } from "@/components/admin/OrderKanbanBoard";
 import { ProductPreviewCard } from "@/components/admin/ProductPreviewCard";
 import { useAuth } from "@/lib/auth";
 import { useProducts } from "@/lib/cms-products";
 import { useReviews, type ReviewItem } from "@/lib/cms-reviews";
 import { useCoupons, type Coupon } from "@/lib/cms-coupons";
+import { useInventory, type InventoryItem } from "@/lib/cms-inventory";
 import { categories, type Product, type ProductType } from "@/lib/products";
 import { calculateDiscountPercent, formatPrice, parsePriceValue } from "@/lib/product-display";
 import {
@@ -451,7 +461,7 @@ function AdminPage() {
                         </p>
                       </div>
 
-                      <div className="grid grid-cols-3 gap-2.5 mt-4">
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-4">
                         <button
                           onClick={() => setTab("orders")}
                           className="clay-primary liquid-btn rounded-2xl p-2.5 text-center text-[11px] font-bold shadow-sm"
@@ -465,6 +475,13 @@ function AdminPage() {
                         >
                           <Package className="size-3.5 mx-auto mb-1" />
                           Products CMS
+                        </button>
+                        <button
+                          onClick={() => setTab("inventory")}
+                          className="clay rounded-2xl p-2.5 text-center text-[11px] font-bold text-lilac-deep hover:bg-white/60 shadow-sm"
+                        >
+                          <Boxes className="size-3.5 mx-auto mb-1 text-amber-600" />
+                          Yarn &amp; Supplies
                         </button>
                         <button
                           onClick={() => setTab("reviews")}
@@ -493,6 +510,13 @@ function AdminPage() {
                         >
                           <Megaphone className="size-3.5 mx-auto mb-1 text-sky-600" />
                           Store Banner
+                        </button>
+                        <button
+                          onClick={() => setTab("settings")}
+                          className="clay rounded-2xl p-2.5 text-center text-[11px] font-bold text-lilac-deep hover:bg-white/60 shadow-sm"
+                        >
+                          <Settings className="size-3.5 mx-auto mb-1 text-slate-600" />
+                          Settings
                         </button>
                       </div>
                     </div>
@@ -599,7 +623,10 @@ function AdminPage() {
               {/* ─────── TAB 3: PRODUCTS CMS ─────── */}
               {activeTab === "products" && <ProductsAdminSection />}
 
-              {/* ─────── TAB 4: REVIEWS CMS ─────── */}
+              {/* ─────── TAB 4: YARN & CRAFT SUPPLIES CMS ─────── */}
+              {activeTab === "inventory" && <InventoryAdminSection />}
+
+              {/* ─────── TAB 5: REVIEWS CMS ─────── */}
               {activeTab === "reviews" && <ReviewsAdminSection />}
 
               {/* ─────── TAB 5: COUPONS CMS ─────── */}
@@ -637,8 +664,10 @@ function OrdersAdminSection({
 }) {
   const [filter, setFilter] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState("");
+  const [viewMode, setViewMode] = useState<"list" | "kanban">("list");
   const [courierInputs, setCourierInputs] = useState<Record<string, { courier: string; tracking: string; notes: string }>>({});
   const [selectedPackingOrder, setSelectedPackingOrder] = useState<DbOrder | null>(null);
+  const [selectedGiftNoteOrder, setSelectedGiftNoteOrder] = useState<DbOrder | null>(null);
 
   // Initialize input state for each order from parsed admin_notes
   useEffect(() => {
@@ -689,6 +718,32 @@ function OrdersAdminSection({
         </div>
 
         <div className="flex flex-wrap items-center gap-3">
+          {/* View Mode Toggle */}
+          <div className="flex items-center bg-white/80 p-0.5 rounded-full border border-white/90 shadow-sm text-xs font-bold">
+            <button
+              type="button"
+              onClick={() => setViewMode("list")}
+              className={`px-3 py-1 rounded-full transition-all inline-flex items-center gap-1 ${
+                viewMode === "list"
+                  ? "bg-lilac-deep text-white shadow-sm"
+                  : "text-muted-foreground hover:text-lilac-deep"
+              }`}
+            >
+              <List className="size-3.5" /> List View
+            </button>
+            <button
+              type="button"
+              onClick={() => setViewMode("kanban")}
+              className={`px-3 py-1 rounded-full transition-all inline-flex items-center gap-1 ${
+                viewMode === "kanban"
+                  ? "bg-lilac-deep text-white shadow-sm"
+                  : "text-muted-foreground hover:text-lilac-deep"
+              }`}
+            >
+              <Kanban className="size-3.5" /> Workshop Kanban
+            </button>
+          </div>
+
           {/* Search */}
           <div className="relative">
             <Search className="absolute left-3 top-2.5 size-3.5 text-muted-foreground" />
@@ -728,7 +783,7 @@ function OrdersAdminSection({
         </div>
       </div>
 
-      {/* Orders List */}
+      {/* Orders Content Area */}
       {loading ? (
         <div className="py-16 text-center">
           <RefreshCw className="size-6 animate-spin mx-auto text-lilac-deep mb-2" />
@@ -738,6 +793,13 @@ function OrdersAdminSection({
         <div className="liquid-glass rounded-3xl p-8 text-center text-muted-foreground text-xs">
           No orders match the selected search query or filter.
         </div>
+      ) : viewMode === "kanban" ? (
+        <OrderKanbanBoard
+          orders={filteredOrders}
+          onStatusChange={onStatusChange}
+          onOpenPackingSlip={(order) => setSelectedPackingOrder(order)}
+          onOpenGiftNote={(order) => setSelectedGiftNoteOrder(order)}
+        />
       ) : (
         <div className="space-y-4">
           {filteredOrders.map((order) => {
@@ -819,6 +881,17 @@ function OrdersAdminSection({
                     >
                       <Printer className="size-3.5" /> Packing Slip
                     </button>
+
+                    {/* Wax-Sealed Gift Note Print */}
+                    {order.gift_note && (
+                      <button
+                        onClick={() => setSelectedGiftNoteOrder(order)}
+                        className="clay rounded-full px-3 py-1 text-xs font-bold text-amber-800 bg-amber-50 hover:bg-amber-100 inline-flex items-center gap-1 border border-amber-300 shadow-sm"
+                        title="Print wax-sealed calligraphy gift note"
+                      >
+                        <Gift className="size-3.5 text-amber-700" /> Gift Note
+                      </button>
+                    )}
                   </div>
                 </div>
 
@@ -942,6 +1015,12 @@ function OrdersAdminSection({
         order={selectedPackingOrder}
         onClose={() => setSelectedPackingOrder(null)}
       />
+
+      {/* Calligraphy Gift Note Studio Modal */}
+      <GiftNotePrintModal
+        order={selectedGiftNoteOrder}
+        onClose={() => setSelectedGiftNoteOrder(null)}
+      />
     </div>
   );
 }
@@ -962,6 +1041,7 @@ function ProductsAdminSection() {
   } = useProducts();
 
   const [drafts, setDrafts] = useState<ProductDraft[]>([]);
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [savingId, setSavingId] = useState("");
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
   const [searchTerm, setSearchTerm] = useState("");
@@ -973,6 +1053,77 @@ function ProductsAdminSection() {
 
   const updateDraft = (id: string, patch: Partial<ProductDraft>) => {
     setDrafts((prev) => prev.map((d) => (d.id === id ? { ...d, ...patch } : d)));
+  };
+
+  const toggleSelect = (id: string) => {
+    setSelectedIds((prev) =>
+      prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
+    );
+  };
+
+  const toggleSelectAll = () => {
+    if (selectedIds.length === filteredDrafts.length && filteredDrafts.length > 0) {
+      setSelectedIds([]);
+    } else {
+      setSelectedIds(filteredDrafts.map((d) => d.id));
+    }
+  };
+
+  const handleBulkDiscount = (pct: number) => {
+    if (selectedIds.length === 0) return;
+    setDrafts((prev) =>
+      prev.map((d) => {
+        if (!selectedIds.includes(d.id)) return d;
+        const orig = parsePriceValue(d.originalPrice) || parsePriceValue(d.price) || 1000;
+        const newSell = Math.max(1, Math.round(orig - (orig * pct) / 100));
+        return {
+          ...d,
+          originalPrice: d.originalPrice || d.price,
+          sellingPrice: formatPrice(newSell),
+          price: formatPrice(newSell),
+          discountPercent: String(pct),
+        };
+      })
+    );
+    setStatusMsg(`Applied ${pct}% festive discount to ${selectedIds.length} creations! Click 'Save All Selected' to commit.`);
+    setTimeout(() => setStatusMsg(null), 4000);
+  };
+
+  const handleBulkBadge = (badge: string) => {
+    if (selectedIds.length === 0) return;
+    setDrafts((prev) =>
+      prev.map((d) => (selectedIds.includes(d.id) ? { ...d, badge } : d))
+    );
+    setStatusMsg(`Updated badge to "${badge || "None"}" for ${selectedIds.length} creations!`);
+    setTimeout(() => setStatusMsg(null), 4000);
+  };
+
+  const handleBulkVisibility = (isActive: boolean) => {
+    if (selectedIds.length === 0) return;
+    setDrafts((prev) =>
+      prev.map((d) => (selectedIds.includes(d.id) ? { ...d, isActive } : d))
+    );
+    setStatusMsg(`Marked ${selectedIds.length} creations as ${isActive ? "Active (Storefront Visible)" : "Hidden"}!`);
+    setTimeout(() => setStatusMsg(null), 4000);
+  };
+
+  const handleBulkSave = async () => {
+    if (selectedIds.length === 0) return;
+    setSavingId("bulk");
+    try {
+      const toSave = drafts.filter((d) => selectedIds.includes(d.id));
+      for (const draft of toSave) {
+        const prod = draftToProduct(draft);
+        await saveProduct(prod);
+      }
+      setStatusMsg(`Successfully saved all ${toSave.length} creations to CMS!`);
+      setSelectedIds([]);
+      setTimeout(() => setStatusMsg(null), 4000);
+    } catch (err: any) {
+      alert("Bulk save failed: " + err.message);
+    } finally {
+      setSavingId("");
+    }
   };
 
   const handlePricingChange = (
@@ -1174,6 +1325,25 @@ function ProductsAdminSection() {
             <option value="misc">Bookmarks &amp; Misc</option>
           </select>
 
+          {/* Bulk Selection Toggle */}
+          <button
+            type="button"
+            onClick={toggleSelectAll}
+            className="clay rounded-xl px-3 py-1.5 text-xs font-bold text-lilac-deep hover:bg-white/60 inline-flex items-center gap-1.5 shadow-sm"
+            title="Select all products shown for bulk festive discount or badge assignment"
+          >
+            {selectedIds.length === filteredDrafts.length && filteredDrafts.length > 0 ? (
+              <CheckSquare className="size-3.5 text-lilac-deep" />
+            ) : (
+              <Square className="size-3.5 text-muted-foreground" />
+            )}
+            <span>
+              {selectedIds.length === filteredDrafts.length && filteredDrafts.length > 0
+                ? "Deselect All"
+                : `Select All (${filteredDrafts.length})`}
+            </span>
+          </button>
+
           <button
             onClick={handleAddNewProduct}
             disabled={Boolean(savingId)}
@@ -1209,6 +1379,22 @@ function ProductsAdminSection() {
               {/* Draft Header: ID, Status Badges, Actions */}
               <div className="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-white/50">
                 <div className="flex items-center gap-2.5">
+                  <button
+                    type="button"
+                    onClick={() => toggleSelect(draft.id)}
+                    className={`p-1 rounded-lg transition-colors flex items-center justify-center ${
+                      selectedIds.includes(draft.id)
+                        ? "text-lilac-deep bg-lilac/20"
+                        : "text-muted-foreground hover:text-lilac-deep"
+                    }`}
+                    title={selectedIds.includes(draft.id) ? "Deselect" : "Select for bulk action"}
+                  >
+                    {selectedIds.includes(draft.id) ? (
+                      <CheckSquare className="size-4 text-lilac-deep" />
+                    ) : (
+                      <Square className="size-4 text-muted-foreground" />
+                    )}
+                  </button>
                   <span className="font-mono text-xs font-black bg-white/80 px-2.5 py-1 rounded-lg border border-white/80 text-lilac-deep">
                     {draft.id}
                   </span>
@@ -1483,6 +1669,558 @@ function ProductsAdminSection() {
                 </div>
               </div>
             </article>
+          );
+        })}
+      </div>
+
+      {/* Sticky Floating Bulk Action Bar */}
+      {selectedIds.length > 0 && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 w-[95%] max-w-4xl bg-lilac-deep/95 backdrop-blur-2xl text-white rounded-3xl p-4 shadow-2xl border border-white/20 flex flex-wrap items-center justify-between gap-3 animate-in fade-in slide-in-from-bottom-4 duration-200">
+          <div className="flex items-center gap-2">
+            <span className="bg-white/20 text-white size-7 rounded-full flex items-center justify-center font-black text-xs">
+              {selectedIds.length}
+            </span>
+            <span className="text-xs font-bold">Creations Selected</span>
+            <button
+              type="button"
+              onClick={() => setSelectedIds([])}
+              className="text-[11px] text-white/70 hover:text-white underline ml-1"
+            >
+              Clear
+            </button>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-2">
+            {/* Quick Festive Discount */}
+            <div className="flex items-center gap-1 bg-white/10 rounded-full p-1 text-[11px] font-bold">
+              <span className="px-2 text-white/80">Festive %:</span>
+              <button
+                type="button"
+                onClick={() => handleBulkDiscount(10)}
+                className="bg-white/20 hover:bg-white/30 px-2.5 py-0.5 rounded-full"
+              >
+                10%
+              </button>
+              <button
+                type="button"
+                onClick={() => handleBulkDiscount(15)}
+                className="bg-white/20 hover:bg-white/30 px-2.5 py-0.5 rounded-full"
+              >
+                15%
+              </button>
+              <button
+                type="button"
+                onClick={() => handleBulkDiscount(20)}
+                className="bg-white/20 hover:bg-white/30 px-2.5 py-0.5 rounded-full"
+              >
+                20%
+              </button>
+            </div>
+
+            {/* Quick Badge */}
+            <div className="flex items-center gap-1 bg-white/10 rounded-full p-1 text-[11px] font-bold">
+              <button
+                type="button"
+                onClick={() => handleBulkBadge("⭐ Bestseller")}
+                className="hover:bg-white/20 px-2.5 py-0.5 rounded-full"
+              >
+                ⭐ Bestseller
+              </button>
+              <button
+                type="button"
+                onClick={() => handleBulkBadge("🔥 Limited")}
+                className="hover:bg-white/20 px-2.5 py-0.5 rounded-full"
+              >
+                🔥 Limited
+              </button>
+            </div>
+
+            {/* Visibility */}
+            <div className="flex items-center gap-1 bg-white/10 rounded-full p-1 text-[11px] font-bold">
+              <button
+                type="button"
+                onClick={() => handleBulkVisibility(true)}
+                className="hover:bg-white/20 px-2.5 py-0.5 rounded-full inline-flex items-center gap-1 text-emerald-300"
+              >
+                <Eye className="size-3" /> Show
+              </button>
+              <button
+                type="button"
+                onClick={() => handleBulkVisibility(false)}
+                className="hover:bg-white/20 px-2.5 py-0.5 rounded-full inline-flex items-center gap-1 text-rose-300"
+              >
+                <EyeOff className="size-3" /> Hide
+              </button>
+            </div>
+
+            {/* Save All Selected */}
+            <button
+              type="button"
+              onClick={handleBulkSave}
+              disabled={savingId === "bulk"}
+              className="clay-primary liquid-btn rounded-full px-4 py-1.5 text-xs font-black shadow-lg inline-flex items-center gap-1.5 text-lilac-deep bg-white hover:bg-white/90"
+            >
+              <Save className="size-3.5" />
+              {savingId === "bulk" ? "Saving..." : "Save to CMS"}
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ─────────────────────────────────────────────────────────────
+   YARN & CRAFT SUPPLIES INVENTORY CMS COMPONENT
+   ───────────────────────────────────────────────────────────── */
+function InventoryAdminSection() {
+  const {
+    inventory,
+    lowStockItems,
+    totalValue,
+    adjustQuantity,
+    addItem,
+    deleteItem,
+  } = useInventory();
+
+  const [categoryFilter, setCategoryFilter] = useState<string>("all");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [statusMsg, setStatusMsg] = useState<string | null>(null);
+
+  const [newItem, setNewItem] = useState<{
+    name: string;
+    category: "yarn" | "hardware" | "packaging" | "acc";
+    quantity: number;
+    unit: string;
+    minThreshold: number;
+    colorHex: string;
+    costPerUnit: number;
+    supplier: string;
+  }>({
+    name: "",
+    category: "yarn",
+    quantity: 10,
+    unit: "spools",
+    minThreshold: 4,
+    colorHex: "#7E57C2",
+    costPerUnit: 95,
+    supplier: "",
+  });
+
+  const filteredItems = useMemo(() => {
+    return inventory.filter((item) => {
+      const matchesCat = categoryFilter === "all" || item.category === categoryFilter;
+      const matchesSearch =
+        !searchQuery ||
+        item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (item.supplier && item.supplier.toLowerCase().includes(searchQuery.toLowerCase()));
+      return matchesCat && matchesSearch;
+    });
+  }, [inventory, categoryFilter, searchQuery]);
+
+  const handleCreateItem = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newItem.name.trim()) {
+      alert("Please provide a supply material name.");
+      return;
+    }
+    addItem({
+      name: newItem.name.trim(),
+      category: newItem.category,
+      quantity: Number(newItem.quantity) || 0,
+      unit: newItem.unit.trim() || "pcs",
+      minThreshold: Number(newItem.minThreshold) || 3,
+      colorHex: newItem.category === "yarn" ? newItem.colorHex : undefined,
+      costPerUnit: Number(newItem.costPerUnit) || 0,
+      supplier: newItem.supplier.trim() || undefined,
+    });
+    setStatusMsg(`Added "${newItem.name}" to workshop inventory!`);
+    setShowAddForm(false);
+    setNewItem({
+      name: "",
+      category: "yarn",
+      quantity: 10,
+      unit: "spools",
+      minThreshold: 4,
+      colorHex: "#7E57C2",
+      costPerUnit: 95,
+      supplier: "",
+    });
+    setTimeout(() => setStatusMsg(null), 3000);
+  };
+
+  const getCategoryLabel = (cat: string) => {
+    switch (cat) {
+      case "yarn":
+        return "🧶 Milk Cotton Yarn";
+      case "hardware":
+        return "🔩 Hardware & Eyes";
+      case "packaging":
+        return "📦 Luxury Packaging";
+      case "acc":
+        return "👑 Wax Seals & Acc";
+      default:
+        return cat;
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      {/* Top Banner & Control Bar */}
+      <div className="liquid-glass rounded-3xl p-5 border border-white/60 flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <h2 className="font-display text-xl font-bold text-lilac-deep">Yarn &amp; Craft Supplies CMS</h2>
+          <p className="text-xs text-muted-foreground">
+            Track crochet milk cotton yarn spools, safety eyes, gold clasps, royal wax beads, and packaging materials.
+          </p>
+        </div>
+
+        <div className="flex flex-wrap items-center gap-3">
+          {/* Search */}
+          <div className="relative">
+            <Search className="absolute left-3 top-2.5 size-3.5 text-muted-foreground" />
+            <input
+              type="text"
+              placeholder="Search materials or supplier..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="rounded-xl border border-white/80 bg-white/80 pl-9 pr-3 py-1.5 text-xs outline-none focus:border-lilac-deep"
+            />
+          </div>
+
+          {/* Category Filter */}
+          <select
+            value={categoryFilter}
+            onChange={(e) => setCategoryFilter(e.target.value)}
+            className="rounded-xl border border-white/80 bg-white/80 px-3 py-1.5 text-xs font-bold text-lilac-deep outline-none focus:border-lilac-deep"
+          >
+            <option value="all">All Categories ({inventory.length})</option>
+            <option value="yarn">Yarn Spools</option>
+            <option value="hardware">Hardware &amp; Eyes</option>
+            <option value="packaging">Packaging &amp; Boxes</option>
+            <option value="acc">Wax Seals &amp; Ribbon</option>
+          </select>
+
+          <button
+            onClick={() => setShowAddForm(!showAddForm)}
+            className="clay-primary liquid-btn rounded-full px-4 py-2 text-xs font-bold shadow-md inline-flex items-center gap-1.5"
+          >
+            <Plus className="size-3.5" /> {showAddForm ? "Cancel" : "Add Material"}
+          </button>
+        </div>
+      </div>
+
+      {statusMsg && (
+        <div className="rounded-2xl bg-emerald-50 border border-emerald-200 p-3 text-xs text-emerald-800 font-semibold">
+          {statusMsg}
+        </div>
+      )}
+
+      {/* Workshop Summary Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div className="liquid-glass rounded-3xl p-4 border border-white/60">
+          <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider block">
+            Supply Catalog Items
+          </span>
+          <div className="mt-1 flex items-baseline gap-2">
+            <span className="text-2xl font-black text-lilac-deep font-mono">{inventory.length}</span>
+            <span className="text-xs text-muted-foreground">different materials</span>
+          </div>
+        </div>
+
+        <div className={`liquid-glass rounded-3xl p-4 border ${lowStockItems.length > 0 ? "border-amber-300 bg-amber-50/40" : "border-white/60"}`}>
+          <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider block">
+            Low Stock Alerts
+          </span>
+          <div className="mt-1 flex items-baseline gap-2">
+            <span className={`text-2xl font-black font-mono ${lowStockItems.length > 0 ? "text-amber-600" : "text-emerald-600"}`}>
+              {lowStockItems.length}
+            </span>
+            <span className="text-xs text-muted-foreground">items below threshold</span>
+          </div>
+        </div>
+
+        <div className="liquid-glass rounded-3xl p-4 border border-white/60">
+          <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider block">
+            Material Inventory Value
+          </span>
+          <div className="mt-1 flex items-baseline gap-2">
+            <span className="text-2xl font-black text-foreground font-mono">₹{totalValue.toLocaleString("en-IN")}</span>
+            <span className="text-xs text-muted-foreground">estimated stock worth</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Low Stock Warning Banner */}
+      {lowStockItems.length > 0 && (
+        <div className="rounded-3xl bg-amber-50 border border-amber-300 p-4 text-xs space-y-2">
+          <div className="flex items-center gap-2 font-bold text-amber-900">
+            <AlertTriangle className="size-4 text-amber-600 flex-shrink-0" />
+            <span>Low Stock Warning — {lowStockItems.length} craft materials need reordering soon!</span>
+          </div>
+          <div className="flex flex-wrap gap-2 pt-1">
+            {lowStockItems.map((item) => (
+              <span
+                key={item.id}
+                className="bg-white/80 border border-amber-200 text-amber-900 px-2.5 py-1 rounded-full text-[11px] font-medium inline-flex items-center gap-1.5"
+              >
+                {item.colorHex && (
+                  <span className="size-2 rounded-full ring-1 ring-black/10" style={{ backgroundColor: item.colorHex }} />
+                )}
+                <strong>{item.name}</strong>: only {item.quantity} {item.unit} left (min: {item.minThreshold})
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Add New Material Form */}
+      {showAddForm && (
+        <form
+          onSubmit={handleCreateItem}
+          className="liquid-glass rounded-3xl p-6 border border-white/80 shadow-md space-y-4 animate-in fade-in duration-200"
+        >
+          <div className="flex items-center justify-between pb-3 border-b border-white/60">
+            <h3 className="font-display font-bold text-lilac-deep text-sm">Add Material to Workshop Supplies</h3>
+            <button
+              type="button"
+              onClick={() => setShowAddForm(false)}
+              className="text-xs text-muted-foreground hover:text-lilac-deep"
+            >
+              Cancel
+            </button>
+          </div>
+
+          <div className="grid gap-4 sm:grid-cols-12 text-xs">
+            <div className="sm:col-span-6">
+              <label className="block font-bold text-foreground mb-1">Material Name *</label>
+              <input
+                type="text"
+                required
+                placeholder="e.g. Milk Cotton Yarn — Sky Blue"
+                value={newItem.name}
+                onChange={(e) => setNewItem({ ...newItem, name: e.target.value })}
+                className="w-full rounded-xl border border-white/80 bg-white/90 px-3 py-2 text-xs font-semibold outline-none focus:border-lilac-deep"
+              />
+            </div>
+
+            <div className="sm:col-span-3">
+              <label className="block font-bold text-foreground mb-1">Category</label>
+              <select
+                value={newItem.category}
+                onChange={(e) => setNewItem({ ...newItem, category: e.target.value as any })}
+                className="w-full rounded-xl border border-white/80 bg-white/90 px-3 py-2 text-xs font-bold text-lilac-deep outline-none focus:border-lilac-deep"
+              >
+                <option value="yarn">Yarn Spool</option>
+                <option value="hardware">Hardware &amp; Eyes</option>
+                <option value="packaging">Packaging &amp; Box</option>
+                <option value="acc">Wax Seals &amp; Ribbon</option>
+              </select>
+            </div>
+
+            <div className="sm:col-span-3">
+              <label className="block font-bold text-foreground mb-1">Unit</label>
+              <input
+                type="text"
+                placeholder="spools, pairs, pcs, boxes"
+                value={newItem.unit}
+                onChange={(e) => setNewItem({ ...newItem, unit: e.target.value })}
+                className="w-full rounded-xl border border-white/80 bg-white/90 px-3 py-2 text-xs outline-none focus:border-lilac-deep"
+              />
+            </div>
+
+            <div className="sm:col-span-3">
+              <label className="block font-bold text-foreground mb-1">Current Quantity</label>
+              <input
+                type="number"
+                min="0"
+                value={newItem.quantity}
+                onChange={(e) => setNewItem({ ...newItem, quantity: Number(e.target.value) || 0 })}
+                className="w-full rounded-xl border border-white/80 bg-white/90 px-3 py-2 text-xs font-bold outline-none focus:border-lilac-deep"
+              />
+            </div>
+
+            <div className="sm:col-span-3">
+              <label className="block font-bold text-foreground mb-1">Min. Threshold (Alert)</label>
+              <input
+                type="number"
+                min="1"
+                value={newItem.minThreshold}
+                onChange={(e) => setNewItem({ ...newItem, minThreshold: Number(e.target.value) || 1 })}
+                className="w-full rounded-xl border border-white/80 bg-white/90 px-3 py-2 text-xs outline-none focus:border-lilac-deep"
+              />
+            </div>
+
+            <div className="sm:col-span-3">
+              <label className="block font-bold text-foreground mb-1">Cost Per Unit (₹)</label>
+              <input
+                type="number"
+                min="0"
+                value={newItem.costPerUnit}
+                onChange={(e) => setNewItem({ ...newItem, costPerUnit: Number(e.target.value) || 0 })}
+                className="w-full rounded-xl border border-white/80 bg-white/90 px-3 py-2 text-xs outline-none focus:border-lilac-deep"
+              />
+            </div>
+
+            <div className="sm:col-span-3">
+              <label className="block font-bold text-foreground mb-1">Color (Hex/Swatch)</label>
+              <div className="flex items-center gap-2">
+                <input
+                  type="color"
+                  value={newItem.colorHex}
+                  onChange={(e) => setNewItem({ ...newItem, colorHex: e.target.value })}
+                  className="size-8 rounded-lg cursor-pointer border border-white/80 bg-white"
+                />
+                <input
+                  type="text"
+                  value={newItem.colorHex}
+                  onChange={(e) => setNewItem({ ...newItem, colorHex: e.target.value })}
+                  className="w-full rounded-xl border border-white/80 bg-white/90 px-2 py-2 text-xs font-mono outline-none focus:border-lilac-deep"
+                />
+              </div>
+            </div>
+
+            <div className="sm:col-span-12">
+              <label className="block font-bold text-foreground mb-1">Supplier / Vendor</label>
+              <input
+                type="text"
+                placeholder="e.g. Vardhman Premium, Ganga Soft, CraftSupplies Mumbai"
+                value={newItem.supplier}
+                onChange={(e) => setNewItem({ ...newItem, supplier: e.target.value })}
+                className="w-full rounded-xl border border-white/80 bg-white/90 px-3 py-2 text-xs outline-none focus:border-lilac-deep"
+              />
+            </div>
+          </div>
+
+          <div className="pt-2 flex justify-end gap-2">
+            <button
+              type="button"
+              onClick={() => setShowAddForm(false)}
+              className="clay rounded-full px-4 py-1.5 text-xs font-bold text-muted-foreground hover:bg-white/60"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="clay-primary liquid-btn rounded-full px-5 py-1.5 text-xs font-bold shadow-md"
+            >
+              Save Supply Material
+            </button>
+          </div>
+        </form>
+      )}
+
+      {/* Inventory Items Grid */}
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {filteredItems.map((item) => {
+          const isLow = item.quantity <= item.minThreshold;
+
+          return (
+            <div
+              key={item.id}
+              className={`liquid-glass rounded-3xl p-5 border transition-all shadow-sm space-y-3 ${
+                isLow ? "border-amber-300 bg-amber-50/20" : "border-white/70"
+              }`}
+            >
+              {/* Card Header */}
+              <div className="flex items-start justify-between gap-3">
+                <div className="flex items-center gap-2.5 min-w-0">
+                  {item.colorHex ? (
+                    <span
+                      className="size-5 rounded-full ring-2 ring-white/80 shadow-sm flex-shrink-0"
+                      style={{ backgroundColor: item.colorHex }}
+                    />
+                  ) : (
+                    <div className="size-5 rounded-full bg-lilac/30 flex items-center justify-center flex-shrink-0">
+                      <Boxes className="size-3 text-lilac-deep" />
+                    </div>
+                  )}
+                  <div className="min-w-0">
+                    <h4 className="font-display font-bold text-foreground text-xs truncate" title={item.name}>
+                      {item.name}
+                    </h4>
+                    <span className="text-[10px] text-muted-foreground">
+                      {getCategoryLabel(item.category)}
+                    </span>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (confirm(`Remove "${item.name}" from inventory?`)) {
+                      deleteItem(item.id);
+                    }
+                  }}
+                  className="text-muted-foreground hover:text-rose-600 transition-colors p-1"
+                  title="Delete supply material"
+                >
+                  <Trash2 className="size-3.5" />
+                </button>
+              </div>
+
+              {/* Quantity Counter & Steppers */}
+              <div className="rounded-2xl bg-white/70 p-3 border border-white/80 flex items-center justify-between">
+                <div>
+                  <div className="flex items-baseline gap-1.5">
+                    <span className={`font-mono text-xl font-black ${isLow ? "text-amber-600" : "text-lilac-deep"}`}>
+                      {item.quantity}
+                    </span>
+                    <span className="text-xs font-semibold text-muted-foreground">{item.unit}</span>
+                  </div>
+                  {isLow && (
+                    <span className="text-[10px] font-bold text-amber-700 block">
+                      ⚠️ Low stock (min: {item.minThreshold})
+                    </span>
+                  )}
+                </div>
+
+                {/* Steppers */}
+                <div className="flex items-center gap-1">
+                  <button
+                    type="button"
+                    onClick={() => adjustQuantity(item.id, -5)}
+                    className="clay rounded-lg size-7 text-[11px] font-bold text-muted-foreground hover:bg-white flex items-center justify-center shadow-xs"
+                    title="Subtract 5"
+                  >
+                    -5
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => adjustQuantity(item.id, -1)}
+                    className="clay rounded-lg size-7 text-xs font-bold text-muted-foreground hover:bg-white flex items-center justify-center shadow-xs"
+                    title="Subtract 1"
+                  >
+                    -1
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => adjustQuantity(item.id, 1)}
+                    className="clay rounded-lg size-7 text-xs font-bold text-lilac-deep hover:bg-white flex items-center justify-center shadow-xs"
+                    title="Add 1"
+                  >
+                    +1
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => adjustQuantity(item.id, 5)}
+                    className="clay rounded-lg size-7 text-[11px] font-bold text-lilac-deep hover:bg-white flex items-center justify-center shadow-xs"
+                    title="Add 5"
+                  >
+                    +5
+                  </button>
+                </div>
+              </div>
+
+              {/* Bottom Specs: Supplier & Cost */}
+              <div className="flex items-center justify-between text-[11px] text-muted-foreground pt-1 border-t border-white/50">
+                <span>{item.supplier || "In-house Supply"}</span>
+                <span className="font-semibold text-foreground">
+                  ₹{item.costPerUnit}/{item.unit.replace(/s$/, "")} · Total ₹{(item.quantity * item.costPerUnit).toLocaleString("en-IN")}
+                </span>
+              </div>
+            </div>
           );
         })}
       </div>

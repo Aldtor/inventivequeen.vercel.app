@@ -1,4 +1,5 @@
 import {
+  Boxes,
   ExternalLink,
   LayoutDashboard,
   Megaphone,
@@ -16,6 +17,7 @@ export type AdminTab =
   | "overview"
   | "orders"
   | "products"
+  | "inventory"
   | "reviews"
   | "coupons"
   | "customers"
@@ -31,6 +33,7 @@ const NAV_ITEMS: { id: AdminTab; title: string; icon: any }[] = [
   { id: "overview", title: "Overview", icon: LayoutDashboard },
   { id: "orders", title: "Orders CMS", icon: ShoppingBag },
   { id: "products", title: "Products CMS", icon: Package },
+  { id: "inventory", title: "Yarn & Supplies", icon: Boxes },
   { id: "reviews", title: "Reviews CMS", icon: Star },
   { id: "coupons", title: "Coupons CMS", icon: Tag },
   { id: "customers", title: "Patrons CRM", icon: Users },
