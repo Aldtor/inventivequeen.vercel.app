@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Sparkles, Palette, Crown, MessageCircle, ShoppingBag, ArrowRight, Check, Wand2 } from "lucide-react";
+import { Sparkles, Palette, Crown, ShoppingBag, ArrowRight, Check, Wand2 } from "lucide-react";
 import { toast } from "sonner";
 import { useProducts } from "@/lib/cms-products";
 import { addCartItem } from "@/lib/cart";
@@ -44,13 +44,6 @@ const BespokeStudioPreview = () => {
     });
   };
 
-  const handleWhatsAppConsult = () => {
-    if (!activeProduct) return;
-    const text = encodeURIComponent(
-      `Hello Inventive Queen Atelier! 👑\nI want to order a custom piece:\n- Base: ${activeProduct.name}\n- Theme: ${selectedTheme}\n- Details: ${fullCustomizationText()}\n\nPlease share turnaround and dispatch details!`
-    );
-    window.open(`https://wa.me/?text=${text}`, "_blank");
-  };
 
   if (!activeProduct) return null;
 
@@ -243,24 +236,14 @@ const BespokeStudioPreview = () => {
                   <span>Add Commission to Royal Bag</span>
                 </button>
 
-                <div className="grid grid-cols-2 gap-2">
-                  <button
-                    type="button"
-                    onClick={handleWhatsAppConsult}
-                    className="py-2.5 px-3 rounded-xl border border-emerald-300 bg-emerald-50 hover:bg-emerald-100 text-emerald-950 text-xs font-bold flex items-center justify-center gap-1.5 transition-colors"
-                  >
-                    <MessageCircle size={14} className="text-emerald-600" />
-                    <span>WhatsApp</span>
-                  </button>
-
-                  <Link
-                    to="/custom-orders"
-                    className="py-2.5 px-3 rounded-xl border border-purple-200 bg-purple-50 hover:bg-purple-100 text-purple-950 text-xs font-bold flex items-center justify-center gap-1.5 transition-colors text-center"
-                  >
-                    <span>Full Studio</span>
-                    <ArrowRight size={13} />
-                  </Link>
-                </div>
+                <Link
+                  to="/custom-orders"
+                  className="w-full py-3 px-4 rounded-2xl border border-purple-200 bg-purple-50/70 hover:bg-purple-100 text-purple-950 text-xs font-bold flex items-center justify-center gap-1.5 transition-colors text-center"
+                >
+                  <Wand2 size={14} className="text-purple-600" />
+                  <span>Open Full Custom Studio</span>
+                  <ArrowRight size={13} />
+                </Link>
               </div>
             </div>
           </div>

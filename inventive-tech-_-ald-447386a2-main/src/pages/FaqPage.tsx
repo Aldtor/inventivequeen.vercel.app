@@ -1,6 +1,6 @@
 import { useState, useMemo, useRef, useCallback } from "react";
 import { Link } from "react-router-dom";
-import { Crown, Search, ChevronDown, MessageCircle, ArrowRight, HelpCircle, Sparkles, Palette, Truck, Droplets, CreditCard } from "lucide-react";
+import { Crown, Search, ChevronDown, ArrowRight, HelpCircle, Sparkles, Palette, Truck, Droplets, CreditCard } from "lucide-react";
 import { SiteHeader } from "@/components/SiteHeader";
 import Footer from "@/components/Footer";
 import { FadeIn } from "@/components/motion/FadeIn";
@@ -27,7 +27,7 @@ const faqData = [
   {
     category: "Custom Commissions",
     q: "Can you embroider initials, dates, or names onto the pieces?",
-    a: "Absolutely. We offer hand-embroidered names on amigurumi ears, ribbon tags, baby bootie cuffs, and bouquet wrap bands. Just mention it in the custom notes or on WhatsApp.",
+    a: "Absolutely. We offer hand-embroidered names on amigurumi ears, ribbon tags, baby bootie cuffs, and bouquet wrap bands. Just mention it in the custom notes during checkout or within our Custom Studio.",
   },
   {
     category: "Shipping & Delivery",
@@ -239,21 +239,19 @@ export default function FaqPage() {
               <div className="sparkle-particle bottom-8 left-16" style={{ animationDelay: "1.6s" }} />
 
               <div className="relative z-10">
-                <h3 className="font-display text-xl sm:text-2xl font-bold text-white">Still have questions?</h3>
+                <h3 className="font-display text-xl sm:text-2xl font-bold text-white">Have a unique custom request?</h3>
                 <p className="text-xs sm:text-sm text-purple-200 mt-1.5 leading-relaxed">
-                  Chat directly with our artisan on WhatsApp for immediate help with sizing, colors, and turnaround.
+                  Design your personalized palette, add fairy lights, or specify special embroidery in our interactive atelier studio.
                 </p>
               </div>
-              <a
-                href="https://wa.me/917892305330?text=Hi%20Inventive%20Queen!%20I%20have%20a%20question%20about%20your%20crochet%20pieces."
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 rounded-full bg-white text-emerald-800 hover:bg-emerald-50 px-6 py-3.5 text-xs uppercase tracking-wider font-bold whitespace-nowrap shadow-md hover:shadow-lg transition-all hover:-translate-y-0.5 relative z-10"
+              <Link
+                to="/custom-orders"
+                className="inline-flex items-center gap-2 rounded-full bg-white text-purple-950 hover:bg-purple-50 px-6 py-3.5 text-xs uppercase tracking-wider font-bold whitespace-nowrap shadow-md hover:shadow-lg transition-all hover:-translate-y-0.5 relative z-10"
               >
-                <MessageCircle size={15} className="text-emerald-600" />
-                <span>WhatsApp Chat</span>
+                <Crown size={15} className="text-amber-500" />
+                <span>Open Custom Studio</span>
                 <ArrowRight size={13} />
-              </a>
+              </Link>
             </div>
           </section>
         </FadeIn>

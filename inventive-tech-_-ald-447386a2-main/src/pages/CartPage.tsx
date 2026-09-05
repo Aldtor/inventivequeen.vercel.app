@@ -1,6 +1,6 @@
 import { useMemo, useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Minus, Plus, ShoppingBag, Trash2, Sparkles, ArrowRight, ShieldCheck, Truck, ArrowLeft, Gift, MessageCircle, Heart, Lock } from "lucide-react";
+import { Minus, Plus, ShoppingBag, Trash2, Sparkles, ArrowRight, ShieldCheck, Truck, ArrowLeft, Gift, Heart, Lock } from "lucide-react";
 import { SiteHeader } from "@/components/SiteHeader";
 import Footer from "@/components/Footer";
 import { FadeIn } from "@/components/motion/FadeIn";
@@ -319,20 +319,6 @@ export default function CartPage() {
                       <ArrowRight className="h-4 w-4" />
                     </button>
 
-                    <button
-                      onClick={() => {
-                        const itemsText = items.map((i) => `• ${i.name} (Qty: ${i.quantity}) - ${i.price}${i.color ? ` [${i.color}]` : ""}${i.custom ? ` [${i.custom}]` : ""}`).join("\n");
-                        const finalTotal = subtotal + (giftWrap.enabled ? GIFT_WRAP_PRICE : 0) + (remainingForFreeShipping === 0 ? 0 : 99);
-                        const text = encodeURIComponent(
-                          `Hello Inventive Queen Atelier! 👑\n\nI would like to order my basket:\n${itemsText}\n\n• Items Subtotal: ₹${subtotal.toLocaleString("en-IN")}\n• Gift Packaging: ${giftWrap.enabled ? `Yes (+₹${GIFT_WRAP_PRICE})${giftWrap.note ? ` - Note: "${giftWrap.note}"` : ""}` : "Standard"}\n• Total Amount: ₹${finalTotal.toLocaleString("en-IN")}\n\nPlease confirm order and payment instructions!`
-                        );
-                        window.open(`https://wa.me/917892305330?text=${text}`, "_blank");
-                      }}
-                      className="w-full rounded-full border border-emerald-300 bg-emerald-50 py-3 text-xs font-bold text-emerald-900 hover:bg-emerald-100 transition-all flex items-center justify-center gap-2 hover:-translate-y-0.5"
-                    >
-                      <MessageCircle size={15} className="text-emerald-600" />
-                      <span>Order via WhatsApp Direct</span>
-                    </button>
 
                     <button
                       onClick={() => navigate("/shop")}

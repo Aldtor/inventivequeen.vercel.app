@@ -4,7 +4,6 @@ import { motion, useScroll, useTransform, useSpring } from "framer-motion";
 import {
   ShoppingBag,
   Sparkles,
-  MessageCircle,
   Crown,
   Check,
   ArrowRight,
@@ -779,15 +778,13 @@ export default function CrochetRemixHome() {
                 >
                   Request a custom piece
                 </Link>
-                <a
-                  href="https://wa.me/917892305330?text=Hi%20Inventive%20Queen!%20I%20would%20like%20to%20order%20a%20custom%20crochet%20piece."
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 rounded-full border border-emerald-300 bg-emerald-50 px-6 py-3.5 text-xs uppercase tracking-wider font-bold text-emerald-800 hover:bg-emerald-100 transition-colors shadow-sm"
+                <Link
+                  to="/shop"
+                  className="inline-flex items-center gap-2 rounded-full border border-purple-200 bg-white/80 px-8 py-3.5 text-xs uppercase tracking-wider font-bold text-plum hover:bg-purple-50 transition-colors shadow-sm"
                 >
-                  <MessageCircle className="h-4 w-4 text-emerald-600" />
-                  <span>Chat on WhatsApp (+91 7892305330)</span>
-                </a>
+                  <Sparkles className="h-4 w-4 text-amber-500" />
+                  <span>Explore Atelier Collection</span>
+                </Link>
               </div>
             </div>
           </Reveal>

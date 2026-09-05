@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { ShoppingBag, User, Menu, X, Crown, Sparkles, MessageCircle, Heart, ArrowRight } from "lucide-react";
+import { ShoppingBag, User, Menu, X, Crown, Sparkles, Package, Heart, ArrowRight } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import logo from "@/assets/logo.png";
 import { getCartCount, openCartDrawer, CART_UPDATED_EVENT } from "@/lib/cart";
@@ -149,20 +149,39 @@ export function SiteHeader({ hideBanner = false }: SiteHeaderProps) {
           {/* Right Action Icons & Basket */}
           <div className="flex items-center gap-1.5 sm:gap-2.5">
             {user ? (
-              <Link
-                to="/account"
-                className="hidden sm:inline-flex items-center justify-center h-8 w-8 rounded-full border border-purple-200/80 bg-white/90 text-plum hover:bg-purple-50 transition-colors shadow-xs"
-                title="Your Account"
-              >
-                <User className="h-3.5 w-3.5" />
-              </Link>
+              <div className="hidden sm:flex items-center gap-1.5">
+                <Link
+                  to="/orders"
+                  className="inline-flex items-center gap-1 text-xs font-bold text-plum hover:text-purple-950 px-2.5 py-1.5 rounded-full hover:bg-purple-50 transition-colors border border-purple-200/60 bg-white/70"
+                  title="My Orders & Tracking"
+                >
+                  <Package className="h-3.5 w-3.5 text-purple-700" />
+                  <span>Orders</span>
+                </Link>
+                <Link
+                  to="/account"
+                  className="inline-flex items-center justify-center h-8 w-8 rounded-full border border-purple-200/80 bg-white/90 text-plum hover:bg-purple-50 transition-colors shadow-xs"
+                  title="Your Account"
+                >
+                  <User className="h-3.5 w-3.5" />
+                </Link>
+              </div>
             ) : (
-              <Link
-                to="/login"
-                className="hidden sm:inline-flex text-xs font-bold text-purple-700 hover:text-purple-950 px-2.5 py-1.5 rounded-full hover:bg-purple-50 transition-colors"
-              >
-                Sign In
-              </Link>
+              <div className="hidden sm:flex items-center gap-1.5">
+                <Link
+                  to="/orders"
+                  className="text-xs font-medium text-plum/80 hover:text-purple-950 px-2 py-1.5 rounded-full hover:bg-purple-50 transition-colors"
+                  title="Track Order"
+                >
+                  Track Order
+                </Link>
+                <Link
+                  to="/login"
+                  className="text-xs font-bold text-purple-700 hover:text-purple-950 px-2.5 py-1.5 rounded-full hover:bg-purple-50 transition-colors"
+                >
+                  Sign In
+                </Link>
+              </div>
             )}
 
             {/* Shopping Basket Button */}
@@ -256,8 +275,17 @@ export function SiteHeader({ hideBanner = false }: SiteHeaderProps) {
                   })}
                 </div>
 
-                {/* Account & Policies in drawer */}
+                {/* Account & Orders in drawer */}
                 <div className="pt-4 border-t border-purple-200/60 space-y-2">
+                  <Link
+                    to="/orders"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="flex items-center gap-2.5 px-4 py-2.5 rounded-xl text-xs font-semibold text-plum hover:bg-purple-50 transition-colors"
+                  >
+                    <Package size={15} className="text-purple-600" />
+                    <span>Track Commissions & Orders</span>
+                  </Link>
+
                   {user ? (
                     <Link
                       to="/account"
@@ -282,15 +310,14 @@ export function SiteHeader({ hideBanner = false }: SiteHeaderProps) {
 
               {/* Drawer Bottom Actions */}
               <div className="pt-6 border-t border-purple-200/70 space-y-3">
-                <a
-                  href="https://wa.me/917892305330?text=Hi%20Inventive%20Queen!%20I%20would%20like%20to%20inquire%20about%20a%20crochet%20commission."
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-full bg-emerald-600 text-white text-xs font-bold uppercase tracking-wider hover:bg-emerald-700 transition-colors shadow-md"
+                <Link
+                  to="/orders"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-full btn-gradient text-white text-xs font-bold uppercase tracking-wider shadow-md"
                 >
-                  <MessageCircle size={15} />
-                  <span>WhatsApp Atelier Support</span>
-                </a>
+                  <Package size={15} />
+                  <span>Royal Orders & Live Tracking</span>
+                </Link>
 
                 <div className="text-center">
                   <p className="text-[10px] uppercase tracking-wider text-purple-700 font-bold">100% Milk Cotton Yarn • Made in India</p>

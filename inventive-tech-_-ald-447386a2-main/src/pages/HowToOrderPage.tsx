@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Crown, MessageCircle, CheckCircle2, ArrowRight, Sparkles } from "lucide-react";
+import { Crown, CheckCircle2, ArrowRight, Sparkles } from "lucide-react";
 import { SiteHeader } from "@/components/SiteHeader";
 import Footer from "@/components/Footer";
 import { FadeIn } from "@/components/motion/FadeIn";
@@ -185,7 +185,7 @@ export default function HowToOrderPage() {
                   Ready to start your custom commission?
                 </h2>
                 <p className="mt-3 text-sm sm:text-base text-purple-200 max-w-xl mx-auto leading-relaxed">
-                  Step inside our digital atelier, select your base piece, customize colors, or send your reference photos on WhatsApp.
+                  Step inside our digital atelier, select your base piece, customize colors, and securely place your royal order with live tracking.
                 </p>
                 <div className="mt-8 flex flex-wrap justify-center gap-4">
                   <Link
@@ -195,15 +195,13 @@ export default function HowToOrderPage() {
                     <span>Launch Custom Orders Studio</span>
                     <ArrowRight size={14} />
                   </Link>
-                  <a
-                    href="https://wa.me/917892305330?text=Hi%20Inventive%20Queen!%20I'd%20like%20to%20commission%20a%20custom%20crochet%20piece."
-                    target="_blank"
-                    rel="noopener noreferrer"
+                  <Link
+                    to="/shop"
                     className="rounded-full border border-purple-300 bg-purple-900/40 hover:bg-purple-900/70 px-8 py-3.5 text-xs font-bold uppercase tracking-wider text-white transition-all flex items-center gap-2 hover:-translate-y-0.5"
                   >
-                    <MessageCircle size={14} />
-                    <span>Chat on WhatsApp</span>
-                  </a>
+                    <Sparkles size={14} className="text-amber-300" />
+                    <span>Browse Ready Creations</span>
+                  </Link>
                 </div>
               </div>
             </div>

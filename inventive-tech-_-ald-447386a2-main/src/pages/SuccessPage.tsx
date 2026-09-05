@@ -18,7 +18,7 @@ const confettiColors = [
 export default function SuccessPage() {
   const navigate = useNavigate();
   const [params] = useSearchParams();
-  const orderNumber = params.get("order_number");
+  const orderNumber = params.get("order_number") || params.get("order");
   const paymentId = params.get("payment_id");
 
   return (
@@ -173,7 +173,7 @@ export default function SuccessPage() {
           <p className="flex items-center justify-center gap-1.5 font-semibold text-foreground">
             <Heart size={13} className="text-pink-500 fill-pink-500" /> Handcrafted with royal care in India
           </p>
-          <p>We will keep you updated via WhatsApp on each crafting milestone.</p>
+          <p>We will keep your Royal Orders dashboard updated on each crafting milestone.</p>
         </motion.div>
 
         {/* Action Buttons */}

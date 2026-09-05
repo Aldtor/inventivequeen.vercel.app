@@ -109,9 +109,11 @@ export default function ProductPage() {
     }, 1800);
   };
 
-  const whatsappOrderUrl = `https://wa.me/917892305330?text=${encodeURIComponent(
-    `Hello Inventive Queen Atelier! 👑\n\nI would like to order this handcrafted piece:\n• Piece: ${product.name} (${product.price})\n• Quantity: ${qty}\n• Selected Palette: ${selectedColor}\n• Gift Packaging: ${includeGiftBox ? `Yes (+₹149)${giftBoxNote ? ` - Note: "${giftBoxNote}"` : ""}` : "Standard Atelier Wrap"}\n• Total Amount: ₹${totalItemPrice.toLocaleString("en-IN")}\n\nPlease confirm availability and dispatch schedule!`
-  )}`;
+  const handleBuyNow = () => {
+    if (!product) return;
+    handleAddToCart();
+    navigate("/checkout");
+  };
 
   return (
     <div className="min-h-screen bg-transparent text-[#461c48] font-sans">
@@ -298,17 +300,16 @@ export default function ProductPage() {
                 </button>
               </div>
 
-              {/* WhatsApp Inquiry Button */}
+              {/* Instant Buy CTA */}
               <div className="mt-3">
-                <a
-                  href={whatsappOrderUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-full inline-flex items-center justify-center gap-2 rounded-full border-2 border-emerald-300 hover:border-emerald-500 bg-emerald-50 text-emerald-950 py-3 text-xs sm:text-sm font-bold hover:bg-emerald-100 active:scale-[0.98] transition-all shadow-xs"
+                <button
+                  type="button"
+                  onClick={handleBuyNow}
+                  className="w-full inline-flex items-center justify-center gap-2 rounded-full border-2 border-purple-300 hover:border-purple-600 bg-white hover:bg-purple-50 text-purple-950 py-3 text-xs sm:text-sm font-bold active:scale-[0.98] transition-all shadow-xs"
                 >
-                  <MessageCircle size={16} className="text-emerald-600" />
-                  <span>Chat & Order with Artisan on WhatsApp</span>
-                </a>
+                  <Sparkles size={16} className="text-amber-500" />
+                  <span>Instant Buy · Proceed to Royal Checkout</span>
+                </button>
               </div>
 
               {/* Accordion Tabs for Craft, Care, Shipping */}

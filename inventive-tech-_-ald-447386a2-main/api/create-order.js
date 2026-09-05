@@ -28,11 +28,11 @@ export default async function handler(req, res) {
     return sendJson(res, 405, { error: "Method not allowed" });
   }
 
-  const keyId = process.env.RAZORPAY_KEY_ID;
+  const keyId = process.env.RAZORPAY_KEY_ID || process.env.VITE_RAZORPAY_KEY_ID;
   const keySecret = process.env.RAZORPAY_KEY_SECRET;
 
   if (!keyId || !keySecret) {
-    return sendJson(res, 500, { error: "Razorpay credentials are not configured." });
+    return sendJson(res, 500, { error: "Razorpay credentials are not configured in environment variables." });
   }
 
   const { amount, currency = "INR", receipt } = readBody(req);

@@ -66,7 +66,7 @@ export const policies: Record<PolicySlug, Policy> = {
         heading: "2. Orders",
         body: [
           [
-            "Orders are placed via WhatsApp or through our website.",
+            "Orders are placed securely through our website with instant Razorpay online payment.",
             "Custom orders require confirmation of design details before production begins.",
             "Once a custom order is confirmed and production has started, it cannot be cancelled.",
           ],

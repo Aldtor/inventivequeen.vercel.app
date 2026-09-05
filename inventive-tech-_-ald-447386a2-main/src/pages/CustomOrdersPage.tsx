@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { Clock, MessageCircle, Palette, Package, HelpCircle, ChevronRight, Check, ShoppingBag, ShoppingCart, ChevronDown, Sparkles, Wand2, Crown, ShieldCheck, Heart, Gift } from "lucide-react";
+import { Clock, Palette, Package, HelpCircle, ChevronRight, Check, ShoppingBag, ShoppingCart, ChevronDown, Sparkles, Wand2, Crown, ShieldCheck, Heart, Gift } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { SiteHeader } from "@/components/SiteHeader";
 import Footer from "@/components/Footer";
@@ -36,7 +36,7 @@ const faqs = [
   },
   {
     q: "Can I send reference photos from Pinterest or anime?",
-    a: "Absolutely! Feel free to describe it here and connect with us on WhatsApp or Instagram DM with your photos, character art, or real-life inspiration.",
+    a: "Absolutely! Feel free to describe your idea here with character names, outfit colors, and special elements. We craft bespoke custom pieces based directly on your instructions.",
   },
   {
     q: "How does payment work for custom commissions?",
@@ -147,14 +147,6 @@ const CustomOrdersPage = () => {
     setCartFeedback(`✨ ${selectedProduct.name} (Customized · ₹${calculatedTotal.toLocaleString("en-IN")}) added to your royal basket!`);
     openCartDrawer();
     window.setTimeout(() => setCartFeedback(""), 3000);
-  };
-
-  const handleWhatsAppOrder = () => {
-    if (!selectedProduct) return;
-    const text = encodeURIComponent(
-      `Hello Inventive Queen Atelier! 👑\n\nI would like to commission a bespoke handcrafted piece:\n• Base Design: ${selectedProduct.name} (Base: ${selectedProduct.price})\n• Aesthetic Palette: ${selectedColorTheme}\n• Add-ons:${includeFairyLights ? "\n  - Warm LED Fairy Lights (+₹150)" : ""}${includeGiftCard ? "\n  - Wax-Sealed Handwritten Card (+₹99)" : ""}${includeRush ? "\n  - 48-Hour Priority Rush (+₹250)" : ""}${!includeFairyLights && !includeGiftCard && !includeRush ? " None" : ""}\n• Personal Notes: ${details.trim() || "Standard royal atelier craft"}\n\n• Estimated Total: ₹${calculatedTotal.toLocaleString("en-IN")}\n• Turnaround: ${includeRush ? "48-Hour Express Dispatch" : "3–5 Business Days"}\n\nPlease confirm availability and payment details!`
-    );
-    window.open(`https://wa.me/?text=${text}`, "_blank");
   };
 
   return (
@@ -470,7 +462,7 @@ const CustomOrdersPage = () => {
               )}
 
               {/* Order Actions */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 pt-2 border-t border-purple-100">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 pt-2 border-t border-purple-100">
                 <button
                   type="button"
                   onClick={handleAddToCart}
@@ -481,19 +473,11 @@ const CustomOrdersPage = () => {
                 </button>
                 <button
                   type="button"
-                  onClick={handleWhatsAppOrder}
-                  className="w-full inline-flex items-center justify-center gap-2 rounded-2xl border-2 border-emerald-300 hover:border-emerald-500 bg-emerald-50 text-emerald-950 py-3.5 font-bold hover:bg-emerald-100 active:scale-[0.98] transition-all text-xs sm:text-sm shadow-xs"
-                >
-                  <MessageCircle size={17} className="text-emerald-600" />
-                  <span>WhatsApp Chat</span>
-                </button>
-                <button
-                  type="button"
                   onClick={handleSend}
                   className="w-full inline-flex items-center justify-center gap-2 rounded-2xl btn-gradient text-white py-3.5 font-bold shadow-luxury hover:shadow-luxury-lg active:scale-[0.98] transition-all text-xs sm:text-sm"
                 >
                   <Sparkles size={17} className="text-amber-200" />
-                  <span>Royal Checkout</span>
+                  <span>Royal Checkout · ₹{calculatedTotal.toLocaleString("en-IN")}</span>
                 </button>
               </div>
 

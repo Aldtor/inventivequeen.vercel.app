@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { Link } from "react-router-dom";
-import { Star, ShieldCheck, Heart, Sparkles, Crown, ArrowRight, MessageCircle } from "lucide-react";
+import { Star, ShieldCheck, Heart, Sparkles, Crown, ArrowRight } from "lucide-react";
 import { SiteHeader } from "@/components/SiteHeader";
 import Footer from "@/components/Footer";
 import { FadeIn } from "@/components/motion/FadeIn";
@@ -236,15 +236,13 @@ export default function ReviewsPage() {
                     <Sparkles size={14} className="text-purple-600" />
                     Launch Custom Orders Studio
                   </Link>
-                  <a
-                    href="https://wa.me/917892305330"
-                    target="_blank"
-                    rel="noopener noreferrer"
+                  <Link
+                    to="/shop"
                     className="inline-flex items-center gap-2 rounded-full border border-purple-300 bg-purple-900/40 hover:bg-purple-900/70 px-6 py-3.5 text-xs uppercase tracking-wider font-bold text-white transition-all hover:-translate-y-0.5"
                   >
-                    <MessageCircle size={14} />
-                    <span>Chat on WhatsApp</span>
-                  </a>
+                    <Crown size={14} />
+                    <span>Explore Collection</span>
+                  </Link>
                 </div>
               </div>
             </div>

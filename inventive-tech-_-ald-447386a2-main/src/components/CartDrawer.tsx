@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Minus, Plus, ShoppingBag, Trash2, X, Sparkles, ArrowRight, Gift, MessageCircle } from "lucide-react";
+import { Minus, Plus, ShoppingBag, Trash2, X, Sparkles, ArrowRight, Gift } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   getCartItems,
@@ -288,32 +288,15 @@ export function CartDrawer() {
                       <ArrowRight className="h-3.5 w-3.5" />
                     </button>
 
-                    <div className="grid grid-cols-2 gap-2">
-                      <button
-                        onClick={() => {
-                          const itemsText = items.map((i) => `• ${i.name} (Qty: ${i.quantity}) - ${i.price}${i.color ? ` [${i.color}]` : ""}${i.custom ? ` [${i.custom}]` : ""}`).join("\n");
-                          const finalTotal = subtotal + (giftWrap.enabled ? GIFT_WRAP_PRICE : 0) + (remainingForFreeShipping === 0 ? 0 : 99);
-                          const text = encodeURIComponent(
-                            `Hello Inventive Queen Atelier! 👑\n\nI would like to order my basket:\n${itemsText}\n\n• Subtotal: ₹${subtotal.toLocaleString("en-IN")}\n• Gift Pack: ${giftWrap.enabled ? `Yes (+₹${GIFT_WRAP_PRICE})` : "Standard"}\n• Total Amount: ₹${finalTotal.toLocaleString("en-IN")}\n\nPlease confirm availability and dispatch schedule!`
-                          );
-                          window.open(`https://wa.me/917892305330?text=${text}`, "_blank");
-                        }}
-                        className="w-full rounded-full border border-emerald-300 bg-emerald-50 py-2 text-[11px] font-bold text-emerald-900 hover:bg-emerald-100 transition-colors flex items-center justify-center gap-1.5"
-                      >
-                        <MessageCircle size={13} className="text-emerald-600" />
-                        <span>WhatsApp Order</span>
-                      </button>
-
-                      <button
-                        onClick={() => {
-                          setOpen(false);
-                          navigate("/cart");
-                        }}
-                        className="w-full rounded-full border border-purple-200 bg-purple-50/70 py-2 text-[11px] font-bold text-plum hover:bg-purple-100 transition-colors"
-                      >
-                        View Full Basket
-                      </button>
-                    </div>
+                    <button
+                      onClick={() => {
+                        setOpen(false);
+                        navigate("/cart");
+                      }}
+                      className="w-full rounded-full border border-purple-200 bg-purple-50/70 hover:bg-purple-100 py-2.5 text-xs font-bold text-plum transition-colors text-center"
+                    >
+                      View Full Basket & Order Summary
+                    </button>
                   </div>
                 </footer>
               </>
