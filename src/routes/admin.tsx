@@ -19,6 +19,8 @@ import {
   EyeOff,
   FileSpreadsheet,
   Flame,
+  Gift,
+  Heart,
   HelpCircle,
   ImagePlus,
   IndianRupee,
@@ -26,6 +28,7 @@ import {
   Megaphone,
   MessageCircle,
   Package,
+  Percent,
   Plus,
   Printer,
   RefreshCw,
@@ -35,12 +38,15 @@ import {
   ShieldCheck,
   ShoppingBag,
   Sparkles,
+  Star,
   Tag,
   Trash2,
   Truck,
   Unlock,
   Upload,
   User as UserIcon,
+  UserCheck,
+  Users,
   X,
 } from "lucide-react";
 import { AdminSidebar, type AdminTab } from "@/components/admin/AdminSidebar";
@@ -51,6 +57,8 @@ import { PackingSlipModal } from "@/components/admin/PackingSlipModal";
 import { ProductPreviewCard } from "@/components/admin/ProductPreviewCard";
 import { useAuth } from "@/lib/auth";
 import { useProducts } from "@/lib/cms-products";
+import { useReviews, type ReviewItem } from "@/lib/cms-reviews";
+import { useCoupons, type Coupon } from "@/lib/cms-coupons";
 import { categories, type Product, type ProductType } from "@/lib/products";
 import { calculateDiscountPercent, formatPrice, parsePriceValue } from "@/lib/product-display";
 import {
@@ -443,26 +451,47 @@ function AdminPage() {
                         </p>
                       </div>
 
-                      <div className="grid grid-cols-3 gap-2.5 mt-5">
+                      <div className="grid grid-cols-3 gap-2.5 mt-4">
                         <button
                           onClick={() => setTab("orders")}
-                          className="clay-primary liquid-btn rounded-2xl p-3 text-center text-xs font-bold shadow-sm"
+                          className="clay-primary liquid-btn rounded-2xl p-2.5 text-center text-[11px] font-bold shadow-sm"
                         >
-                          <ShoppingBag className="size-4 mx-auto mb-1" />
+                          <ShoppingBag className="size-3.5 mx-auto mb-1" />
                           Orders ({orders.length})
                         </button>
                         <button
                           onClick={() => setTab("products")}
-                          className="clay rounded-2xl p-3 text-center text-xs font-bold text-lilac-deep hover:bg-white/60 shadow-sm"
+                          className="clay rounded-2xl p-2.5 text-center text-[11px] font-bold text-lilac-deep hover:bg-white/60 shadow-sm"
                         >
-                          <Package className="size-4 mx-auto mb-1" />
+                          <Package className="size-3.5 mx-auto mb-1" />
                           Products CMS
                         </button>
                         <button
-                          onClick={() => setTab("store")}
-                          className="clay rounded-2xl p-3 text-center text-xs font-bold text-lilac-deep hover:bg-white/60 shadow-sm"
+                          onClick={() => setTab("reviews")}
+                          className="clay rounded-2xl p-2.5 text-center text-[11px] font-bold text-lilac-deep hover:bg-white/60 shadow-sm"
                         >
-                          <Megaphone className="size-4 mx-auto mb-1" />
+                          <Star className="size-3.5 mx-auto mb-1 text-amber-500" />
+                          Reviews CMS
+                        </button>
+                        <button
+                          onClick={() => setTab("coupons")}
+                          className="clay rounded-2xl p-2.5 text-center text-[11px] font-bold text-lilac-deep hover:bg-white/60 shadow-sm"
+                        >
+                          <Tag className="size-3.5 mx-auto mb-1 text-emerald-600" />
+                          Coupons CMS
+                        </button>
+                        <button
+                          onClick={() => setTab("customers")}
+                          className="clay rounded-2xl p-2.5 text-center text-[11px] font-bold text-lilac-deep hover:bg-white/60 shadow-sm"
+                        >
+                          <Users className="size-3.5 mx-auto mb-1 text-purple-600" />
+                          Patrons CRM
+                        </button>
+                        <button
+                          onClick={() => setTab("store")}
+                          className="clay rounded-2xl p-2.5 text-center text-[11px] font-bold text-lilac-deep hover:bg-white/60 shadow-sm"
+                        >
+                          <Megaphone className="size-3.5 mx-auto mb-1 text-sky-600" />
                           Store Banner
                         </button>
                       </div>
@@ -570,10 +599,19 @@ function AdminPage() {
               {/* ─────── TAB 3: PRODUCTS CMS ─────── */}
               {activeTab === "products" && <ProductsAdminSection />}
 
-              {/* ─────── TAB 4: STORE & ANNOUNCEMENT CMS ─────── */}
+              {/* ─────── TAB 4: REVIEWS CMS ─────── */}
+              {activeTab === "reviews" && <ReviewsAdminSection />}
+
+              {/* ─────── TAB 5: COUPONS CMS ─────── */}
+              {activeTab === "coupons" && <CouponsAdminSection />}
+
+              {/* ─────── TAB 6: PATRONS CRM ─────── */}
+              {activeTab === "customers" && <CustomersAdminSection orders={orders} />}
+
+              {/* ─────── TAB 7: STORE & ANNOUNCEMENT CMS ─────── */}
               {activeTab === "store" && <StoreSettingsAdminSection />}
 
-              {/* ─────── TAB 5: SETTINGS ─────── */}
+              {/* ─────── TAB 8: SETTINGS ─────── */}
               {activeTab === "settings" && <SettingsAdminSection userEmail={user.email} />}
             </>
           )}
@@ -1448,6 +1486,860 @@ function ProductsAdminSection() {
           );
         })}
       </div>
+    </div>
+  );
+}
+
+/* ─────────────────────────────────────────────────────────────
+   REVIEWS & STORIES CMS COMPONENT
+   ───────────────────────────────────────────────────────────── */
+function ReviewsAdminSection() {
+  const { reviews, addReview, updateReview, deleteReview, resetReviews } = useReviews();
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [filterCategory, setFilterCategory] = useState("all");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [notice, setNotice] = useState<string | null>(null);
+
+  const [newReview, setNewReview] = useState({
+    handle: "",
+    location: "",
+    item: "",
+    category: "doll" as const,
+    rating: 5,
+    tag: "Verified Order",
+    text: "",
+    isApproved: true,
+    isFeatured: true,
+  });
+
+  const filtered = useMemo(() => {
+    return reviews.filter((r) => {
+      const matchCat = filterCategory === "all" || r.category === filterCategory;
+      const matchSearch =
+        !searchQuery ||
+        r.handle.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        r.location.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        r.item.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        r.text.toLowerCase().includes(searchQuery.toLowerCase());
+      return matchCat && matchSearch;
+    });
+  }, [reviews, filterCategory, searchQuery]);
+
+  const avgRating = useMemo(() => {
+    if (reviews.length === 0) return 5;
+    const total = reviews.reduce((sum, r) => sum + r.rating, 0);
+    return (total / reviews.length).toFixed(2);
+  }, [reviews]);
+
+  const handleAddSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newReview.handle.trim() || !newReview.text.trim()) {
+      alert("Please provide at least a customer handle and review text.");
+      return;
+    }
+
+    addReview({
+      handle: newReview.handle.startsWith("@") ? newReview.handle.trim() : `@${newReview.handle.trim()}`,
+      location: newReview.location.trim() || "India",
+      item: newReview.item.trim() || "Handcrafted Crochet",
+      category: newReview.category,
+      rating: newReview.rating,
+      tag: newReview.tag.trim() || "Verified Order",
+      text: newReview.text.trim(),
+      date: "Just now",
+      isApproved: newReview.isApproved,
+      isFeatured: newReview.isFeatured,
+    });
+
+    setNewReview({
+      handle: "",
+      location: "",
+      item: "",
+      category: "doll",
+      rating: 5,
+      tag: "Verified Order",
+      text: "",
+      isApproved: true,
+      isFeatured: true,
+    });
+    setShowAddForm(false);
+    setNotice("New review published! It now reflects live on the /reviews page.");
+    setTimeout(() => setNotice(null), 3500);
+  };
+
+  return (
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="liquid-glass rounded-3xl p-5 border border-white/60 flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <h2 className="font-display text-xl font-bold text-lilac-deep">
+            Customer Reviews &amp; Stories CMS
+          </h2>
+          <p className="text-xs text-muted-foreground">
+            Manage customer unboxing stories, feedback, and star testimonials displayed on the public Reviews page.
+          </p>
+        </div>
+
+        <div className="flex flex-wrap items-center gap-3">
+          <div className="relative">
+            <Search className="absolute left-3 top-2.5 size-3.5 text-muted-foreground" />
+            <input
+              type="text"
+              placeholder="Search reviews..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="rounded-xl border border-white/80 bg-white/80 pl-9 pr-3 py-1.5 text-xs outline-none focus:border-lilac-deep"
+            />
+          </div>
+
+          <select
+            value={filterCategory}
+            onChange={(e) => setFilterCategory(e.target.value)}
+            className="rounded-xl border border-white/80 bg-white/80 px-3 py-1.5 text-xs font-bold text-lilac-deep outline-none focus:border-lilac-deep"
+          >
+            <option value="all">All Categories ({reviews.length})</option>
+            <option value="doll">Dolls</option>
+            <option value="bouquet">Bouquets &amp; Flowers</option>
+            <option value="plushie">Plushies</option>
+            <option value="keychain">Keychains</option>
+            <option value="misc">Bookmarks &amp; Misc</option>
+          </select>
+
+          <button
+            onClick={() => setShowAddForm(!showAddForm)}
+            className="clay-primary liquid-btn rounded-full px-4 py-2 text-xs font-bold shadow-md inline-flex items-center gap-1.5"
+          >
+            <Plus className="size-3.5" /> {showAddForm ? "Close Form" : "Add Review"}
+          </button>
+        </div>
+      </div>
+
+      {notice && (
+        <div className="rounded-2xl bg-emerald-50 border border-emerald-200 p-3 text-xs text-emerald-800 font-semibold flex items-center justify-between">
+          <span>✨ {notice}</span>
+          <button onClick={() => setNotice(null)} className="text-emerald-700">
+            <X className="size-4" />
+          </button>
+        </div>
+      )}
+
+      {/* Stats row */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+        <div className="liquid-glass rounded-2xl p-4 border border-white/60 text-center">
+          <span className="font-display text-2xl font-black text-lilac-deep">{reviews.length}</span>
+          <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mt-0.5">
+            Total Reviews
+          </p>
+        </div>
+        <div className="liquid-glass rounded-2xl p-4 border border-white/60 text-center">
+          <span className="font-display text-2xl font-black text-amber-500 flex items-center justify-center gap-1">
+            {avgRating} <Star className="size-4 fill-amber-400 text-amber-400" />
+          </span>
+          <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mt-0.5">
+            Average Rating
+          </p>
+        </div>
+        <div className="liquid-glass rounded-2xl p-4 border border-white/60 text-center">
+          <span className="font-display text-2xl font-black text-emerald-600">
+            {reviews.filter((r) => r.isApproved).length}
+          </span>
+          <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mt-0.5">
+            Live / Approved
+          </p>
+        </div>
+        <div className="liquid-glass rounded-2xl p-4 border border-white/60 text-center">
+          <span className="font-display text-2xl font-black text-purple-600">
+            {reviews.filter((r) => r.isFeatured).length}
+          </span>
+          <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mt-0.5">
+            Featured Reviews
+          </p>
+        </div>
+      </div>
+
+      {/* Add Review Form */}
+      {showAddForm && (
+        <form
+          onSubmit={handleAddSubmit}
+          className="liquid-glass rounded-3xl p-6 border border-white/70 shadow-md space-y-4 text-xs animate-in fade-in"
+        >
+          <div className="flex items-center justify-between pb-3 border-b border-white/50">
+            <h3 className="font-display text-sm font-bold text-lilac-deep">
+              Add Customer Testimonial / Story
+            </h3>
+            <span className="text-[11px] text-muted-foreground">Will appear on /reviews</span>
+          </div>
+
+          <div className="grid gap-4 sm:grid-cols-12">
+            <div className="sm:col-span-4">
+              <label className="block font-bold text-foreground mb-1">Customer Handle / Name *</label>
+              <input
+                type="text"
+                required
+                placeholder="e.g. @ananya_r or Ananya Sharma"
+                value={newReview.handle}
+                onChange={(e) => setNewReview({ ...newReview, handle: e.target.value })}
+                className="w-full rounded-xl border border-white/80 bg-white/90 px-3 py-2 outline-none focus:border-lilac-deep font-medium"
+              />
+            </div>
+
+            <div className="sm:col-span-4">
+              <label className="block font-bold text-foreground mb-1">Location / City</label>
+              <input
+                type="text"
+                placeholder="e.g. Mumbai, Bengaluru, Delhi"
+                value={newReview.location}
+                onChange={(e) => setNewReview({ ...newReview, location: e.target.value })}
+                className="w-full rounded-xl border border-white/80 bg-white/90 px-3 py-2 outline-none focus:border-lilac-deep"
+              />
+            </div>
+
+            <div className="sm:col-span-4">
+              <label className="block font-bold text-foreground mb-1">Product Purchased</label>
+              <input
+                type="text"
+                placeholder="e.g. Custom Anime Doll, Pastel Bouquet"
+                value={newReview.item}
+                onChange={(e) => setNewReview({ ...newReview, item: e.target.value })}
+                className="w-full rounded-xl border border-white/80 bg-white/90 px-3 py-2 outline-none focus:border-lilac-deep font-medium"
+              />
+            </div>
+
+            <div className="sm:col-span-4">
+              <label className="block font-bold text-foreground mb-1">Category</label>
+              <select
+                value={newReview.category}
+                onChange={(e) => setNewReview({ ...newReview, category: e.target.value as any })}
+                className="w-full rounded-xl border border-white/80 bg-white/90 px-3 py-2 text-lilac-deep font-bold outline-none focus:border-lilac-deep"
+              >
+                <option value="doll">Doll</option>
+                <option value="bouquet">Bouquet</option>
+                <option value="plushie">Plushie</option>
+                <option value="keychain">Keychain</option>
+                <option value="misc">Bookmark / Misc</option>
+              </select>
+            </div>
+
+            <div className="sm:col-span-4">
+              <label className="block font-bold text-foreground mb-1">Rating (1 to 5 Stars)</label>
+              <div className="flex items-center gap-1.5 pt-1">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <button
+                    key={star}
+                    type="button"
+                    onClick={() => setNewReview({ ...newReview, rating: star })}
+                    className="p-1 hover:scale-110 transition-transform"
+                  >
+                    <Star
+                      className={`size-5 ${
+                        star <= newReview.rating
+                          ? "fill-amber-400 text-amber-400"
+                          : "text-slate-300 fill-slate-100"
+                      }`}
+                    />
+                  </button>
+                ))}
+                <span className="ml-2 font-bold text-foreground">{newReview.rating} Stars</span>
+              </div>
+            </div>
+
+            <div className="sm:col-span-4">
+              <label className="block font-bold text-foreground mb-1">Badge Tag</label>
+              <input
+                type="text"
+                value={newReview.tag}
+                onChange={(e) => setNewReview({ ...newReview, tag: e.target.value })}
+                className="w-full rounded-xl border border-white/80 bg-white/90 px-3 py-2 outline-none focus:border-lilac-deep"
+              />
+            </div>
+
+            <div className="sm:col-span-12">
+              <label className="block font-bold text-foreground mb-1">Review Experience &amp; Feedback *</label>
+              <textarea
+                rows={3}
+                required
+                placeholder="Share what the customer loved about the custom stitching, packaging, or recipient's reaction..."
+                value={newReview.text}
+                onChange={(e) => setNewReview({ ...newReview, text: e.target.value })}
+                className="w-full rounded-xl border border-white/80 bg-white/90 p-3 leading-relaxed outline-none focus:border-lilac-deep"
+              />
+            </div>
+          </div>
+
+          <div className="flex justify-end gap-2.5 pt-2">
+            <button
+              type="button"
+              onClick={() => setShowAddForm(false)}
+              className="clay rounded-full px-4 py-2 text-xs font-bold text-muted-foreground hover:text-foreground"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="clay-primary liquid-btn rounded-full px-6 py-2 text-xs font-bold shadow-md"
+            >
+              Publish Customer Review
+            </button>
+          </div>
+        </form>
+      )}
+
+      {/* Reviews Cards List */}
+      <div className="grid gap-4 sm:grid-cols-2">
+        {filtered.map((rev) => (
+          <div
+            key={rev.id}
+            className={`liquid-glass rounded-3xl p-5 border transition-all flex flex-col justify-between space-y-3 ${
+              rev.isApproved ? "border-white/70" : "border-slate-300 opacity-70 bg-slate-50/50"
+            }`}
+          >
+            <div>
+              <div className="flex items-center justify-between gap-2 pb-2.5 border-b border-white/40">
+                <div className="flex items-center gap-2">
+                  <div className="flex text-amber-400">
+                    {Array.from({ length: rev.rating }).map((_, i) => (
+                      <Star key={i} className="size-3.5 fill-amber-400" />
+                    ))}
+                  </div>
+                  <span className="font-bold text-xs text-foreground">{rev.handle}</span>
+                </div>
+                <span className="text-[10px] font-bold text-muted-foreground bg-white/60 px-2 py-0.5 rounded-full">
+                  {rev.location} · {rev.category}
+                </span>
+              </div>
+
+              <div className="mt-2.5">
+                <span className="font-bold text-[11px] text-lilac-deep block mb-1">
+                  Ordered: {rev.item}
+                </span>
+                <p className="text-xs text-foreground/90 italic leading-relaxed">
+                  "{rev.text}"
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-between pt-3 border-t border-white/40 text-[11px]">
+              <span className="text-muted-foreground">{rev.date || "Verified patron"}</span>
+
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => updateReview(rev.id, { isApproved: !rev.isApproved })}
+                  className={`px-2.5 py-0.5 rounded-full font-bold text-[10px] transition-all ${
+                    rev.isApproved
+                      ? "bg-emerald-100 text-emerald-800"
+                      : "bg-slate-200 text-slate-700"
+                  }`}
+                >
+                  {rev.isApproved ? "Live" : "Hidden"}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => updateReview(rev.id, { isFeatured: !rev.isFeatured })}
+                  className={`px-2.5 py-0.5 rounded-full font-bold text-[10px] transition-all ${
+                    rev.isFeatured
+                      ? "bg-purple-100 text-purple-800"
+                      : "bg-white/80 text-muted-foreground"
+                  }`}
+                >
+                  {rev.isFeatured ? "⭐ Featured" : "Standard"}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (confirm(`Delete review from ${rev.handle}?`)) deleteReview(rev.id);
+                  }}
+                  className="p-1 text-rose-500 hover:text-rose-700 hover:bg-rose-50 rounded-full"
+                  title="Delete review"
+                >
+                  <Trash2 className="size-3.5" />
+                </button>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/* ─────────────────────────────────────────────────────────────
+   COUPONS & PROMOTIONS CMS COMPONENT
+   ───────────────────────────────────────────────────────────── */
+function CouponsAdminSection() {
+  const { coupons, addCoupon, updateCoupon, deleteCoupon, resetCoupons } = useCoupons();
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [code, setCode] = useState("");
+  const [discountType, setDiscountType] = useState<"percentage" | "flat">("percentage");
+  const [discountValue, setDiscountValue] = useState("10");
+  const [minOrderValue, setMinOrderValue] = useState("999");
+  const [description, setDescription] = useState("");
+  const [copiedCode, setCopiedCode] = useState<string | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
+
+  const handleCreateCoupon = (e: React.FormEvent) => {
+    e.preventDefault();
+    const cleanCode = code.trim().toUpperCase();
+    if (!cleanCode) {
+      alert("Please enter a valid coupon code (e.g. ROYAL20).");
+      return;
+    }
+
+    addCoupon({
+      code: cleanCode,
+      discountType,
+      discountValue: Number(discountValue) || 0,
+      minOrderValue: Number(minOrderValue) || 0,
+      description:
+        description.trim() ||
+        `${discountValue}${discountType === "percentage" ? "%" : "₹"} discount on orders above ₹${minOrderValue}`,
+      isActive: true,
+      createdAt: new Date().toISOString(),
+    });
+
+    setCode("");
+    setDescription("");
+    setShowAddForm(false);
+    setNotice(`Coupon code "${cleanCode}" created! Customers can apply it at checkout immediately.`);
+    setTimeout(() => setNotice(null), 3500);
+  };
+
+  const handleCopy = (couponCode: string) => {
+    navigator.clipboard.writeText(couponCode);
+    setCopiedCode(couponCode);
+    setTimeout(() => setCopiedCode(null), 2000);
+  };
+
+  return (
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="liquid-glass rounded-3xl p-5 border border-white/60 flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <h2 className="font-display text-xl font-bold text-lilac-deep">
+            Promotional Coupons &amp; Discounts CMS
+          </h2>
+          <p className="text-xs text-muted-foreground">
+            Create discount codes, set percentage or flat rupee discounts, and define minimum order values for online checkout.
+          </p>
+        </div>
+
+        <div className="flex items-center gap-2.5">
+          <button
+            onClick={() => setShowAddForm(!showAddForm)}
+            className="clay-primary liquid-btn rounded-full px-4 py-2 text-xs font-bold shadow-md inline-flex items-center gap-1.5"
+          >
+            <Plus className="size-3.5" /> {showAddForm ? "Close Form" : "Create Coupon"}
+          </button>
+        </div>
+      </div>
+
+      {notice && (
+        <div className="rounded-2xl bg-emerald-50 border border-emerald-200 p-3 text-xs text-emerald-800 font-semibold flex items-center justify-between">
+          <span>👑 {notice}</span>
+          <button onClick={() => setNotice(null)} className="text-emerald-700">
+            <X className="size-4" />
+          </button>
+        </div>
+      )}
+
+      {/* Add Coupon Form */}
+      {showAddForm && (
+        <form
+          onSubmit={handleCreateCoupon}
+          className="liquid-glass rounded-3xl p-6 border border-white/70 shadow-md space-y-4 text-xs animate-in fade-in"
+        >
+          <div className="pb-3 border-b border-white/50">
+            <h3 className="font-display text-sm font-bold text-lilac-deep">
+              Create New Promotional Code
+            </h3>
+          </div>
+
+          <div className="grid gap-4 sm:grid-cols-12">
+            <div className="sm:col-span-4">
+              <label className="block font-bold text-foreground mb-1">Coupon Code *</label>
+              <input
+                type="text"
+                required
+                placeholder="e.g. ROYAL15"
+                value={code}
+                onChange={(e) => setCode(e.target.value.toUpperCase())}
+                className="w-full rounded-xl border border-white/80 bg-white/90 px-3 py-2 font-mono font-bold uppercase outline-none focus:border-lilac-deep"
+              />
+            </div>
+
+            <div className="sm:col-span-4">
+              <label className="block font-bold text-foreground mb-1">Discount Type</label>
+              <select
+                value={discountType}
+                onChange={(e) => setDiscountType(e.target.value as any)}
+                className="w-full rounded-xl border border-white/80 bg-white/90 px-3 py-2 font-bold text-lilac-deep outline-none focus:border-lilac-deep"
+              >
+                <option value="percentage">Percentage Discount (%)</option>
+                <option value="flat">Flat Rupee Discount (₹)</option>
+              </select>
+            </div>
+
+            <div className="sm:col-span-4">
+              <label className="block font-bold text-foreground mb-1">
+                Discount Value {discountType === "percentage" ? "(%)" : "(₹)"} *
+              </label>
+              <input
+                type="number"
+                required
+                min={1}
+                max={discountType === "percentage" ? 90 : 10000}
+                value={discountValue}
+                onChange={(e) => setDiscountValue(e.target.value)}
+                className="w-full rounded-xl border border-white/80 bg-white/90 px-3 py-2 font-bold outline-none focus:border-lilac-deep"
+              />
+            </div>
+
+            <div className="sm:col-span-4">
+              <label className="block font-bold text-foreground mb-1">
+                Minimum Cart Value (₹)
+              </label>
+              <input
+                type="number"
+                min={0}
+                value={minOrderValue}
+                onChange={(e) => setMinOrderValue(e.target.value)}
+                className="w-full rounded-xl border border-white/80 bg-white/90 px-3 py-2 outline-none focus:border-lilac-deep"
+              />
+            </div>
+
+            <div className="sm:col-span-8">
+              <label className="block font-bold text-foreground mb-1">
+                Description shown to customer
+              </label>
+              <input
+                type="text"
+                placeholder="e.g. 15% off bespoke bouquets on orders above ₹1,499"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                className="w-full rounded-xl border border-white/80 bg-white/90 px-3 py-2 outline-none focus:border-lilac-deep"
+              />
+            </div>
+          </div>
+
+          <div className="flex justify-end gap-2.5 pt-2">
+            <button
+              type="button"
+              onClick={() => setShowAddForm(false)}
+              className="clay rounded-full px-4 py-2 text-xs font-bold text-muted-foreground hover:text-foreground"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="clay-primary liquid-btn rounded-full px-6 py-2 text-xs font-bold shadow-md"
+            >
+              Save &amp; Activate Coupon
+            </button>
+          </div>
+        </form>
+      )}
+
+      {/* Coupons List */}
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {coupons.map((c) => (
+          <div
+            key={c.code}
+            className={`liquid-glass rounded-3xl p-5 border relative overflow-hidden transition-all flex flex-col justify-between space-y-4 ${
+              c.isActive ? "border-white/70 shadow-sm" : "border-slate-300 opacity-60 bg-slate-50/50"
+            }`}
+          >
+            {/* Ticket Notch Aesthetic */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span className="font-mono text-sm font-black bg-lilac-deep text-white px-3 py-1 rounded-xl shadow-sm">
+                    {c.code}
+                  </span>
+                  <button
+                    onClick={() => handleCopy(c.code)}
+                    className="clay rounded-lg p-1 text-muted-foreground hover:text-lilac-deep"
+                    title="Copy code"
+                  >
+                    <Copy className="size-3" />
+                  </button>
+                  {copiedCode === c.code && (
+                    <span className="text-[10px] text-emerald-700 font-bold">Copied!</span>
+                  )}
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => updateCoupon(c.code, { isActive: !c.isActive })}
+                  className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
+                    c.isActive
+                      ? "bg-emerald-100 text-emerald-800"
+                      : "bg-slate-200 text-slate-700"
+                  }`}
+                >
+                  {c.isActive ? "Active" : "Disabled"}
+                </button>
+              </div>
+
+              <div>
+                <span className="font-extrabold text-sm text-foreground block">
+                  {c.discountType === "percentage" ? `${c.discountValue}% OFF` : `₹${c.discountValue} FLAT OFF`}
+                </span>
+                <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">
+                  {c.description}
+                </p>
+              </div>
+
+              <div className="pt-2 text-[11px] text-muted-foreground">
+                Min. Order:{" "}
+                <strong className="text-foreground">
+                  ₹{c.minOrderValue.toLocaleString("en-IN")}
+                </strong>
+              </div>
+            </div>
+
+            <div className="pt-3 border-t border-white/50 flex items-center justify-between text-[11px]">
+              <span className="text-emerald-700 font-semibold flex items-center gap-1">
+                <CheckCircle2 className="size-3" /> Ready at Checkout
+              </span>
+              <button
+                onClick={() => {
+                  if (confirm(`Delete coupon code "${c.code}"?`)) deleteCoupon(c.code);
+                }}
+                className="text-rose-500 hover:text-rose-700 p-1"
+                title="Delete coupon"
+              >
+                <Trash2 className="size-3.5" />
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/* ─────────────────────────────────────────────────────────────
+   CUSTOMERS & PATRONS CRM COMPONENT
+   ───────────────────────────────────────────────────────────── */
+function CustomersAdminSection({ orders }: { orders: DbOrder[] }) {
+  const [search, setSearch] = useState("");
+
+  const patrons = useMemo(() => {
+    const patronMap: Record<
+      string,
+      {
+        name: string;
+        phone: string;
+        totalOrders: number;
+        totalSpent: number;
+        lastOrderDate: string;
+        address: string;
+        pincode: string;
+        recentItems: string[];
+      }
+    > = {};
+
+    orders.forEach((ord) => {
+      const cleanPhone = ord.phone ? ord.phone.replace(/[^\d]/g, "") : "";
+      const key = cleanPhone || ord.customer_name.trim().toLowerCase();
+
+      if (!patronMap[key]) {
+        patronMap[key] = {
+          name: ord.customer_name,
+          phone: ord.phone,
+          totalOrders: 0,
+          totalSpent: 0,
+          lastOrderDate: ord.created_at,
+          address: ord.address,
+          pincode: ord.pincode,
+          recentItems: [],
+        };
+      }
+
+      patronMap[key].totalOrders += 1;
+      patronMap[key].totalSpent += ord.amount_total || 0;
+
+      if (new Date(ord.created_at) > new Date(patronMap[key].lastOrderDate)) {
+        patronMap[key].lastOrderDate = ord.created_at;
+        patronMap[key].address = ord.address;
+        patronMap[key].pincode = ord.pincode;
+      }
+
+      (ord.order_items || []).forEach((item) => {
+        if (!patronMap[key].recentItems.includes(item.product_name)) {
+          patronMap[key].recentItems.push(item.product_name);
+        }
+      });
+    });
+
+    return Object.values(patronMap).sort((a, b) => b.totalSpent - a.totalSpent);
+  }, [orders]);
+
+  const filteredPatrons = useMemo(() => {
+    if (!search) return patrons;
+    const s = search.toLowerCase();
+    return patrons.filter(
+      (p) =>
+        p.name.toLowerCase().includes(s) ||
+        p.phone.includes(s) ||
+        p.address.toLowerCase().includes(s) ||
+        p.pincode.includes(s)
+    );
+  }, [patrons, search]);
+
+  const repeatPatrons = patrons.filter((p) => p.totalOrders > 1);
+  const totalLTV = patrons.reduce((acc, curr) => acc + curr.totalSpent, 0);
+  const avgLTV = patrons.length > 0 ? Math.round(totalLTV / patrons.length) : 0;
+
+  return (
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="liquid-glass rounded-3xl p-5 border border-white/60 flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <h2 className="font-display text-xl font-bold text-lilac-deep">
+            Patrons &amp; Customer CRM
+          </h2>
+          <p className="text-xs text-muted-foreground">
+            Customer profiles aggregated across all workshop orders, with lifetime value and 1-click VIP WhatsApp messaging.
+          </p>
+        </div>
+
+        <div className="relative">
+          <Search className="absolute left-3 top-2.5 size-3.5 text-muted-foreground" />
+          <input
+            type="text"
+            placeholder="Search patron by name, phone, city..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="rounded-xl border border-white/80 bg-white/80 pl-9 pr-3 py-1.5 text-xs outline-none focus:border-lilac-deep"
+          />
+        </div>
+      </div>
+
+      {/* KPI Cards */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+        <div className="liquid-glass rounded-2xl p-4 border border-white/60 text-center">
+          <span className="font-display text-2xl font-black text-lilac-deep">{patrons.length}</span>
+          <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mt-0.5">
+            Unique Patrons
+          </p>
+        </div>
+        <div className="liquid-glass rounded-2xl p-4 border border-white/60 text-center">
+          <span className="font-display text-2xl font-black text-purple-600">
+            {repeatPatrons.length}
+          </span>
+          <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mt-0.5">
+            Repeat Patrons ({patrons.length > 0 ? Math.round((repeatPatrons.length / patrons.length) * 100) : 0}%)
+          </p>
+        </div>
+        <div className="liquid-glass rounded-2xl p-4 border border-white/60 text-center">
+          <span className="font-display text-2xl font-black text-emerald-600">
+            ₹{avgLTV.toLocaleString("en-IN")}
+          </span>
+          <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mt-0.5">
+            Avg Customer LTV
+          </p>
+        </div>
+        <div className="liquid-glass rounded-2xl p-4 border border-white/60 text-center">
+          <span className="font-display text-2xl font-black text-amber-500">
+            {patrons.length > 0 ? `₹${patrons[0].totalSpent.toLocaleString("en-IN")}` : "₹0"}
+          </span>
+          <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mt-0.5">
+            Top Patron Spend
+          </p>
+        </div>
+      </div>
+
+      {/* Patron Directory Cards */}
+      {filteredPatrons.length === 0 ? (
+        <div className="liquid-glass rounded-3xl p-8 text-center text-xs text-muted-foreground">
+          No customer records match your search query.
+        </div>
+      ) : (
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {filteredPatrons.map((patron, i) => {
+            let phoneClean = patron.phone.replace(/[^\d]/g, "");
+            if (phoneClean.length === 10) phoneClean = `91${phoneClean}`;
+
+            const vipMsg = encodeURIComponent(
+              `Hello ${patron.name}! 👑\nThis is Inventive Queen atelier. Thank you for being one of our cherished patrons (${patron.totalOrders} royal orders)! We are handcrafting new seasonal designs and wanted to offer you an exclusive preview.`
+            );
+            const waUrl = `https://wa.me/${phoneClean}?text=${vipMsg}`;
+
+            return (
+              <div
+                key={i}
+                className="liquid-glass rounded-3xl p-5 border border-white/60 shadow-sm flex flex-col justify-between space-y-4 hover:shadow-md transition-all"
+              >
+                <div>
+                  <div className="flex items-center justify-between pb-3 border-b border-white/40">
+                    <div className="flex items-center gap-2.5">
+                      <div className="size-9 rounded-full bg-lilac-deep text-white font-black text-sm flex items-center justify-center shadow-sm">
+                        {patron.name.charAt(0).toUpperCase()}
+                      </div>
+                      <div>
+                        <h4 className="font-bold text-xs text-foreground">{patron.name}</h4>
+                        <p className="text-[10px] text-muted-foreground">+91 {patron.phone}</p>
+                      </div>
+                    </div>
+
+                    {patron.totalOrders > 1 && (
+                      <span className="bg-purple-100 text-purple-800 text-[10px] font-black px-2 py-0.5 rounded-full">
+                        👑 VIP Patron
+                      </span>
+                    )}
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-2 my-3 p-2.5 rounded-2xl bg-white/60 text-xs">
+                    <div>
+                      <span className="text-[10px] text-muted-foreground block">Total Spend</span>
+                      <span className="font-extrabold text-emerald-700">
+                        ₹{patron.totalSpent.toLocaleString("en-IN")}
+                      </span>
+                    </div>
+                    <div>
+                      <span className="text-[10px] text-muted-foreground block">Orders Placed</span>
+                      <span className="font-extrabold text-foreground">
+                        {patron.totalOrders} {patron.totalOrders === 1 ? "order" : "orders"}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="text-[11px] space-y-1 text-muted-foreground">
+                    <p className="line-clamp-2 leading-relaxed">
+                      <strong className="text-foreground">Address:</strong> {patron.address} (PIN:{" "}
+                      {patron.pincode})
+                    </p>
+                    {patron.recentItems.length > 0 && (
+                      <p className="line-clamp-1 pt-1">
+                        <strong className="text-foreground">Creations:</strong>{" "}
+                        {patron.recentItems.join(", ")}
+                      </p>
+                    )}
+                  </div>
+                </div>
+
+                <div className="pt-3 border-t border-white/40 flex items-center justify-between">
+                  <span className="text-[10px] text-muted-foreground">
+                    Last: {new Date(patron.lastOrderDate).toLocaleDateString("en-IN", { month: "short", day: "numeric" })}
+                  </span>
+
+                  <a
+                    href={waUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="clay rounded-full px-3 py-1 text-[11px] font-bold text-emerald-700 hover:bg-emerald-50 inline-flex items-center gap-1 shadow-sm"
+                  >
+                    <MessageCircle className="size-3" /> VIP WhatsApp
+                  </a>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }

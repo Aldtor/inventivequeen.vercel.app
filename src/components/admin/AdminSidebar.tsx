@@ -5,11 +5,22 @@ import {
   Package,
   Settings,
   ShoppingBag,
+  Star,
+  Tag,
+  Users,
 } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import logo from "@/assets/logo.png";
 
-export type AdminTab = "overview" | "orders" | "products" | "store" | "settings";
+export type AdminTab =
+  | "overview"
+  | "orders"
+  | "products"
+  | "reviews"
+  | "coupons"
+  | "customers"
+  | "store"
+  | "settings";
 
 interface AdminSidebarProps {
   activeTab: AdminTab;
@@ -20,6 +31,9 @@ const NAV_ITEMS: { id: AdminTab; title: string; icon: any }[] = [
   { id: "overview", title: "Overview", icon: LayoutDashboard },
   { id: "orders", title: "Orders CMS", icon: ShoppingBag },
   { id: "products", title: "Products CMS", icon: Package },
+  { id: "reviews", title: "Reviews CMS", icon: Star },
+  { id: "coupons", title: "Coupons CMS", icon: Tag },
+  { id: "customers", title: "Patrons CRM", icon: Users },
   { id: "store", title: "Store & Banner", icon: Megaphone },
   { id: "settings", title: "Settings", icon: Settings },
 ];

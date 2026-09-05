@@ -12,14 +12,17 @@ import {
   ShieldCheck,
   ShoppingBag,
   Sparkles,
+  Tag,
   Trash2,
   Truck,
   User as UserIcon,
+  X,
 } from "lucide-react";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { clearCart, getCart, getCartTotal, removeFromCart, updateCartQuantity, type CartItem } from "@/lib/cart";
 import { useAuth } from "@/lib/auth";
 import { supabase } from "@/lib/supabase";
+import { useCoupons, type Coupon } from "@/lib/cms-coupons";
 
 export const Route = createFileRoute("/checkout")({
   component: CheckoutPage,
@@ -77,6 +80,54 @@ function CheckoutPage() {
   // Payment processing
   const [paying, setPaying] = useState(false);
   const [paymentError, setPaymentError] = useState<string | null>(null);
+
+  // Coupon CMS states
+  const { validateAndApply } = useCoupons();
+  const [couponInput, setCouponInput] = useState("");
+  const [appliedCoupon, setAppliedCoupon] = useState<Coupon | null>(null);
+  const [discountAmount, setDiscountAmount] = useState(0);
+  const [couponMessage, setCouponMessage] = useState<string | null>(null);
+  const [couponError, setCouponError] = useState<string | null>(null);
+
+  const payableTotal = Math.max(0, cartTotal - discountAmount);
+
+  // Recalculate coupon discount if cart items change
+  useEffect(() => {
+    if (appliedCoupon) {
+      const result = validateAndApply(appliedCoupon.code, cartTotal);
+      if (result.valid) {
+        setDiscountAmount(result.discountAmount);
+      } else {
+        setAppliedCoupon(null);
+        setDiscountAmount(0);
+        setCouponError(`Coupon removed: ${result.message}`);
+      }
+    }
+  }, [cartTotal]);
+
+  const handleApplyCoupon = (e: React.FormEvent) => {
+    e.preventDefault();
+    setCouponError(null);
+    setCouponMessage(null);
+    if (!couponInput.trim()) return;
+
+    const result = validateAndApply(couponInput, cartTotal);
+    if (result.valid && result.coupon) {
+      setAppliedCoupon(result.coupon);
+      setDiscountAmount(result.discountAmount);
+      setCouponMessage(result.message);
+      setCouponInput("");
+    } else {
+      setCouponError(result.message);
+    }
+  };
+
+  const handleRemoveCoupon = () => {
+    setAppliedCoupon(null);
+    setDiscountAmount(0);
+    setCouponMessage(null);
+    setCouponError(null);
+  };
 
   // Sync cart from LocalStorage
   const refreshCart = () => {
@@ -203,9 +254,10 @@ function CheckoutPage() {
           address: fullAddress,
           pincode: cleanPincode,
           gift_note: giftNote.trim() || null,
+          admin_notes: appliedCoupon ? `Coupon Applied: ${appliedCoupon.code} (-₹${discountAmount})` : null,
           status: "pending",
           payment_status: "pending",
-          amount_total: cartTotal,
+          amount_total: payableTotal,
         })
         .select()
         .single();
@@ -239,7 +291,7 @@ function CheckoutPage() {
 
       const razorpayOptions = {
         key: razorpayKey,
-        amount: Math.round(cartTotal * 100), // in paise
+        amount: Math.round(payableTotal * 100), // in paise
         currency: "INR",
         name: "Inventive Queen",
         description: `Order #${orderNumber} (${cart.length} item${cart.length > 1 ? "s" : ""})`,
@@ -664,12 +716,66 @@ function CheckoutPage() {
                   ))}
                 </div>
 
+                {/* Coupon Code Input */}
+                <div className="mt-4 pt-4 border-t border-white/50">
+                  {appliedCoupon ? (
+                    <div className="flex items-center justify-between rounded-2xl bg-emerald-50 border border-emerald-200 p-2.5 text-xs text-emerald-800">
+                      <div className="flex items-center gap-2">
+                        <Tag className="size-3.5 text-emerald-600" />
+                        <div>
+                          <span className="font-mono font-bold">{appliedCoupon.code}</span> applied
+                          <p className="text-[10px] text-emerald-700">You save ₹{discountAmount.toLocaleString("en-IN")}</p>
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={handleRemoveCoupon}
+                        className="text-emerald-700 hover:text-emerald-900 p-1"
+                        title="Remove coupon"
+                      >
+                        <X className="size-4" />
+                      </button>
+                    </div>
+                  ) : (
+                    <form onSubmit={handleApplyCoupon} className="flex gap-2">
+                      <div className="relative flex-1">
+                        <Tag className="absolute left-2.5 top-2.5 size-3.5 text-muted-foreground" />
+                        <input
+                          type="text"
+                          placeholder="Promo code (e.g. ROYAL10)"
+                          value={couponInput}
+                          onChange={(e) => setCouponInput(e.target.value.toUpperCase())}
+                          className="w-full rounded-xl border border-white/80 bg-white/80 pl-8 pr-2 py-1.5 text-xs font-mono font-bold uppercase outline-none focus:border-lilac-deep"
+                        />
+                      </div>
+                      <button
+                        type="submit"
+                        className="clay rounded-xl px-3 py-1.5 text-xs font-bold text-lilac-deep hover:bg-white/60 shadow-sm"
+                      >
+                        Apply
+                      </button>
+                    </form>
+                  )}
+                  {couponMessage && (
+                    <p className="text-[11px] text-emerald-700 mt-1 font-semibold">{couponMessage}</p>
+                  )}
+                  {couponError && (
+                    <p className="text-[11px] text-rose-600 mt-1 font-semibold">{couponError}</p>
+                  )}
+                </div>
+
                 {/* Price Breakdown */}
                 <div className="mt-4 border-t border-white/50 pt-4 space-y-2 text-sm">
                   <div className="flex justify-between text-muted-foreground">
                     <span>Subtotal</span>
                     <span>₹{cartTotal.toLocaleString("en-IN")}</span>
                   </div>
+                  {discountAmount > 0 && (
+                    <div className="flex justify-between text-emerald-700 font-semibold">
+                      <span>Promo Discount ({appliedCoupon?.code})</span>
+                      <span>-₹{discountAmount.toLocaleString("en-IN")}</span>
+                    </div>
+                  )}
                   <div className="flex justify-between text-muted-foreground">
                     <span>Delivery</span>
                     <span className="font-bold text-emerald-600">FREE</span>
@@ -677,7 +783,7 @@ function CheckoutPage() {
                   <div className="flex justify-between text-base font-extrabold text-foreground pt-2 border-t border-white/50">
                     <span>Grand Total</span>
                     <span className="text-xl text-lilac-deep">
-                      ₹{cartTotal.toLocaleString("en-IN")}
+                      ₹{payableTotal.toLocaleString("en-IN")}
                     </span>
                   </div>
                 </div>
@@ -700,7 +806,7 @@ function CheckoutPage() {
                     <ShieldCheck className="size-5" />
                     {paying
                       ? "Opening Razorpay..."
-                      : `Pay with Razorpay · ₹${cartTotal.toLocaleString("en-IN")}`}
+                      : `Pay with Razorpay · ₹${payableTotal.toLocaleString("en-IN")}`}
                   </button>
 
                   <div className="mt-3 flex items-center justify-center gap-4 text-[11px] text-muted-foreground">

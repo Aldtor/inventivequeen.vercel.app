@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { Crown, Heart, ShieldCheck, Sparkles, Star, Truck } from "lucide-react";
 import { PageHeader, SiteLayout } from "@/components/site/SiteLayout";
+import { useReviews } from "@/lib/cms-reviews";
 
 export const Route = createFileRoute("/reviews")({
   component: ReviewsPage,
@@ -88,10 +89,11 @@ const TESTIMONIALS = [
 
 function ReviewsPage() {
   const [filter, setFilter] = useState<string>("all");
+  const { approvedReviews } = useReviews();
 
   const filtered = filter === "all"
-    ? TESTIMONIALS
-    : TESTIMONIALS.filter((t) => t.category === filter);
+    ? approvedReviews
+    : approvedReviews.filter((t) => t.category === filter);
 
   return (
     <SiteLayout>
