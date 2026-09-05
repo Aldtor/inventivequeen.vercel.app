@@ -10,17 +10,24 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as R404RouteImport } from './routes/404'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as CharactersRouteImport } from './routes/characters'
 import { Route as CheckoutRouteImport } from './routes/checkout'
 import { Route as ContactRouteImport } from './routes/contact'
+import { Route as CookiesRouteImport } from './routes/cookies'
 import { Route as DollsRouteImport } from './routes/dolls'
 import { Route as FaqRouteImport } from './routes/faq'
 import { Route as FlowersRouteImport } from './routes/flowers'
+import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
 import { Route as HowToOrderRouteImport } from './routes/how-to-order'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as OrdersRouteImport } from './routes/orders'
+import { Route as PaymentFailedRouteImport } from './routes/payment-failed'
+import { Route as PrivacyRouteImport } from './routes/privacy'
+import { Route as RefundPolicyRouteImport } from './routes/refund-policy'
+import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as ReviewsRouteImport } from './routes/reviews'
 import { Route as SuccessRouteImport } from './routes/success'
 import { Route as TermsRouteImport } from './routes/terms'
@@ -28,6 +35,11 @@ import { Route as TermsRouteImport } from './routes/terms'
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const R404Route = R404RouteImport.update({
+  id: '/404',
+  path: '/404',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AboutRoute = AboutRouteImport.update({
@@ -55,6 +67,11 @@ const ContactRoute = ContactRouteImport.update({
   path: '/contact',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CookiesRoute = CookiesRouteImport.update({
+  id: '/cookies',
+  path: '/cookies',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DollsRoute = DollsRouteImport.update({
   id: '/dolls',
   path: '/dolls',
@@ -70,6 +87,11 @@ const FlowersRoute = FlowersRouteImport.update({
   path: '/flowers',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ForgotPasswordRoute = ForgotPasswordRouteImport.update({
+  id: '/forgot-password',
+  path: '/forgot-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const HowToOrderRoute = HowToOrderRouteImport.update({
   id: '/how-to-order',
   path: '/how-to-order',
@@ -83,6 +105,26 @@ const LoginRoute = LoginRouteImport.update({
 const OrdersRoute = OrdersRouteImport.update({
   id: '/orders',
   path: '/orders',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PaymentFailedRoute = PaymentFailedRouteImport.update({
+  id: '/payment-failed',
+  path: '/payment-failed',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RefundPolicyRoute = RefundPolicyRouteImport.update({
+  id: '/refund-policy',
+  path: '/refund-policy',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ResetPasswordRoute = ResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ReviewsRoute = ReviewsRouteImport.update({
@@ -103,34 +145,48 @@ const TermsRoute = TermsRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/404': typeof R404Route
   '/about': typeof AboutRoute
   '/admin': typeof AdminRoute
   '/characters': typeof CharactersRoute
   '/checkout': typeof CheckoutRoute
   '/contact': typeof ContactRoute
+  '/cookies': typeof CookiesRoute
   '/dolls': typeof DollsRoute
   '/faq': typeof FaqRoute
   '/flowers': typeof FlowersRoute
+  '/forgot-password': typeof ForgotPasswordRoute
   '/how-to-order': typeof HowToOrderRoute
   '/login': typeof LoginRoute
   '/orders': typeof OrdersRoute
+  '/payment-failed': typeof PaymentFailedRoute
+  '/privacy': typeof PrivacyRoute
+  '/refund-policy': typeof RefundPolicyRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/reviews': typeof ReviewsRoute
   '/success': typeof SuccessRoute
   '/terms': typeof TermsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/404': typeof R404Route
   '/about': typeof AboutRoute
   '/admin': typeof AdminRoute
   '/characters': typeof CharactersRoute
   '/checkout': typeof CheckoutRoute
   '/contact': typeof ContactRoute
+  '/cookies': typeof CookiesRoute
   '/dolls': typeof DollsRoute
   '/faq': typeof FaqRoute
   '/flowers': typeof FlowersRoute
+  '/forgot-password': typeof ForgotPasswordRoute
   '/how-to-order': typeof HowToOrderRoute
   '/login': typeof LoginRoute
   '/orders': typeof OrdersRoute
+  '/payment-failed': typeof PaymentFailedRoute
+  '/privacy': typeof PrivacyRoute
+  '/refund-policy': typeof RefundPolicyRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/reviews': typeof ReviewsRoute
   '/success': typeof SuccessRoute
   '/terms': typeof TermsRoute
@@ -138,17 +194,24 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/404': typeof R404Route
   '/about': typeof AboutRoute
   '/admin': typeof AdminRoute
   '/characters': typeof CharactersRoute
   '/checkout': typeof CheckoutRoute
   '/contact': typeof ContactRoute
+  '/cookies': typeof CookiesRoute
   '/dolls': typeof DollsRoute
   '/faq': typeof FaqRoute
   '/flowers': typeof FlowersRoute
+  '/forgot-password': typeof ForgotPasswordRoute
   '/how-to-order': typeof HowToOrderRoute
   '/login': typeof LoginRoute
   '/orders': typeof OrdersRoute
+  '/payment-failed': typeof PaymentFailedRoute
+  '/privacy': typeof PrivacyRoute
+  '/refund-policy': typeof RefundPolicyRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/reviews': typeof ReviewsRoute
   '/success': typeof SuccessRoute
   '/terms': typeof TermsRoute
@@ -157,51 +220,72 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/404'
     | '/about'
     | '/admin'
     | '/characters'
     | '/checkout'
     | '/contact'
+    | '/cookies'
     | '/dolls'
     | '/faq'
     | '/flowers'
+    | '/forgot-password'
     | '/how-to-order'
     | '/login'
     | '/orders'
+    | '/payment-failed'
+    | '/privacy'
+    | '/refund-policy'
+    | '/reset-password'
     | '/reviews'
     | '/success'
     | '/terms'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/404'
     | '/about'
     | '/admin'
     | '/characters'
     | '/checkout'
     | '/contact'
+    | '/cookies'
     | '/dolls'
     | '/faq'
     | '/flowers'
+    | '/forgot-password'
     | '/how-to-order'
     | '/login'
     | '/orders'
+    | '/payment-failed'
+    | '/privacy'
+    | '/refund-policy'
+    | '/reset-password'
     | '/reviews'
     | '/success'
     | '/terms'
   id:
     | '__root__'
     | '/'
+    | '/404'
     | '/about'
     | '/admin'
     | '/characters'
     | '/checkout'
     | '/contact'
+    | '/cookies'
     | '/dolls'
     | '/faq'
     | '/flowers'
+    | '/forgot-password'
     | '/how-to-order'
     | '/login'
     | '/orders'
+    | '/payment-failed'
+    | '/privacy'
+    | '/refund-policy'
+    | '/reset-password'
     | '/reviews'
     | '/success'
     | '/terms'
@@ -209,17 +293,24 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  R404Route: typeof R404Route
   AboutRoute: typeof AboutRoute
   AdminRoute: typeof AdminRoute
   CharactersRoute: typeof CharactersRoute
   CheckoutRoute: typeof CheckoutRoute
   ContactRoute: typeof ContactRoute
+  CookiesRoute: typeof CookiesRoute
   DollsRoute: typeof DollsRoute
   FaqRoute: typeof FaqRoute
   FlowersRoute: typeof FlowersRoute
+  ForgotPasswordRoute: typeof ForgotPasswordRoute
   HowToOrderRoute: typeof HowToOrderRoute
   LoginRoute: typeof LoginRoute
   OrdersRoute: typeof OrdersRoute
+  PaymentFailedRoute: typeof PaymentFailedRoute
+  PrivacyRoute: typeof PrivacyRoute
+  RefundPolicyRoute: typeof RefundPolicyRoute
+  ResetPasswordRoute: typeof ResetPasswordRoute
   ReviewsRoute: typeof ReviewsRoute
   SuccessRoute: typeof SuccessRoute
   TermsRoute: typeof TermsRoute
@@ -232,6 +323,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/404': {
+      id: '/404'
+      path: '/404'
+      fullPath: '/404'
+      preLoaderRoute: typeof R404RouteImport
       parentRoute: typeof rootRouteImport
     }
     '/about': {
@@ -269,6 +367,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ContactRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/cookies': {
+      id: '/cookies'
+      path: '/cookies'
+      fullPath: '/cookies'
+      preLoaderRoute: typeof CookiesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/dolls': {
       id: '/dolls'
       path: '/dolls'
@@ -290,6 +395,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FlowersRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/forgot-password': {
+      id: '/forgot-password'
+      path: '/forgot-password'
+      fullPath: '/forgot-password'
+      preLoaderRoute: typeof ForgotPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/how-to-order': {
       id: '/how-to-order'
       path: '/how-to-order'
@@ -309,6 +421,34 @@ declare module '@tanstack/react-router' {
       path: '/orders'
       fullPath: '/orders'
       preLoaderRoute: typeof OrdersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/payment-failed': {
+      id: '/payment-failed'
+      path: '/payment-failed'
+      fullPath: '/payment-failed'
+      preLoaderRoute: typeof PaymentFailedRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/refund-policy': {
+      id: '/refund-policy'
+      path: '/refund-policy'
+      fullPath: '/refund-policy'
+      preLoaderRoute: typeof RefundPolicyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/reset-password': {
+      id: '/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof ResetPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/reviews': {
@@ -337,17 +477,24 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  R404Route: R404Route,
   AboutRoute: AboutRoute,
   AdminRoute: AdminRoute,
   CharactersRoute: CharactersRoute,
   CheckoutRoute: CheckoutRoute,
   ContactRoute: ContactRoute,
+  CookiesRoute: CookiesRoute,
   DollsRoute: DollsRoute,
   FaqRoute: FaqRoute,
   FlowersRoute: FlowersRoute,
+  ForgotPasswordRoute: ForgotPasswordRoute,
   HowToOrderRoute: HowToOrderRoute,
   LoginRoute: LoginRoute,
   OrdersRoute: OrdersRoute,
+  PaymentFailedRoute: PaymentFailedRoute,
+  PrivacyRoute: PrivacyRoute,
+  RefundPolicyRoute: RefundPolicyRoute,
+  ResetPasswordRoute: ResetPasswordRoute,
   ReviewsRoute: ReviewsRoute,
   SuccessRoute: SuccessRoute,
   TermsRoute: TermsRoute,

@@ -344,7 +344,17 @@ function CheckoutPage() {
       const rzpInstance = new (window as any).Razorpay(razorpayOptions);
       rzpInstance.on("payment.failed", (failedRes: any) => {
         setPaying(false);
-        setPaymentError(failedRes.error?.description || "Payment failed or was cancelled.");
+        const reasonMsg = failedRes.error?.description || "Payment failed or was cancelled.";
+        setPaymentError(reasonMsg);
+        navigate({
+          to: "/payment-failed",
+          search: {
+            orderId: orderData.id,
+            orderNumber: orderNumber,
+            reason: reasonMsg,
+            code: failedRes.error?.code || "",
+          },
+        });
       });
 
       rzpInstance.open();
@@ -790,8 +800,15 @@ function CheckoutPage() {
 
                 {/* Error Banner */}
                 {paymentError && (
-                  <div className="mt-4 rounded-xl bg-rose-50 border border-rose-200 p-3 text-xs text-rose-700">
-                    {paymentError}
+                  <div className="mt-4 rounded-xl bg-rose-50 border border-rose-200 p-3 text-xs text-rose-700 space-y-1.5">
+                    <p>{paymentError}</p>
+                    <Link
+                      to="/payment-failed"
+                      search={{ reason: paymentError }}
+                      className="inline-flex items-center gap-1 font-bold text-rose-900 underline hover:text-rose-950"
+                    >
+                      Payment troubleshooting &amp; refund info →
+                    </Link>
                   </div>
                 )}
 

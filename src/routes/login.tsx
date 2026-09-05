@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate, useSearch } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate, useSearch } from "@tanstack/react-router";
 import { useState } from "react";
 import { Crown, Heart, Lock, Mail, Phone, Sparkles, User as UserIcon } from "lucide-react";
 import { supabase } from "@/lib/supabase";
@@ -7,8 +7,8 @@ import { SiteLayout } from "@/components/site/SiteLayout";
 
 export const Route = createFileRoute("/login")({
   component: LoginPage,
-  validateSearch: (search: Record<string, unknown>) => ({
-    redirect: (search.redirect as string) || "/checkout",
+  validateSearch: (search: Record<string, unknown>): { redirect?: string } => ({
+    redirect: (search['redirect'] as string) || undefined,
   }),
   head: () => ({
     meta: [
@@ -21,7 +21,7 @@ export const Route = createFileRoute("/login")({
 function LoginPage() {
   const navigate = useNavigate();
   const search = useSearch({ from: "/login" });
-  const redirectPath = search.redirect || "/checkout";
+  const redirectPath = search['redirect'] || "/checkout";
   const { user } = useAuth();
 
   const [mode, setMode] = useState<"signin" | "signup">("signin");
@@ -224,9 +224,19 @@ function LoginPage() {
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-foreground mb-1">
-                Password
-              </label>
+              <div className="flex items-center justify-between mb-1">
+                <label className="block text-xs font-bold text-foreground">
+                  Password
+                </label>
+                {mode === "signin" && (
+                  <Link
+                    to="/forgot-password"
+                    className="text-xs font-semibold text-lilac-deep hover:underline transition-all"
+                  >
+                    Forgot password?
+                  </Link>
+                )}
+              </div>
               <div className="relative">
                 <Lock className="absolute left-3.5 top-3 size-4 text-muted-foreground" />
                 <input

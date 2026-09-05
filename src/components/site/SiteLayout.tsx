@@ -19,6 +19,7 @@ import bearKeychain from "@/assets/products/keychains/product-yellow-bear-keycha
 import bunnyKeychain from "@/assets/products/keychains/product-bunny-heart-keychain.png";
 import whiteBear from "@/assets/products/plushies/product-white-bear-pink-overalls.png";
 import bookmark from "@/assets/products/misc/product-peacock-bookmark-real.png";
+import { CookieConsent } from "./CookieConsent";
 
 export const INSTAGRAM_URL = "https://www.instagram.com/inventivequeen";
 
@@ -37,6 +38,13 @@ const MORE_NAV = [
   { to: "/about", label: "About" },
   { to: "/faq", label: "FAQ" },
   { to: "/contact", label: "Contact" },
+] as const;
+
+const LEGAL_NAV = [
+  { to: "/terms", label: "Terms & Conditions" },
+  { to: "/privacy", label: "Privacy Policy" },
+  { to: "/refund-policy", label: "Refund & Cancellation" },
+  { to: "/cookies", label: "Cookie Policy" },
 ] as const;
 
 const FOOTER_GALLERY = [
@@ -277,8 +285,8 @@ function Footer() {
         </div>
       </div>
 
-      <div className="mx-auto grid max-w-6xl gap-8 px-4 py-14 sm:grid-cols-2 lg:grid-cols-4">
-        <div>
+      <div className="mx-auto grid max-w-6xl gap-8 px-4 py-14 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
+        <div className="sm:col-span-2 md:col-span-3 lg:col-span-1">
           <div className="flex items-center gap-3">
             <span className="clay-soft rounded-full p-1">
               <img
@@ -322,6 +330,18 @@ function Footer() {
           </ul>
         </div>
         <div>
+          <h3 className="text-sm font-bold tracking-wide uppercase">Policies</h3>
+          <ul className="mt-4 space-y-2 text-sm text-muted-foreground">
+            {LEGAL_NAV.map((item) => (
+              <li key={item.to}>
+                <Link to={item.to} className="hover:text-lilac-deep transition-colors">
+                  {item.label}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+        <div>
           <h3 className="text-sm font-bold tracking-wide uppercase">Say hi</h3>
           <ul className="mt-4 space-y-2 text-sm text-muted-foreground">
             <li>
@@ -343,9 +363,16 @@ function Footer() {
           </ul>
         </div>
       </div>
-      <p className="border-t border-white/50 py-5 text-center text-xs text-muted-foreground">
-        © {new Date().getFullYear()} Inventive Queen · Handmade with love 👑
-      </p>
+      <div className="border-t border-white/50 py-5 px-4 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-muted-foreground mx-auto max-w-6xl">
+        <p>© {new Date().getFullYear()} Inventive Queen · Handmade with love 👑</p>
+        <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1">
+          {LEGAL_NAV.map((item) => (
+            <Link key={item.to} to={item.to} className="hover:text-lilac-deep transition-colors">
+              {item.label}
+            </Link>
+          ))}
+        </div>
+      </div>
     </footer>
   );
 }
@@ -357,6 +384,7 @@ export function SiteLayout({ children }: { children: ReactNode }) {
       <Header />
       <main>{children}</main>
       <Footer />
+      <CookieConsent />
     </div>
   );
 }
