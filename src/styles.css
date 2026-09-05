@@ -111,6 +111,7 @@
   html {
     overflow-x: hidden;
     scroll-behavior: smooth;
+    cursor: url('/cursor.png') 0 0, auto !important;
   }
 
   body {
@@ -118,6 +119,20 @@
     color: var(--color-foreground);
     font-family: var(--font-sans);
     overflow-x: hidden;
+    cursor: url('/cursor.png') 0 0, auto !important;
+  }
+
+  /* Custom 3D pixel pointer on all interactive elements */
+  a,
+  button,
+  [role="button"],
+  input[type="submit"],
+  input[type="button"],
+  select,
+  summary,
+  .clickable,
+  [data-clickable="true"] {
+    cursor: url('/cursor.png') 0 0, pointer !important;
   }
 
   h1, h2, h3, h4 {
