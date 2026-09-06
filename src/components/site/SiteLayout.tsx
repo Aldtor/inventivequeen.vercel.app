@@ -1,5 +1,6 @@
 import { Link, useNavigate } from "@tanstack/react-router";
 import {
+  ArrowRight,
   Check,
   ChevronDown,
   Crown,
@@ -39,11 +40,11 @@ const MAIN_NAV = [
 ] as const;
 
 const MORE_NAV = [
-  { to: "/how-to-order", label: "How to order" },
-  { to: "/reviews", label: "Reviews & Stories" },
-  { to: "/about", label: "About" },
+  { to: "/how-to-order", label: "How to Order" },
+  { to: "/reviews", label: "Reviews" },
+  { to: "/about", label: "About Atelier" },
   { to: "/faq", label: "FAQ" },
-  { to: "/contact", label: "Contact" },
+  { to: "/contact", label: "Contact Us" },
 ] as const;
 
 const LEGAL_NAV = [
@@ -56,9 +57,7 @@ const LEGAL_NAV = [
 function MoreMenu({ className = "" }: { className?: string }) {
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger
-        className={`group inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-semibold text-muted-foreground transition-colors outline-none hover:text-lilac-deep data-[state=open]:text-lilac-deep ${className}`}
-      >
+      <DropdownMenuTrigger className={`group inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-semibold text-muted-foreground transition-colors outline-none hover:text-lilac-deep data-[state=open]:text-lilac-deep ${className}`}>
         More
         <ChevronDown className="size-4 transition-transform duration-300 group-data-[state=open]:rotate-180" />
       </DropdownMenuTrigger>
@@ -86,27 +85,41 @@ function AnnouncementBar() {
   const { settings } = useStoreSettings();
 
   return (
-    <div className="relative overflow-hidden bg-lilac-deep text-primary-foreground">
-      <div className="absolute inset-0 opacity-20 bg-gradient-to-r from-transparent via-white/10 to-transparent animate-pulse" />
-      <div className="relative mx-auto flex max-w-6xl flex-wrap items-center justify-center gap-x-3 gap-y-1 px-4 py-2 text-center text-xs sm:text-sm">
+    <div className="relative overflow-hidden bg-gradient-to-r from-[#3e174b] via-[#541e65] to-[#3e174b] text-white border-b border-amber-300/25 shadow-[0_2px_14px_rgba(40,10,50,0.3)]">
+      {/* Ethereal ambient light pulse */}
+      <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-transparent via-white/[0.08] to-transparent animate-pulse" />
+
+      <div className="relative mx-auto flex max-w-6xl flex-wrap items-center justify-center gap-x-3.5 gap-y-1.5 px-4 py-2 text-center text-xs sm:text-[13px]">
+        {/* Left Decorative Sparkle */}
+        <Sparkles className="size-3 text-amber-300/50 hidden md:inline-block animate-pulse shrink-0" />
+
+        {/* Royal Jeweled Badge */}
         {settings.announcementBadge && (
-          <span className="skeu-badge inline-flex items-center gap-1">
-            <Sparkles className="size-2.5 text-amber-500" />
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-300/40 bg-gradient-to-r from-amber-400/20 via-amber-300/15 to-amber-500/20 px-2.5 py-0.5 text-[10px] sm:text-[11px] font-black tracking-wider uppercase text-amber-200 shadow-[0_0_10px_rgba(251,191,36,0.2)] backdrop-blur-md shrink-0">
+            <Sparkles className="size-2.5 text-amber-300 fill-amber-300" />
             <span>{settings.announcementBadge.replace(/[^\w\s-]/g, "").trim()}</span>
           </span>
         )}
-        <span className="inline-flex items-center gap-1.5">
-          <Crown className="size-3.5 text-amber-300 inline shrink-0" />
-          <span>{settings.announcementText.replace(/[^\w\s!?,.()'-]/g, "").trim()}</span>
+
+        {/* Message with Glowing Crown */}
+        <span className="inline-flex items-center gap-1.5 font-medium text-white/95 drop-shadow-xs">
+          <Crown className="size-3.5 text-amber-300 fill-amber-300/60 drop-shadow-[0_1px_4px_rgba(251,191,36,0.6)] inline shrink-0" />
+          <span className="leading-snug">{settings.announcementText.replace(/[^\w\s!?,.()'-]/g, "").trim()}</span>
         </span>
+
+        {/* CTA Micro-Pill */}
         {settings.announcementLink && (
           <Link
             to={settings.announcementLink}
-            className="font-semibold underline underline-offset-4 hover:text-white/90 transition-colors"
+            className="group/cta inline-flex items-center gap-1 rounded-full border border-white/30 bg-white/15 px-2.5 py-0.5 text-[11px] sm:text-xs font-bold text-white shadow-xs backdrop-blur-sm transition-all duration-200 hover:bg-white/25 hover:border-white/50 hover:shadow-[0_0_10px_rgba(255,255,255,0.3)] hover:scale-105 ml-0.5 shrink-0"
           >
-            {settings.announcementLinkLabel || "Learn more →"}
+            <span>{settings.announcementLinkLabel || "How to order"}</span>
+            <ArrowRight className="size-3 transition-transform duration-200 group-hover/cta:translate-x-0.5" />
           </Link>
         )}
+
+        {/* Right Decorative Sparkle */}
+        <Sparkles className="size-3 text-amber-300/50 hidden md:inline-block animate-pulse shrink-0" />
       </div>
     </div>
   );
