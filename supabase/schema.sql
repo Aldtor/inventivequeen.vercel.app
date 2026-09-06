@@ -16,6 +16,10 @@ create table if not exists public.profiles (
   email text,
   full_name text,
   phone text,
+  avatar_id text default 'queen',
+  patron_tier text default 'patron',
+  default_gift_note text,
+  is_phone_verified boolean default false,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
@@ -72,6 +76,12 @@ create table if not exists public.orders (
   payment_id text,
   amount_total numeric not null default 0,
   admin_notes text,
+  tracking_carrier text,
+  tracking_number text,
+  tracking_url text,
+  estimated_delivery timestamptz,
+  dispatched_at timestamptz,
+  delivered_at timestamptz,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
@@ -170,6 +180,19 @@ begin
       full_name = case when public.profiles.full_name is null or public.profiles.full_name = '' then excluded.full_name else public.profiles.full_name end,
       phone = case when public.profiles.phone is null or public.profiles.phone = '' then excluded.phone else public.profiles.phone end,
       updated_at = now();
+
+  -- Automatically grant admin privileges if email matches executive atelier accounts
+  if lower(coalesce(new.email, '')) in (
+    'sk6945104@gmail.com',
+    'inventivequeen@gmail.com',
+    'hello@inventivequeen.com',
+    'admin@inventivequeen.com'
+  ) then
+    insert into public.admin_users (user_id, role)
+    values (new.id, 'admin')
+    on conflict (user_id) do update set role = 'admin';
+  end if;
+
   return new;
 end;
 $$;
@@ -677,7 +700,7 @@ create index if not exists idx_contact_inquiries_status on public.contact_inquir
 
 -- 7.7 Customer Reviews & Testimonials
 create table if not exists public.reviews (
-  id uuid primary key default gen_random_uuid(),
+  id text primary key default gen_random_uuid()::text,
   user_id uuid references auth.users(id) on delete set null,
   order_id uuid references public.orders(id) on delete set null,
   product_id text references public.cms_products(id) on delete set null,
@@ -696,6 +719,26 @@ create table if not exists public.reviews (
 );
 
 create index if not exists idx_reviews_approved on public.reviews(is_approved, is_featured);
+
+insert into public.reviews (id, author_name, author_handle, location, rating, item_name, category, review_text, is_approved, is_featured)
+values
+  ('rev-1', 'ananya_r', '@ananya_r', 'Mumbai', 5, 'Custom Chibi Doll', 'doll', 'The custom anime doll turned out EXACTLY like my reference artwork! Every single detail of the hair and outfit was matched with mind-blowing precision. My friend was in tears!', true, true),
+  ('rev-2', 'kavya_m', '@kavya_m', 'Bengaluru', 5, 'Signature Pastel Bouquet', 'bouquet', 'The pastel bouquet arrived gorgeously packaged with satin ribbons and wax seal. The flowers will stay vibrant forever! Best anniversary surprise ever.', true, true),
+  ('rev-3', 'riya_s', '@riya_s', 'New Delhi', 5, 'Velvet Cuddle Bear', 'plushie', 'Such a sweet, accommodating artist! The purple teddy bear is velvety soft, squishy and the stitches are so tidy and uniform. Truly royal quality!', true, true),
+  ('rev-4', 'tanvi_p', '@tanvi_p', 'Hyderabad', 5, 'Mixed Rose Grand Atelier Bouquet', 'bouquet', 'Ordered the Mixed Rose Grand Bouquet for my mother''s 50th birthday. She couldn''t believe they were crocheted by hand! The stems are wired so they sit gracefully in any vase.', true, false),
+  ('rev-5', 'meera_k', '@meera_k', 'Kolkata', 5, 'Strawberry Milk Cow Charm', 'keychain', 'The Strawberry Cow charm is literally the cutest thing ever. It hangs on my canvas tote bag and I get compliments almost every day! The gold hardware is also super sturdy.', true, false),
+  ('rev-6', 'sneha_b', '@sneha_b', 'Pune', 5, 'Royal Peacock Bookmark', 'misc', 'Bought the Royal Peacock bookmark for my book club companion. The colors are so rich and vibrant, and the tail tassel adds the most regal touch. Highly recommended!', true, false),
+  ('rev-7', 'aarav_d', '@aarav_d', 'Chennai', 5, 'Custom Wedding Dolls Set', 'doll', 'Requested a couple doll set as a wedding gift. Alishba matched the sherwani and lehenga patterns down to the embroidery thread colors! Fast shipping and safe box packaging.', true, true)
+on conflict (id) do update set
+  author_name = excluded.author_name,
+  author_handle = excluded.author_handle,
+  location = excluded.location,
+  rating = excluded.rating,
+  item_name = excluded.item_name,
+  category = excluded.category,
+  review_text = excluded.review_text,
+  is_approved = excluded.is_approved,
+  is_featured = excluded.is_featured;
 
 -- 7.8 Workshop Supplies & Raw Materials Inventory
 create table if not exists public.inventory_items (
@@ -911,6 +954,18 @@ end $$;
 do $$
 begin
   alter publication supabase_realtime add table public.contact_inquiries;
+exception when others then null;
+end $$;
+
+do $$
+begin
+  alter publication supabase_realtime add table public.reviews;
+exception when others then null;
+end $$;
+
+do $$
+begin
+  alter publication supabase_realtime add table public.inventory_items;
 exception when others then null;
 end $$;
 

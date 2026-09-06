@@ -86,7 +86,7 @@ export function saveCoupons(coupons: Coupon[]): void {
       }));
       supabase
         .from("coupons")
-        .upsert(rows)
+        .upsert(rows, { onConflict: "code" })
         .then(
           () => {},
           () => {},

@@ -146,6 +146,7 @@ export function saveReviews(reviews: ReviewItem[]): void {
 
       // Upsert into dedicated reviews table
       const rows = reviews.map((r) => ({
+        id: r.id,
         author_name: r.handle.replace(/^@/, ""),
         author_handle: r.handle,
         location: r.location,
@@ -158,7 +159,7 @@ export function saveReviews(reviews: ReviewItem[]): void {
       }));
       supabase
         .from("reviews")
-        .upsert(rows)
+        .upsert(rows, { onConflict: "id" })
         .then(
           () => {},
           () => {},

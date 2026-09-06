@@ -161,7 +161,7 @@ export function saveInventory(items: InventoryItem[]): void {
       }));
       supabase
         .from("inventory_items")
-        .upsert(rows)
+        .upsert(rows, { onConflict: "id" })
         .then(
           () => {},
           () => {},
