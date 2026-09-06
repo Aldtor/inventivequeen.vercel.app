@@ -5,40 +5,6 @@ import { SiteLayout } from "@/components/site/SiteLayout";
 import logo from "@/assets/logo.png";
 import { useProducts } from "@/lib/cms-products";
 
-/* ─── Real product images ─── */
-import dollsImg from "@/assets/dolls.jpg";
-import plushiesImg from "@/assets/plushies.jpg";
-import flowersImg from "@/assets/flowers.jpg";
-import minisImg from "@/assets/minis.jpg";
-
-/* Bouquets */
-import bouquetRose from "@/assets/products/bouquets/product-bouquet-rose.png";
-import bouquetPastel from "@/assets/products/bouquets/product-bouquet-pastel.png";
-import bouquetMixed1 from "@/assets/products/bouquets/product-bouquet-mixed-1.png";
-import bouquetMixed2 from "@/assets/products/bouquets/product-bouquet-mixed-2.png";
-import bouquetLily from "@/assets/products/bouquets/product-bouquet-lily-2.png";
-import bouquetSunflower from "@/assets/products/bouquets/product-bouquet-sunflower.jpg";
-import bouquetGrand from "@/assets/products/bouquets/product-bouquet-grand.png";
-import bouquetLilyVase from "@/assets/products/bouquets/product-bouquet-lily-vase.png";
-
-/* Keychains */
-import bearKeychain from "@/assets/products/keychains/product-yellow-bear-keychain.png";
-import bunnyKeychain from "@/assets/products/keychains/product-bunny-heart-keychain.png";
-import dinoKeychain from "@/assets/products/keychains/product-green-dino-keychain.png";
-import owlKeychain from "@/assets/products/keychains/product-pink-owl-keychain.png";
-import strawberryCow from "@/assets/products/keychains/product-strawberry-cow-keychain.png";
-import blackBear from "@/assets/products/keychains/product-black-bear-keychain.png";
-
-/* Plushies */
-import whiteBearPink from "@/assets/products/plushies/product-white-bear-pink-overalls.png";
-import whiteBearRed from "@/assets/products/plushies/product-white-bear-red-overalls.png";
-import panda from "@/assets/products/plushies/product-panda.jpeg";
-import penguin1 from "@/assets/products/plushies/product-penguin-1.jpeg";
-import penguin2 from "@/assets/products/plushies/product-penguin-2.jpeg";
-
-/* Misc */
-import bookmark from "@/assets/products/misc/product-peacock-bookmark-real.png";
-
 /* Categories */
 import catKeepsakeDolls from "@/assets/products/categories/cat-keepsake-dolls.jpg";
 import catForeverFlowers from "@/assets/products/categories/cat-forever-flowers.jpg";
@@ -129,17 +95,6 @@ const WHY = [
 ];
 
 
-const INSTAGRAM_GALLERY = [
-  { src: bouquetGrand, alt: "Grand bouquet" },
-  { src: bouquetMixed2, alt: "Mixed arrangement" },
-  { src: whiteBearRed, alt: "Bear in red overalls" },
-  { src: panda, alt: "Panda plushie" },
-  { src: penguin1, alt: "Penguin plushie" },
-  { src: bouquetLilyVase, alt: "Lily vase bouquet" },
-  { src: penguin2, alt: "Penguin pair" },
-  { src: bouquetSunflower, alt: "Sunflower bouquet" },
-];
-
 const STATS = [
   { value: "500+", label: "Stitched pieces", isRating: false },
   { value: "100%", label: "Handmade", isRating: false },
@@ -152,18 +107,21 @@ const LOVE = [
     quote:
       "She turned my wedding photo into the cutest doll couple. Everyone at the party asked where I got it!",
     name: "Ananya R.",
-    product: bouquetRose,
+    initials: "AR",
+    city: "Mumbai",
   },
   {
     quote:
       "My bouquet still looks brand new months later. Ordering was easy and the updates were so sweet.",
     name: "Meher K.",
-    product: bouquetPastel,
+    initials: "MK",
+    city: "Bengaluru",
   },
   {
     quote: "The mini keychain doll of my cat is unbelievably accurate. Already ordered two more.",
     name: "Ishita B.",
-    product: bearKeychain,
+    initials: "IB",
+    city: "New Delhi",
   },
 ];
 
@@ -467,37 +425,6 @@ function Home() {
         </div>
       </section>
 
-      {/* ═══════ CREATIONS GALLERY ═══════ */}
-      <section className="mx-auto max-w-6xl px-4 py-20">
-        <p className="text-center text-xs font-bold tracking-[0.18em] text-primary uppercase">
-          <Sparkles className="inline size-3 mr-1" /> Gallery
-        </p>
-        <h2 className="mt-3 text-center text-4xl font-extrabold text-lilac-deep">
-          More handmade magic
-        </h2>
-        <div className="mt-12 grid grid-cols-2 gap-4 sm:grid-cols-4">
-          {INSTAGRAM_GALLERY.map((item) => (
-            <Link
-              key={item.alt}
-              to="/dolls"
-              className="liquid-glass img-hover-zoom group overflow-hidden p-1.5 hover-lift"
-            >
-              <img
-                src={item.src}
-                alt={item.alt}
-                width={400}
-                height={400}
-                loading="lazy"
-                className="aspect-square w-full rounded-[1.2rem] object-cover"
-              />
-              <div className="absolute inset-1.5 rounded-[1.2rem] bg-lilac-deep/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
-                <span className="text-white font-bold text-sm">Shop Creations →</span>
-              </div>
-            </Link>
-          ))}
-        </div>
-      </section>
-
       {/* ═══════ TESTIMONIALS ═══════ */}
       <section className="aurora-rich border-t border-white/50 py-20">
         <div className="mx-auto max-w-6xl px-4">
@@ -509,26 +436,31 @@ function Home() {
           </h2>
           <div className="mt-12 grid gap-6 md:grid-cols-3">
             {LOVE.map((item) => (
-              <figure key={item.name} className="liquid-glass hover-lift p-7">
-                <div className="relative z-10 flex items-start gap-4">
-                  <img
-                    src={item.product}
-                    alt=""
-                    className="size-14 rounded-xl object-cover shadow-md flex-shrink-0"
-                  />
-                  <Quote className="size-7 text-lilac flex-shrink-0 mt-1" />
+              <figure key={item.name} className="liquid-glass hover-lift p-7 flex flex-col justify-between">
+                <div>
+                  <div className="relative z-10 flex items-center justify-between gap-4">
+                    <div className="flex items-center gap-3">
+                      <div className="size-11 rounded-2xl bg-lilac/30 border border-lilac/50 flex items-center justify-center font-display font-bold text-lilac-deep text-sm shadow-sm">
+                        {item.initials}
+                      </div>
+                      <div>
+                        <p className="font-display font-bold text-lilac-deep text-sm">{item.name}</p>
+                        <p className="text-xs text-muted-foreground">{item.city}</p>
+                      </div>
+                    </div>
+                    <Quote className="size-6 text-lilac/70 flex-shrink-0" />
+                  </div>
+                  <blockquote className="relative z-10 mt-4 text-sm leading-relaxed text-muted-foreground">
+                    "{item.quote}"
+                  </blockquote>
                 </div>
-                <blockquote className="relative z-10 mt-4 text-sm leading-relaxed text-muted-foreground">
-                  "{item.quote}"
-                </blockquote>
-                <figcaption className="relative z-10 mt-5 flex items-center justify-between">
-                  <span className="font-display font-bold text-lilac-deep">{item.name}</span>
+                <div className="relative z-10 mt-5 flex items-center justify-end">
                   <span className="flex gap-0.5 text-primary">
                     {Array.from({ length: 5 }).map((_, i) => (
                       <Star key={i} className="size-3.5 fill-current" />
                     ))}
                   </span>
-                </figcaption>
+                </div>
               </figure>
             ))}
           </div>
@@ -541,19 +473,6 @@ function Home() {
           <div
             className="blob pointer-events-none absolute -top-16 left-1/4 size-56 bg-card"
             aria-hidden
-          />
-          {/* Floating product decorations */}
-          <img
-            src={bouquetMixed1}
-            alt=""
-            aria-hidden
-            className="pointer-events-none absolute -top-6 -right-4 size-32 rounded-2xl object-cover opacity-15 rotate-[10deg] blur-[1px]"
-          />
-          <img
-            src={dinoKeychain}
-            alt=""
-            aria-hidden
-            className="pointer-events-none absolute -bottom-6 -left-4 size-28 rounded-2xl object-cover opacity-15 rotate-[-8deg] blur-[1px]"
           />
           <div className="relative z-10">
             <h2 className="text-4xl font-extrabold text-primary-foreground sm:text-5xl">

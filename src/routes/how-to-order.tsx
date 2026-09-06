@@ -1,12 +1,7 @@
 import { Link, createFileRoute } from "@tanstack/react-router";
-import { CheckCircle2, ClipboardList, Crown, Instagram } from "lucide-react";
+import { CheckCircle2, ClipboardList, Crown } from "lucide-react";
 
-import { INSTAGRAM_URL, PageHeader, SiteLayout } from "@/components/site/SiteLayout";
-
-/* Visual decorations */
-import bouquetRose from "@/assets/products/bouquets/product-bouquet-rose.png";
-import bearKeychain from "@/assets/products/keychains/product-yellow-bear-keychain.png";
-import whiteBear from "@/assets/products/plushies/product-white-bear-pink-overalls.png";
+import { PageHeader, SiteLayout } from "@/components/site/SiteLayout";
 
 export const Route = createFileRoute("/how-to-order")({
   component: HowToOrderPage,
@@ -36,19 +31,16 @@ const STEPS = [
     title: "Pick Your Crochet Creations",
     text: "Browse through our Dolls, Characters, and Everlasting Flower pricelists. Click 'Buy Now' or '+ Basket' on any piece to add it to your order with real-time price calculation.",
     icon: ClipboardList,
-    image: bouquetRose,
   },
   {
     title: "Sign In & Enter Delivery Details",
     text: "Before checking out, log in with your existing account or create a new Royal Account. Then enter your recipient name, 10-digit phone number, street address, and optional gift note.",
     icon: Crown,
-    image: bearKeychain,
   },
   {
     title: "Pay via Razorpay & Track Live",
     text: "Click 'Pay with Razorpay' for instant 100% secure payment (UPI, Cards, NetBanking). As soon as your order is confirmed, follow its progress live on your 'My Orders' page!",
     icon: CheckCircle2,
-    image: whiteBear,
   },
 ];
 
@@ -80,17 +72,14 @@ function HowToOrderPage() {
             return (
               <li key={step.title} className="skeu-card p-6">
                 <div className="relative z-10 flex items-start gap-5">
-                  {/* Thumbnail */}
-                  <img
-                    src={step.image}
-                    alt=""
-                    className="hidden sm:block size-20 flex-shrink-0 rounded-xl object-cover shadow-md"
-                  />
+                  <div className="hidden sm:flex size-16 flex-shrink-0 items-center justify-center rounded-2xl bg-lilac/30 border border-lilac/50 text-lilac-deep shadow-sm">
+                    <StepIcon className="size-7" />
+                  </div>
                   <div className="flex-1">
                     <div className="flex items-center gap-3 mb-3">
                       <span className="skeu-step">{i + 1}</span>
                       <h3 className="font-display text-2xl font-bold text-lilac-deep flex items-center gap-2">
-                        <StepIcon className="size-5 text-lilac-deep/80" />
+                        <StepIcon className="size-5 text-lilac-deep/80 sm:hidden" />
                         <span>{step.title}</span>
                       </h3>
                     </div>

@@ -1,14 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { Sparkles } from "lucide-react";
 
 import { OrderCta, PageHeader, PriceCard, SiteLayout } from "@/components/site/SiteLayout";
-
-/* Real product images */
 import dollsImg from "@/assets/dolls.jpg";
-import minisImg from "@/assets/minis.jpg";
-import catKeepsakeDolls from "@/assets/products/categories/cat-keepsake-dolls.jpg";
-import whiteBearPink from "@/assets/products/plushies/product-white-bear-pink-overalls.png";
-import bearKeychain from "@/assets/products/keychains/product-yellow-bear-keychain.png";
-import owlKeychain from "@/assets/products/keychains/product-pink-owl-keychain.png";
+import { useProducts } from "@/lib/cms-products";
 
 export const Route = createFileRoute("/dolls")({
   component: DollsPage,
@@ -32,12 +27,6 @@ export const Route = createFileRoute("/dolls")({
     links: [{ rel: "canonical", href: "/dolls" }],
   }),
 });
-
-import { Sparkles } from "lucide-react";
-import { useProducts } from "@/lib/cms-products";
-
-/* Gallery of past work */
-const GALLERY = [catKeepsakeDolls, dollsImg, minisImg, whiteBearPink, bearKeychain, owlKeychain];
 
 function DollsPage() {
   const { products } = useProducts();
@@ -86,27 +75,6 @@ function DollsPage() {
           </div>
         </div>
       )}
-
-      {/* Sample Gallery */}
-      <section className="mx-auto max-w-6xl px-4 pb-16">
-        <h2 className="text-center text-2xl font-extrabold text-lilac-deep mb-8">
-          More sample designs
-        </h2>
-        <div className="grid grid-cols-3 gap-4 sm:grid-cols-6">
-          {GALLERY.map((src, i) => (
-            <div key={i} className="clay-soft img-hover-zoom overflow-hidden rounded-2xl p-1">
-              <img
-                src={src}
-                alt={`Sample doll design ${i + 1}`}
-                width={200}
-                height={200}
-                loading="lazy"
-                className="aspect-square w-full rounded-xl object-cover"
-              />
-            </div>
-          ))}
-        </div>
-      </section>
 
       <OrderCta
         title="Want a doll of someone special?"

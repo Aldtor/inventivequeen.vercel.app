@@ -1,22 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { Sparkles } from "lucide-react";
 
 import { OrderCta, PageHeader, PriceCard, SiteLayout } from "@/components/site/SiteLayout";
-
-/* Real product images */
-import plushiesImg from "@/assets/plushies.jpg";
-import minisImg from "@/assets/minis.jpg";
 import whiteBearPink from "@/assets/products/plushies/product-white-bear-pink-overalls.png";
-import whiteBearRed from "@/assets/products/plushies/product-white-bear-red-overalls.png";
-import panda from "@/assets/products/plushies/product-panda.jpeg";
-import penguin1 from "@/assets/products/plushies/product-penguin-1.jpeg";
-import penguin2 from "@/assets/products/plushies/product-penguin-2.jpeg";
-import bearKeychain from "@/assets/products/keychains/product-yellow-bear-keychain.png";
-import bunnyKeychain from "@/assets/products/keychains/product-bunny-heart-keychain.png";
-import dinoKeychain from "@/assets/products/keychains/product-green-dino-keychain.png";
-import owlKeychain from "@/assets/products/keychains/product-pink-owl-keychain.png";
-import strawberryCow from "@/assets/products/keychains/product-strawberry-cow-keychain.png";
-import blackBear from "@/assets/products/keychains/product-black-bear-keychain.png";
-import catPlush from "@/assets/products/categories/cat-plush.jpg";
+import { useProducts } from "@/lib/cms-products";
 
 export const Route = createFileRoute("/characters")({
   component: CharactersPage,
@@ -40,25 +27,6 @@ export const Route = createFileRoute("/characters")({
     links: [{ rel: "canonical", href: "/characters" }],
   }),
 });
-
-import { Sparkles } from "lucide-react";
-import { useProducts } from "@/lib/cms-products";
-
-/* Gallery of all character/plushie products */
-const GALLERY = [
-  { src: whiteBearPink, alt: "White bear pink overalls" },
-  { src: whiteBearRed, alt: "White bear red overalls" },
-  { src: panda, alt: "Panda plushie" },
-  { src: penguin1, alt: "Penguin plushie" },
-  { src: penguin2, alt: "Penguin pair" },
-  { src: bearKeychain, alt: "Yellow bear keychain" },
-  { src: bunnyKeychain, alt: "Bunny heart keychain" },
-  { src: dinoKeychain, alt: "Green dino keychain" },
-  { src: owlKeychain, alt: "Pink owl keychain" },
-  { src: strawberryCow, alt: "Strawberry cow keychain" },
-  { src: blackBear, alt: "Black bear keychain" },
-  { src: catPlush, alt: "Category plush" },
-];
 
 function CharactersPage() {
   const { products } = useProducts();
@@ -107,38 +75,6 @@ function CharactersPage() {
           </div>
         </div>
       )}
-
-      {/* Sample Gallery */}
-      <section className="aurora-rich border-y border-white/50 py-16">
-        <div className="mx-auto max-w-6xl px-4">
-          <h2 className="text-center text-2xl font-extrabold text-lilac-deep mb-2">
-            Sample designs
-          </h2>
-          <p className="text-center text-sm text-muted-foreground mb-8">
-            All designs are customizable — send a reference photo and I'll make it yours.
-          </p>
-          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-            {GALLERY.map((item) => (
-              <div
-                key={item.alt}
-                className="liquid-glass img-hover-zoom overflow-hidden p-1.5 hover-lift"
-              >
-                <img
-                  src={item.src}
-                  alt={item.alt}
-                  width={300}
-                  height={300}
-                  loading="lazy"
-                  className="aspect-square w-full rounded-[1.2rem] object-cover"
-                />
-                <p className="relative z-10 mt-2 pb-1 text-center text-xs font-bold text-lilac-deep">
-                  {item.alt}
-                </p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
 
       <OrderCta
         title="Got a design in mind?"

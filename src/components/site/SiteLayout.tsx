@@ -26,12 +26,6 @@ import { addToCart, getCartCount, parsePrice } from "@/lib/cart";
 import { useAuth } from "@/lib/auth";
 import { useStoreSettings } from "@/lib/store-settings";
 
-import bouquetRose from "@/assets/products/bouquets/product-bouquet-rose.png";
-import bouquetPastel from "@/assets/products/bouquets/product-bouquet-pastel.png";
-import bearKeychain from "@/assets/products/keychains/product-yellow-bear-keychain.png";
-import bunnyKeychain from "@/assets/products/keychains/product-bunny-heart-keychain.png";
-import whiteBear from "@/assets/products/plushies/product-white-bear-pink-overalls.png";
-import bookmark from "@/assets/products/misc/product-peacock-bookmark-real.png";
 import { CookieConsent } from "./CookieConsent";
 
 export const INSTAGRAM_URL = "https://www.instagram.com/inventivequeen";
@@ -58,15 +52,6 @@ const LEGAL_NAV = [
   { to: "/refund-policy", label: "Refund & Cancellation" },
   { to: "/cookies", label: "Cookie Policy" },
 ] as const;
-
-const FOOTER_GALLERY = [
-  { src: bouquetRose, alt: "Crochet rose bouquet" },
-  { src: bouquetPastel, alt: "Pastel bouquet" },
-  { src: bearKeychain, alt: "Bear keychain" },
-  { src: bunnyKeychain, alt: "Bunny keychain" },
-  { src: whiteBear, alt: "Bear plushie" },
-  { src: bookmark, alt: "Peacock bookmark" },
-];
 
 function MoreMenu({ className = "" }: { className?: string }) {
   return (
@@ -296,30 +281,6 @@ function Header() {
 function Footer() {
   return (
     <footer className="aurora-rich mt-24 border-t border-white/50">
-      {/* Product Gallery Strip */}
-      <div className="mx-auto max-w-6xl px-4 pt-12 pb-4">
-        <p className="text-center text-xs font-bold tracking-[0.18em] text-primary uppercase mb-6">
-          <Sparkles className="inline size-3 mr-1" /> Recent creations
-        </p>
-        <div className="grid grid-cols-3 gap-3 sm:grid-cols-6">
-          {FOOTER_GALLERY.map((item) => (
-            <Link
-              key={item.alt}
-              to="/dolls"
-              className="clay-soft img-hover-zoom group overflow-hidden rounded-2xl p-1"
-            >
-              <img
-                src={item.src}
-                alt={item.alt}
-                width={200}
-                height={200}
-                loading="lazy"
-                className="aspect-square w-full rounded-xl object-cover"
-              />
-            </Link>
-          ))}
-        </div>
-      </div>
 
       <div className="mx-auto grid max-w-6xl gap-8 px-4 py-14 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
         <div className="sm:col-span-2 md:col-span-3 lg:col-span-1">
