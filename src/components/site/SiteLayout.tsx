@@ -1,6 +1,8 @@
 import { Link, useNavigate } from "@tanstack/react-router";
 import {
+  Check,
   ChevronDown,
+  Crown,
   Instagram,
   LogOut,
   Mail,
@@ -103,9 +105,15 @@ function AnnouncementBar() {
       <div className="absolute inset-0 opacity-20 bg-gradient-to-r from-transparent via-white/10 to-transparent animate-pulse" />
       <div className="relative mx-auto flex max-w-6xl flex-wrap items-center justify-center gap-x-3 gap-y-1 px-4 py-2 text-center text-xs sm:text-sm">
         {settings.announcementBadge && (
-          <span className="skeu-badge">{settings.announcementBadge}</span>
+          <span className="skeu-badge inline-flex items-center gap-1">
+            <Sparkles className="size-2.5 text-amber-500" />
+            <span>{settings.announcementBadge.replace(/[^\w\s-]/g, "").trim()}</span>
+          </span>
         )}
-        <span>{settings.announcementText}</span>
+        <span className="inline-flex items-center gap-1.5">
+          <Crown className="size-3.5 text-amber-300 inline shrink-0" />
+          <span>{settings.announcementText.replace(/[^\w\s!?,.()'-]/g, "").trim()}</span>
+        </span>
         {settings.announcementLink && (
           <Link
             to={settings.announcementLink}
@@ -189,9 +197,9 @@ function Header() {
                   <Link
                     to="/admin"
                     search={{ tab: "overview" }}
-                    className="bg-amber-100/90 text-amber-900 border border-amber-300/80 hidden items-center gap-1 rounded-full px-3 py-1.5 text-xs font-black sm:inline-flex hover:bg-amber-200 transition-colors shadow-sm"
+                    className="bg-amber-100/90 text-amber-900 border border-amber-300/80 hidden items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-black sm:inline-flex hover:bg-amber-200 transition-colors shadow-sm"
                   >
-                    👑 CMS
+                    <Crown className="size-3.5 text-amber-700" /> CMS
                   </Link>
                 )}
                 <Link
@@ -252,10 +260,10 @@ function Header() {
             <Link
               to="/admin"
               search={{ tab: "overview" }}
-              className="rounded-full px-3 py-1.5 text-xs sm:text-sm font-black whitespace-nowrap text-amber-900 bg-amber-100"
+              className="rounded-full px-3 py-1.5 text-xs sm:text-sm font-black whitespace-nowrap text-amber-900 bg-amber-100 inline-flex items-center gap-1.5"
               onClick={() => setMobileOpen(false)}
             >
-              👑 CMS
+              <Crown className="size-3.5 text-amber-700" /> CMS
             </Link>
           )}
           {user ? (
@@ -397,7 +405,10 @@ function Footer() {
         </div>
       </div>
       <div className="border-t border-white/50 py-5 px-4 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-muted-foreground mx-auto max-w-6xl">
-        <p>© {new Date().getFullYear()} Inventive Queen · Handmade with love 👑</p>
+        <p className="inline-flex items-center gap-1.5">
+          © {new Date().getFullYear()} Inventive Queen · Handmade with royal care{" "}
+          <Crown className="size-3.5 text-amber-500 inline shrink-0" />
+        </p>
         <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1">
           {LEGAL_NAV.map((item) => (
             <Link key={item.to} to={item.to} className="hover:text-lilac-deep transition-colors">
@@ -498,7 +509,12 @@ export function PriceCard({
   return (
     <article className="clay-glow group overflow-hidden img-hover-zoom flex flex-col justify-between">
       <div className="relative z-10 p-2.5">
-        {badge && <span className="skeu-badge absolute top-5 right-5 z-20">{badge}</span>}
+        {badge && (
+          <span className="skeu-badge absolute top-5 right-5 z-20 inline-flex items-center gap-1 shadow-md">
+            <Sparkles className="size-3 text-amber-500" />
+            <span>{badge.replace(/[^\w\s-]/g, "").trim()}</span>
+          </span>
+        )}
         <img
           src={image}
           alt={name}
@@ -534,7 +550,13 @@ export function PriceCard({
             }`}
             title="Add to Basket"
           >
-            {added ? "Added ✓" : "+ Basket"}
+            {added ? (
+              <span className="inline-flex items-center gap-1">
+                Added <Check className="size-3.5 text-emerald-700" />
+              </span>
+            ) : (
+              "+ Basket"
+            )}
           </button>
         </div>
       </div>

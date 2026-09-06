@@ -1,5 +1,5 @@
 import { Link, createFileRoute } from "@tanstack/react-router";
-import { Instagram } from "lucide-react";
+import { CheckCircle2, ClipboardList, Crown, Instagram } from "lucide-react";
 
 import { INSTAGRAM_URL, PageHeader, SiteLayout } from "@/components/site/SiteLayout";
 
@@ -33,21 +33,21 @@ export const Route = createFileRoute("/how-to-order")({
 
 const STEPS = [
   {
-    title: "1. Pick Your Crochet Creations",
+    title: "Pick Your Crochet Creations",
     text: "Browse through our Dolls, Characters, and Everlasting Flower pricelists. Click 'Buy Now' or '+ Basket' on any piece to add it to your order with real-time price calculation.",
-    icon: "📋",
+    icon: ClipboardList,
     image: bouquetRose,
   },
   {
-    title: "2. Sign In & Enter Delivery Details",
+    title: "Sign In & Enter Delivery Details",
     text: "Before checking out, log in with your existing account or create a new Royal Account. Then enter your recipient name, 10-digit phone number, street address, and optional gift note.",
-    icon: "👑",
+    icon: Crown,
     image: bearKeychain,
   },
   {
-    title: "3. Pay via Razorpay & Track Live",
+    title: "Pay via Razorpay & Track Live",
     text: "Click 'Pay with Razorpay' for instant 100% secure payment (UPI, Cards, NetBanking). As soon as your order is confirmed, follow its progress live on your 'My Orders' page!",
-    icon: "✅",
+    icon: CheckCircle2,
     image: whiteBear,
   },
 ];
@@ -64,8 +64,9 @@ function HowToOrderPage() {
       <div className="mx-auto max-w-3xl px-4 py-16">
         {/* Status badge */}
         <div className="liquid-glass p-6 text-center pulse-soft">
-          <h2 className="font-display text-lg font-bold text-lilac-deep">
-            🟢 Online Orders &amp; Razorpay Checkout are LIVE!
+          <h2 className="font-display text-lg font-bold text-lilac-deep flex items-center justify-center gap-2">
+            <span className="size-2.5 rounded-full bg-emerald-500 animate-pulse inline-block" />
+            <span>Online Orders &amp; Razorpay Checkout are LIVE!</span>
           </h2>
           <p className="mt-2 text-sm text-muted-foreground">
             Handcrafted amigurumi dolls, plushies and crochet bouquet orders shipped nationwide.
@@ -74,27 +75,31 @@ function HowToOrderPage() {
 
         {/* Steps */}
         <ol className="mt-12 space-y-6">
-          {STEPS.map((step, i) => (
-            <li key={step.title} className="skeu-card p-6">
-              <div className="relative z-10 flex items-start gap-5">
-                {/* Thumbnail */}
-                <img
-                  src={step.image}
-                  alt=""
-                  className="hidden sm:block size-20 flex-shrink-0 rounded-xl object-cover shadow-md"
-                />
-                <div className="flex-1">
-                  <div className="flex items-center gap-3 mb-3">
-                    <span className="skeu-step">{i + 1}</span>
-                    <h3 className="font-display text-2xl font-bold text-lilac-deep">
-                      {step.title}
-                    </h3>
+          {STEPS.map((step, i) => {
+            const StepIcon = step.icon;
+            return (
+              <li key={step.title} className="skeu-card p-6">
+                <div className="relative z-10 flex items-start gap-5">
+                  {/* Thumbnail */}
+                  <img
+                    src={step.image}
+                    alt=""
+                    className="hidden sm:block size-20 flex-shrink-0 rounded-xl object-cover shadow-md"
+                  />
+                  <div className="flex-1">
+                    <div className="flex items-center gap-3 mb-3">
+                      <span className="skeu-step">{i + 1}</span>
+                      <h3 className="font-display text-2xl font-bold text-lilac-deep flex items-center gap-2">
+                        <StepIcon className="size-5 text-lilac-deep/80" />
+                        <span>{step.title}</span>
+                      </h3>
+                    </div>
+                    <p className="text-muted-foreground">{step.text}</p>
                   </div>
-                  <p className="text-muted-foreground">{step.text}</p>
                 </div>
-              </div>
-            </li>
-          ))}
+              </li>
+            );
+          })}
         </ol>
 
         {/* CTA */}

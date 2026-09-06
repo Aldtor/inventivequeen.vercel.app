@@ -14,8 +14,8 @@ export interface StoreSettings {
 }
 
 export const DEFAULT_STORE_SETTINGS: StoreSettings = {
-  announcementBadge: "✨ Limited slots",
-  announcementText: "👑 Online Checkout with Razorpay is OPEN! Custom crochet made to order.",
+  announcementBadge: "Limited Slots",
+  announcementText: "Online Checkout with Razorpay is OPEN! Custom crochet made to order.",
   announcementLink: "/how-to-order",
   announcementLinkLabel: "How to order →",
   isStoreOpen: true,

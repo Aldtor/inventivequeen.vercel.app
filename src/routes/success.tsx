@@ -1,6 +1,15 @@
 import { createFileRoute, Link, useSearch } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { CheckCircle, Crown, Heart, Package, Sparkles, Truck, ArrowRight } from "lucide-react";
+import {
+  ArrowRight,
+  Check,
+  CheckCircle,
+  Crown,
+  Heart,
+  Package,
+  Sparkles,
+  Truck,
+} from "lucide-react";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { supabase, type DbOrder } from "@/lib/supabase";
 
@@ -107,8 +116,8 @@ function SuccessPage() {
           {/* Tracking steps preview */}
           <div className="relative mt-8 grid grid-cols-4 gap-2 text-center">
             <div className="p-2">
-              <div className="size-8 mx-auto rounded-full bg-emerald-500 text-white flex items-center justify-center text-xs font-bold mb-1 shadow-sm">
-                ✓
+              <div className="size-8 mx-auto rounded-full bg-emerald-500 text-white flex items-center justify-center mb-1 shadow-sm">
+                <Check className="size-4" />
               </div>
               <p className="text-[11px] font-bold text-lilac-deep">Placed</p>
             </div>

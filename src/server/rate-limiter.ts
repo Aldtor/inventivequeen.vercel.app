@@ -1,5 +1,5 @@
 /**
- * 👑 Inventive Queen Sliding-Window API Rate Limiter
+ * Inventive Queen Sliding-Window API Rate Limiter
  *
  * Protects server endpoints against brute-force attacks, credential stuffing,
  * and API denial-of-service attempts.

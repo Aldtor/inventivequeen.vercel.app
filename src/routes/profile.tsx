@@ -16,6 +16,7 @@ import {
   KeyRound,
   ShieldCheck,
   Calendar,
+  Clock,
   Save,
   Loader2,
   ArrowRight,
@@ -106,43 +107,50 @@ function getStatusBadge(status: OrderStatus) {
   switch (status) {
     case "pending":
       return {
-        label: "⏳ Pending Confirmation",
+        label: "Pending Confirmation",
+        icon: Clock,
         color: "bg-amber-100 text-amber-900 border-amber-300",
         stepColor: "bg-amber-500",
       };
     case "confirmed":
       return {
-        label: "✓ Confirmed by Atelier",
+        label: "Confirmed by Atelier",
+        icon: CheckCircle2,
         color: "bg-purple-100 text-purple-900 border-purple-300",
         stepColor: "bg-purple-600",
       };
     case "crafting":
       return {
-        label: "🧶 Hand-Crafting in Progress",
+        label: "Hand-Crafting in Progress",
+        icon: Sparkles,
         color: "bg-indigo-100 text-indigo-900 border-indigo-300",
         stepColor: "bg-indigo-600",
       };
     case "shipped":
       return {
-        label: "🚚 Dispatched with Courier",
+        label: "Dispatched with Courier",
+        icon: Truck,
         color: "bg-blue-100 text-blue-900 border-blue-300",
         stepColor: "bg-blue-600",
       };
     case "delivered":
       return {
-        label: "🎉 Delivered with Royal Love",
+        label: "Delivered with Royal Care",
+        icon: Heart,
         color: "bg-emerald-100 text-emerald-900 border-emerald-300",
         stepColor: "bg-emerald-600",
       };
     case "cancelled":
       return {
-        label: "✕ Cancelled",
+        label: "Cancelled",
+        icon: AlertCircle,
         color: "bg-rose-100 text-rose-900 border-rose-300",
         stepColor: "bg-rose-500",
       };
     default:
       return {
         label: status,
+        icon: Package,
         color: "bg-slate-100 text-slate-800 border-slate-300",
         stepColor: "bg-slate-500",
       };
@@ -529,8 +537,8 @@ function ProfilePage() {
     return (
       <SiteLayout>
         <div className="min-h-[60vh] flex flex-col items-center justify-center p-6 text-center">
-          <div className="size-16 rounded-3xl bg-lilac/20 text-lilac-deep flex items-center justify-center mb-4 animate-spin text-3xl shadow-inner">
-            👑
+          <div className="size-16 rounded-3xl bg-lilac/20 text-lilac-deep flex items-center justify-center mb-4 text-3xl shadow-inner">
+            <Crown className="size-8 animate-pulse text-lilac-deep" />
           </div>
           <h2 className="font-display text-xl font-bold text-slate-800">
             Opening Royal Patron Lounge...
@@ -546,8 +554,8 @@ function ProfilePage() {
       <SiteLayout>
         <div className="min-h-[75vh] flex items-center justify-center p-4 bg-slate-50/50">
           <div className="max-w-md w-full rounded-3xl border border-lilac-deep/20 bg-white p-8 text-center shadow-xl">
-            <div className="mx-auto mb-4 flex size-16 items-center justify-center rounded-2xl bg-lilac-deep/10 text-3xl text-lilac-deep">
-              👑
+            <div className="mx-auto mb-4 flex size-16 items-center justify-center rounded-2xl bg-lilac-deep/10 text-lilac-deep">
+              <Crown className="size-8 text-lilac-deep" />
             </div>
             <h2 className="font-display text-2xl font-black text-slate-800">
               Royal Patron Authentication
@@ -620,19 +628,22 @@ function ProfilePage() {
           {/* Top Royal Welcome Banner */}
           <div className="mb-6 overflow-hidden rounded-3xl border border-white/60 bg-gradient-to-r from-lilac-deep via-purple-700 to-primary p-6 text-white shadow-xl relative">
             <div className="absolute -top-12 -right-12 size-40 rounded-full bg-white/10 blur-2xl pointer-events-none" />
-            <div className="absolute top-2 right-4 text-white/10 text-7xl font-black select-none pointer-events-none">
-              👑
+            <div className="absolute top-2 right-4 text-white/10 select-none pointer-events-none">
+              <Crown className="size-24" />
             </div>
 
             <div className="relative flex flex-col md:flex-row md:items-center justify-between gap-4">
               <div>
                 <div className="flex items-center gap-2 text-xs font-black uppercase tracking-wider text-amber-200 mb-1">
-                  <span>✨ ROYAL ATELIER PATRON PORTAL</span>
+                  <span className="inline-flex items-center gap-1.5">
+                    <Sparkles className="size-3.5" /> ROYAL ATELIER PATRON PORTAL
+                  </span>
                   <span>·</span>
                   <span className="text-white/80">MEMBER ID: {patronIdShort}</span>
                 </div>
                 <h1 className="font-display text-2xl sm:text-3xl font-black text-white flex items-center gap-2.5">
-                  <span>Welcome, {displayName}! 👑</span>
+                  <span>Welcome, {displayName}!</span>
+                  <Crown className="size-6 text-amber-300 inline shrink-0" />
                 </h1>
                 <p className="text-xs sm:text-sm text-white/85 mt-1 max-w-2xl leading-relaxed">
                   Manage your bespoke amigurumi crafting pipeline, 1-click delivery address vault,
@@ -654,7 +665,7 @@ function ProfilePage() {
                     search={{ tab: "overview" }}
                     className="rounded-full bg-amber-400 text-amber-950 px-4 py-2 text-xs font-black shadow-md hover:bg-amber-300 transition-all inline-flex items-center gap-1.5"
                   >
-                    👑 CMS Portal
+                    <Crown className="size-3.5 text-amber-950" /> CMS Portal
                   </Link>
                 )}
               </div>
@@ -696,8 +707,8 @@ function ProfilePage() {
                 {/* Passport Card Top Banner */}
                 <div className="bg-gradient-to-br from-purple-100/70 via-lilac/20 to-pink-50 p-6 border-b border-slate-100 text-center relative">
                   {/* Decorative corner tag */}
-                  <div className="inline-flex items-center gap-1 rounded-full bg-amber-200 text-amber-950 px-3 py-0.5 text-[10px] font-black uppercase tracking-wider mb-3 shadow-2xs">
-                    👑 ROYAL PATRON TIER
+                  <div className="inline-flex items-center gap-1.5 rounded-full bg-amber-200 text-amber-950 px-3 py-0.5 text-[10px] font-black uppercase tracking-wider mb-3 shadow-2xs">
+                    <Crown className="size-3 text-amber-900" /> ROYAL PATRON TIER
                   </div>
 
                   {/* Avatar Circle with Illustrated Amigurumi Mascot */}
@@ -758,11 +769,11 @@ function ProfilePage() {
                   <div className="mt-1 flex flex-wrap items-center justify-center gap-1.5">
                     {isAdmin ? (
                       <span className="inline-flex items-center gap-1 rounded-full bg-amber-300 text-amber-950 px-2.5 py-0.5 text-[11px] font-black">
-                        👑 Verified Admin
+                        <Crown className="size-3 text-amber-900" /> Verified Admin
                       </span>
                     ) : (
                       <span className="inline-flex items-center gap-1 rounded-full bg-lilac/20 text-lilac-deep px-2.5 py-0.5 text-[11px] font-bold">
-                        👑 Atelier VIP
+                        <Crown className="size-3 text-amber-600" /> Atelier VIP
                       </span>
                     )}
 
@@ -1053,7 +1064,9 @@ function ProfilePage() {
                           </label>
                           <div className="relative">
                             <div className="absolute left-3.5 top-1/2 -translate-y-1/2 flex items-center gap-1 text-xs font-bold text-slate-500">
-                              <span className="text-sm">🇮🇳</span>
+                              <span className="px-1.5 py-0.5 rounded text-[10px] font-black bg-slate-100 text-slate-700">
+                                IN
+                              </span>
                               <span>+91</span>
                             </div>
                             <input
@@ -1228,7 +1241,7 @@ function ProfilePage() {
                         id={giftNoteId}
                         value={giftNotePref}
                         onChange={(e) => setGiftNotePref(e.target.value)}
-                        placeholder="e.g. 'Crafted with royal love for my favorite person! Happy Birthday! ✨'"
+                        placeholder="e.g. 'Crafted with royal love for my favorite person! Happy Birthday!'"
                         rows={2}
                         maxLength={300}
                         className="w-full rounded-2xl border border-slate-200 bg-white p-3.5 text-sm font-medium text-slate-800 placeholder-slate-400 outline-none transition-all focus:border-lilac-deep focus:ring-4 focus:ring-lilac-deep/15 shadow-2xs resize-none"
@@ -1272,7 +1285,8 @@ function ProfilePage() {
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                     <div>
                       <h3 className="font-display text-xl font-black text-slate-900 flex items-center gap-2">
-                        <span>📦 Atelier Commissions & Orders</span>
+                        <Package className="size-5 text-lilac-deep" />
+                        <span>Atelier Commissions & Orders</span>
                         <span className="rounded-full bg-lilac/20 text-lilac-deep text-xs font-black px-2.5 py-0.5">
                           {orders.length} Total
                         </span>
@@ -1293,8 +1307,8 @@ function ProfilePage() {
 
                   {loadingOrders ? (
                     <div className="rounded-3xl border border-white/80 bg-white/95 p-12 text-center shadow-lg">
-                      <div className="mx-auto size-14 rounded-2xl bg-lilac/20 text-lilac-deep flex items-center justify-center animate-spin mb-3 text-2xl">
-                        👑
+                      <div className="mx-auto size-14 rounded-2xl bg-lilac/20 text-lilac-deep flex items-center justify-center mb-3">
+                        <Loader2 className="size-7 animate-spin text-lilac-deep" />
                       </div>
                       <p className="text-sm font-bold text-slate-700">
                         Retrieving royal amigurumi commissions...
@@ -1355,9 +1369,13 @@ function ProfilePage() {
                                         : "bg-rose-50 text-rose-800 border-rose-200"
                                   }`}
                                 >
-                                  {order.payment_status === "paid"
-                                    ? "✓ Paid via Razorpay"
-                                    : `Payment: ${order.payment_status.toUpperCase()}`}
+                                  {order.payment_status === "paid" ? (
+                                    <span className="inline-flex items-center gap-1">
+                                      <Check className="size-3" /> Paid via Razorpay
+                                    </span>
+                                  ) : (
+                                    `Payment: ${order.payment_status.toUpperCase()}`
+                                  )}
                                 </span>
                               </div>
                             </div>
@@ -1366,9 +1384,10 @@ function ProfilePage() {
                             <div className="mb-4 bg-slate-50/80 rounded-2xl p-4 border border-slate-100">
                               <div className="flex items-center justify-between text-xs font-bold text-slate-700 mb-2">
                                 <span
-                                  className={`px-2.5 py-0.5 rounded-full border text-[11px] font-black ${statusConfig.color}`}
+                                  className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full border text-[11px] font-black ${statusConfig.color}`}
                                 >
-                                  {statusConfig.label}
+                                  <statusConfig.icon className="size-3" />
+                                  <span>{statusConfig.label}</span>
                                 </span>
                                 <span className="text-slate-400">Step {stepIndex} of 4</span>
                               </div>
@@ -1470,8 +1489,8 @@ function ProfilePage() {
                     </div>
                   ) : (
                     <div className="rounded-3xl border border-white/80 bg-white/95 p-10 text-center shadow-lg">
-                      <div className="mx-auto size-16 rounded-3xl bg-lilac/15 text-3xl flex items-center justify-center mb-4 shadow-inner">
-                        👑
+                      <div className="mx-auto size-16 rounded-3xl bg-lilac/15 flex items-center justify-center mb-4 shadow-inner text-lilac-deep">
+                        <Package className="size-8" />
                       </div>
                       <h4 className="font-display text-lg font-bold text-slate-800">
                         No Royal Commissions Placed Yet
@@ -1509,8 +1528,8 @@ function ProfilePage() {
                   {/* Patron Privileges Hero Card */}
                   <div className="rounded-3xl border border-amber-200/80 bg-gradient-to-br from-amber-50 via-amber-100/40 to-orange-50 p-6 sm:p-8 shadow-lg">
                     <div className="flex items-start gap-4">
-                      <div className="size-14 rounded-2xl bg-amber-300 text-amber-950 flex items-center justify-center text-3xl shadow-inner shrink-0">
-                        👑
+                      <div className="size-14 rounded-2xl bg-amber-300 text-amber-950 flex items-center justify-center shadow-inner shrink-0">
+                        <Crown className="size-7" />
                       </div>
                       <div>
                         <span className="text-[11px] font-black uppercase tracking-wider text-amber-800">
@@ -1784,21 +1803,36 @@ function ProfilePage() {
                                   passLength ? "text-emerald-600 font-bold" : "text-slate-400"
                                 }`}
                               >
-                                {passLength ? "✓" : "○"} 6+ characters
+                                {passLength ? (
+                                  <Check className="size-3 text-emerald-600" />
+                                ) : (
+                                  <span className="size-1.5 rounded-full bg-slate-300 inline-block" />
+                                )}{" "}
+                                6+ characters
                               </span>
                               <span
                                 className={`inline-flex items-center gap-1 ${
                                   passHasLetter ? "text-emerald-600 font-bold" : "text-slate-400"
                                 }`}
                               >
-                                {passHasLetter ? "✓" : "○"} Letters
+                                {passHasLetter ? (
+                                  <Check className="size-3 text-emerald-600" />
+                                ) : (
+                                  <span className="size-1.5 rounded-full bg-slate-300 inline-block" />
+                                )}{" "}
+                                Letters
                               </span>
                               <span
                                 className={`inline-flex items-center gap-1 ${
                                   passHasNumber ? "text-emerald-600 font-bold" : "text-slate-400"
                                 }`}
                               >
-                                {passHasNumber ? "✓" : "○"} Numbers
+                                {passHasNumber ? (
+                                  <Check className="size-3 text-emerald-600" />
+                                ) : (
+                                  <span className="size-1.5 rounded-full bg-slate-300 inline-block" />
+                                )}{" "}
+                                Numbers
                               </span>
                             </div>
                           </div>

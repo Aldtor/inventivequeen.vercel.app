@@ -70,7 +70,11 @@ export function RoyalNotFoundContent() {
             <Sparkles className="size-3 text-amber-500" /> Lost in the Yarn Stash
           </span>
           <div className="flex items-center justify-center font-display text-7xl sm:text-9xl font-black text-lilac-deep tracking-tight select-none">
-            4<span className="animate-bounce inline-block text-amber-500">🧶</span>4
+            4
+            <span className="inline-flex items-center justify-center size-16 sm:size-24 rounded-3xl bg-gradient-to-tr from-amber-200 to-purple-200 text-amber-800 mx-2 shadow-inner animate-bounce">
+              <Sparkles className="size-10 sm:size-14 text-amber-700" />
+            </span>
+            4
           </div>
         </div>
 
@@ -100,8 +104,9 @@ export function RoyalNotFoundContent() {
 
         {/* Quick Discovery Grid */}
         <div className="relative mt-12 pt-10 border-t border-white/50 text-left">
-          <p className="text-xs font-bold tracking-wider text-muted-foreground uppercase text-center mb-6">
-            ✨ Or explore our popular royal collections
+          <p className="text-xs font-bold tracking-wider text-muted-foreground uppercase text-center mb-6 flex items-center justify-center gap-1.5">
+            <Sparkles className="size-3 text-amber-500 inline" />
+            <span>Or explore our popular royal collections</span>
           </p>
 
           <div className="grid gap-3.5 sm:grid-cols-2">

@@ -72,8 +72,8 @@ export function CookieConsent() {
 
           <div className="flex-1 pr-6">
             <div className="flex items-center gap-2">
-              <h3 className="font-display text-sm sm:text-base font-bold text-lilac-deep">
-                Handcrafted with Cookies 🍪
+              <h3 className="font-display text-sm sm:text-base font-bold text-lilac-deep flex items-center gap-1.5">
+                Handcrafted with Cookies
               </h3>
               <span className="inline-flex items-center gap-1 rounded-full bg-lilac/20 px-2 py-0.5 text-[10px] font-bold text-lilac-deep">
                 <Sparkles className="size-2.5" /> Privacy

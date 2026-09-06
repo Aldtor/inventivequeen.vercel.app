@@ -100,8 +100,9 @@ function AboutPage() {
               that never wilts, every piece is planned, stitched and finished by hand. I work
               closely with each customer to make sure the colours, pose and tiny details feel right.
             </p>
-            <p className="text-lg text-muted-foreground">
-              Thank you for supporting handmade — it means the world. 💜
+            <p className="text-lg text-muted-foreground flex items-center gap-1.5">
+              <span>Thank you for supporting handmade — it means the world.</span>
+              <Heart className="size-4 text-purple-600 fill-purple-200 inline shrink-0" />
             </p>
           </div>
         </div>

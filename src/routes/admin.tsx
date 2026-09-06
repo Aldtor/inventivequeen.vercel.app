@@ -130,12 +130,12 @@ const ALL_STATUSES: { status: OrderStatus; label: string; color: string; nextAct
 ];
 
 const BADGE_PRESETS = [
-  "⭐ Bestseller",
-  "💐 Popular",
-  "✨ New Arrival",
-  "🔥 Limited Edition",
-  "🎀 Hand-Crafted",
-  "🌸 Seasonal",
+  "Bestseller",
+  "Popular",
+  "New Arrival",
+  "Limited Edition",
+  "Hand-Crafted",
+  "Seasonal",
 ];
 
 const STOCK_OPTIONS = [
@@ -356,12 +356,12 @@ function AdminPage() {
     }
   };
 
-  // 🛡️ Security Gate: Verify authentication and administrative role
+  // Security Gate: Verify authentication and administrative role
   if (authLoading) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-slate-50 p-6 text-center">
-        <div className="size-12 rounded-2xl bg-lilac-deep/10 text-lilac-deep flex items-center justify-center mb-4 animate-spin text-xl">
-          👑
+        <div className="size-12 rounded-2xl bg-lilac-deep/10 text-lilac-deep flex items-center justify-center mb-4 text-xl">
+          <Crown className="size-6 animate-pulse text-lilac-deep" />
         </div>
         <h2 className="font-display font-bold text-lg text-slate-800">
           Verifying Royal Credentials...
@@ -375,8 +375,8 @@ function AdminPage() {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-slate-50/70 p-6 text-center">
         <div className="max-w-md w-full rounded-2xl border border-lilac-deep/20 bg-white p-8 shadow-xl">
-          <div className="mx-auto mb-4 flex size-14 items-center justify-center rounded-2xl bg-lilac-deep/10 text-2xl text-lilac-deep">
-            👑
+          <div className="mx-auto mb-4 flex size-14 items-center justify-center rounded-2xl bg-lilac-deep/10 text-lilac-deep">
+            <Crown className="size-7 text-lilac-deep" />
           </div>
           <h2 className="font-display text-xl font-black text-slate-800">
             Atelier Administration Gate
@@ -453,8 +453,8 @@ function AdminPage() {
         {/* Top bar */}
         <header className="sticky top-0 z-30 flex items-center justify-between border-b border-white/60 bg-white/70 backdrop-blur-md px-6 py-3.5 shadow-sm">
           <div className="flex items-center gap-3">
-            <span className="flex size-7 items-center justify-center rounded-lg bg-lilac-deep text-white text-xs font-black shadow-sm">
-              👑
+            <span className="flex size-7 items-center justify-center rounded-lg bg-lilac-deep text-white shadow-sm">
+              <Crown className="size-4" />
             </span>
             <div>
               <h1 className="font-display text-base font-extrabold text-lilac-deep leading-tight">
@@ -484,7 +484,10 @@ function AdminPage() {
         {/* Alerts Banner */}
         {notice && (
           <div className="mx-6 mt-4 rounded-2xl bg-emerald-50 border border-emerald-200 p-3.5 text-xs text-emerald-800 font-semibold flex items-center justify-between shadow-sm">
-            <span>👑 {notice}</span>
+            <span className="inline-flex items-center gap-1.5">
+              <Crown className="size-3.5 text-emerald-700 inline" />
+              <span>{notice}</span>
+            </span>
             <button
               onClick={() => setNotice(null)}
               className="text-emerald-700 hover:text-emerald-900"
@@ -1055,7 +1058,10 @@ function OrdersAdminSection({
                     <p className="font-bold text-foreground">Pincode: {order.pincode}</p>
                     {order.gift_note && (
                       <div className="mt-2 pt-2 border-t border-white/60 text-[11px]">
-                        <span className="font-bold text-lilac-deep">👑 Wax-Sealed Gift Note:</span>
+                        <span className="font-bold text-lilac-deep inline-flex items-center gap-1">
+                          <Crown className="size-3 text-amber-600" />
+                          <span>Wax-Sealed Gift Note:</span>
+                        </span>
                         <p className="italic text-muted-foreground mt-0.5">"{order.gift_note}"</p>
                       </div>
                     )}
@@ -1323,7 +1329,7 @@ function ProductsAdminSection() {
         tagline: "Handmade crochet amigurumi",
         description: "Add details about materials, yarn type, and customization options here.",
         imagesText: "",
-        badge: "✨ New",
+        badge: "New",
         isNewArrival: true,
         newArrivalDays: "30",
         isActive: true,
@@ -1729,9 +1735,9 @@ function ProductsAdminSection() {
                     {/* Discount & Savings Info */}
                     {savings > 0 && (
                       <div className="sm:col-span-12 rounded-xl bg-purple-50/70 border border-purple-200/70 px-3 py-1.5 text-[11px] text-purple-800 font-semibold flex items-center justify-between">
-                        <span>
-                          ✨ Customer saves ₹{savings.toLocaleString("en-IN")} (
-                          {draft.discountPercent}% OFF)
+                        <span className="inline-flex items-center gap-1">
+                          <Sparkles className="size-3 text-purple-600 inline" /> Customer saves ₹
+                          {savings.toLocaleString("en-IN")} ({draft.discountPercent}% OFF)
                         </span>
                         <span className="font-normal text-muted-foreground">
                           Original ₹{orig} → Selling ₹{sell}
@@ -1908,17 +1914,17 @@ function ProductsAdminSection() {
             <div className="flex items-center gap-1 bg-white/10 rounded-full p-1 text-[11px] font-bold">
               <button
                 type="button"
-                onClick={() => handleBulkBadge("⭐ Bestseller")}
+                onClick={() => handleBulkBadge("Bestseller")}
                 className="hover:bg-white/20 px-2.5 py-0.5 rounded-full"
               >
-                ⭐ Bestseller
+                Bestseller
               </button>
               <button
                 type="button"
-                onClick={() => handleBulkBadge("🔥 Limited")}
+                onClick={() => handleBulkBadge("Limited Edition")}
                 className="hover:bg-white/20 px-2.5 py-0.5 rounded-full"
               >
-                🔥 Limited
+                Limited Edition
               </button>
             </div>
 
@@ -2034,13 +2040,13 @@ function InventoryAdminSection() {
   const getCategoryLabel = (cat: string) => {
     switch (cat) {
       case "yarn":
-        return "🧶 Milk Cotton Yarn";
+        return "Milk Cotton Yarn";
       case "hardware":
-        return "🔩 Hardware & Eyes";
+        return "Hardware & Safety Eyes";
       case "packaging":
-        return "📦 Luxury Packaging";
+        return "Luxury Packaging";
       case "acc":
-        return "👑 Wax Seals & Acc";
+        return "Wax Seals & Accessories";
       default:
         return cat;
     }
@@ -2384,8 +2390,9 @@ function InventoryAdminSection() {
                     <span className="text-xs font-semibold text-muted-foreground">{item.unit}</span>
                   </div>
                   {isLow && (
-                    <span className="text-[10px] font-bold text-amber-700 block">
-                      ⚠️ Low stock (min: {item.minThreshold})
+                    <span className="text-[10px] font-bold text-amber-700 inline-flex items-center gap-1">
+                      <AlertCircle className="size-3 text-amber-600 inline shrink-0" />
+                      <span>Low stock (min: {item.minThreshold})</span>
                     </span>
                   )}
                 </div>
@@ -2572,7 +2579,10 @@ function ReviewsAdminSection() {
 
       {notice && (
         <div className="rounded-2xl bg-emerald-50 border border-emerald-200 p-3 text-xs text-emerald-800 font-semibold flex items-center justify-between">
-          <span>✨ {notice}</span>
+          <span className="inline-flex items-center gap-1.5">
+            <Sparkles className="size-3.5 text-emerald-700" />
+            <span>{notice}</span>
+          </span>
           <button onClick={() => setNotice(null)} className="text-emerald-700">
             <X className="size-4" />
           </button>
@@ -2806,7 +2816,14 @@ function ReviewsAdminSection() {
                       : "bg-white/80 text-muted-foreground"
                   }`}
                 >
-                  {rev.isFeatured ? "⭐ Featured" : "Standard"}
+                  {rev.isFeatured ? (
+                    <span className="inline-flex items-center gap-1">
+                      <Star className="size-2.5 fill-purple-700 text-purple-700 inline" />
+                      <span>Featured</span>
+                    </span>
+                  ) : (
+                    "Standard"
+                  )}
                 </button>
 
                 <button
@@ -2903,7 +2920,10 @@ function CouponsAdminSection() {
 
       {notice && (
         <div className="rounded-2xl bg-emerald-50 border border-emerald-200 p-3 text-xs text-emerald-800 font-semibold flex items-center justify-between">
-          <span>👑 {notice}</span>
+          <span className="inline-flex items-center gap-1.5">
+            <Crown className="size-3.5 text-emerald-700" />
+            <span>{notice}</span>
+          </span>
           <button onClick={() => setNotice(null)} className="text-emerald-700">
             <X className="size-4" />
           </button>
@@ -3235,7 +3255,7 @@ function CustomersAdminSection({ orders }: { orders: DbOrder[] }) {
             if (phoneClean.length === 10) phoneClean = `91${phoneClean}`;
 
             const vipMsg = encodeURIComponent(
-              `Hello ${patron.name}! 👑\nThis is Inventive Queen atelier. Thank you for being one of our cherished patrons (${patron.totalOrders} royal orders)! We are handcrafting new seasonal designs and wanted to offer you an exclusive preview.`,
+              `Hello ${patron.name}!\nThis is Inventive Queen atelier. Thank you for being one of our cherished patrons (${patron.totalOrders} royal orders)! We are handcrafting new seasonal designs and wanted to offer you an exclusive preview.`,
             );
             const waUrl = `https://wa.me/${phoneClean}?text=${vipMsg}`;
 
@@ -3257,8 +3277,8 @@ function CustomersAdminSection({ orders }: { orders: DbOrder[] }) {
                     </div>
 
                     {patron.totalOrders > 1 && (
-                      <span className="bg-purple-100 text-purple-800 text-[10px] font-black px-2 py-0.5 rounded-full">
-                        👑 VIP Patron
+                      <span className="bg-purple-100 text-purple-800 text-[10px] font-black px-2 py-0.5 rounded-full inline-flex items-center gap-1">
+                        <Crown className="size-2.5 text-purple-700" /> VIP Patron
                       </span>
                     )}
                   </div>
@@ -3412,7 +3432,7 @@ function StoreSettingsAdminSection() {
           <label className="block font-bold text-foreground mb-1">Badge Text</label>
           <input
             type="text"
-            placeholder="e.g. ✨ Limited slots"
+            placeholder="e.g. Limited slots"
             value={draft.announcementBadge}
             onChange={(e) => setDraft({ ...draft, announcementBadge: e.target.value })}
             className="w-full rounded-xl border border-white/80 bg-white/90 px-3 py-2 text-xs outline-none focus:border-lilac-deep"
@@ -3461,7 +3481,17 @@ function StoreSettingsAdminSection() {
                 : "bg-rose-500 text-white shadow-md"
             }`}
           >
-            {draft.isStoreOpen ? "🟢 Orders OPEN" : "🔴 Orders PAUSED / CLOSED"}
+            {draft.isStoreOpen ? (
+              <span className="inline-flex items-center gap-1.5">
+                <span className="size-2 rounded-full bg-emerald-200 animate-pulse inline-block" />
+                <span>Orders OPEN</span>
+              </span>
+            ) : (
+              <span className="inline-flex items-center gap-1.5">
+                <span className="size-2 rounded-full bg-rose-200 inline-block" />
+                <span>Orders PAUSED / CLOSED</span>
+              </span>
+            )}
           </button>
         </div>
 
@@ -3516,7 +3546,7 @@ function SettingsAdminSection({ userEmail }: { userEmail?: string | null }) {
       <div className="rounded-2xl bg-white/60 p-4 border border-white/70 space-y-3 text-xs">
         <h3 className="font-bold text-foreground flex items-center gap-2">
           <ShieldCheck className="size-4 text-lilac-deep" />
-          👑 Royal Admin Permissions
+          <span>Royal Admin Permissions</span>
         </h3>
         <p className="text-muted-foreground leading-relaxed">
           Admin authorization is managed in the Supabase table{" "}

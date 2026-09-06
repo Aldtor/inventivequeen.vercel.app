@@ -110,8 +110,8 @@ function ReviewsPage() {
         {/* Trust Stats Bar */}
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-4 mb-12">
           <div className="liquid-glass p-5 text-center rounded-3xl border border-white/60">
-            <span className="font-display text-3xl sm:text-4xl font-black text-lilac-deep">
-              4.98 ★
+            <span className="font-display text-3xl sm:text-4xl font-black text-lilac-deep inline-flex items-center justify-center gap-1">
+              4.98 <Star className="size-6 sm:size-7 fill-amber-400 text-amber-400 inline" />
             </span>
             <p className="mt-1 text-xs font-bold uppercase tracking-wider text-muted-foreground">
               Average Rating

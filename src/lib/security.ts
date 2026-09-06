@@ -1,5 +1,5 @@
 /**
- * 👑 Inventive Queen Security & Validation Utility
+ * Inventive Queen Security & Validation Utility
  *
  * Centralized security functions for input sanitization, safe redirects,
  * cryptographic verification, and format validation.

@@ -1,5 +1,5 @@
 import { Link, createFileRoute } from "@tanstack/react-router";
-import { Heart, Palette, Play, Quote, Sparkles, Star, Truck } from "lucide-react";
+import { Crown, Feather, Heart, Palette, Play, Quote, Sparkles, Star, Truck } from "lucide-react";
 
 import { SiteLayout } from "@/components/site/SiteLayout";
 import logo from "@/assets/logo.png";
@@ -161,10 +161,10 @@ const INSTAGRAM_GALLERY = [
 ];
 
 const STATS = [
-  { value: "500+", label: "Stitched pieces" },
-  { value: "100%", label: "Handmade" },
-  { value: "4.9★", label: "Loved by buyers" },
-  { value: "Pan-India", label: "Shipping" },
+  { value: "500+", label: "Stitched pieces", isRating: false },
+  { value: "100%", label: "Handmade", isRating: false },
+  { value: "4.9", label: "Loved by buyers", isRating: true },
+  { value: "Pan-India", label: "Shipping", isRating: false },
 ];
 
 const LOVE = [
@@ -231,8 +231,11 @@ function Home() {
             <div className="mt-10 grid max-w-md grid-cols-2 gap-4 sm:grid-cols-4">
               {STATS.map((stat) => (
                 <div key={stat.label} className="liquid-glass px-3 py-3 text-center rounded-2xl">
-                  <p className="font-display text-2xl font-extrabold text-lilac-deep">
-                    {stat.value}
+                  <p className="font-display text-2xl font-extrabold text-lilac-deep inline-flex items-center justify-center gap-0.5">
+                    <span>{stat.value}</span>
+                    {stat.isRating && (
+                      <Star className="size-4 fill-amber-400 text-amber-400 inline" />
+                    )}
                   </p>
                   <p className="text-xs text-muted-foreground">{stat.label}</p>
                 </div>
@@ -254,8 +257,8 @@ function Home() {
                 className="aspect-square w-full rounded-3xl object-cover"
               />
               <div className="absolute bottom-5 left-5 z-20 flex items-center gap-2.5 rounded-full border border-white/90 bg-white/90 px-4 py-2 shadow-2xl backdrop-blur-md transition-all duration-300 hover:scale-105 hover:shadow-lilac-deep/20">
-                <span className="flex size-7 items-center justify-center rounded-full bg-gradient-to-br from-amber-100 to-amber-200 text-sm shadow-sm">
-                  👑
+                <span className="flex size-7 items-center justify-center rounded-full bg-gradient-to-br from-amber-100 to-amber-200 shadow-sm">
+                  <Crown className="size-3.5 text-amber-700" />
                 </span>
                 <span className="font-display text-xs sm:text-sm font-bold tracking-wide text-foreground">
                   Made just for you
@@ -293,9 +296,10 @@ function Home() {
           {[...MARQUEE, ...MARQUEE].map((text, i) => (
             <span
               key={`${text}-${i}`}
-              className="text-xs font-bold tracking-wide whitespace-nowrap text-lilac-deep uppercase"
+              className="text-xs font-bold tracking-wide whitespace-nowrap text-lilac-deep uppercase inline-flex items-center gap-1.5"
             >
-              👑 {text}
+              <Crown className="size-3 text-amber-600" />
+              <span>{text}</span>
             </span>
           ))}
         </div>
@@ -415,16 +419,18 @@ function Home() {
               <video autoPlay loop muted playsInline className="aspect-video rounded-[1.5rem]">
                 <source src={videoBookmark} type="video/mp4" />
               </video>
-              <p className="relative z-10 mt-3 px-4 pb-3 text-center text-sm font-bold text-lilac-deep">
-                🦚 Peacock Bookmark — Handmade
+              <p className="relative z-10 mt-3 px-4 pb-3 text-center text-sm font-bold text-lilac-deep inline-flex items-center justify-center gap-1.5 w-full">
+                <Feather className="size-4 text-emerald-600" />
+                <span>Peacock Bookmark — Handmade</span>
               </p>
             </div>
             <div className="video-frame liquid-glass p-2">
               <video autoPlay loop muted playsInline className="aspect-video rounded-[1.5rem]">
                 <source src={videoTeddy} type="video/mp4" />
               </video>
-              <p className="relative z-10 mt-3 px-4 pb-3 text-center text-sm font-bold text-lilac-deep">
-                🧸 Teddy Bear — Stitched with Love
+              <p className="relative z-10 mt-3 px-4 pb-3 text-center text-sm font-bold text-lilac-deep inline-flex items-center justify-center gap-1.5 w-full">
+                <Heart className="size-4 text-rose-500 fill-rose-100" />
+                <span>Teddy Bear — Stitched with Love</span>
               </p>
             </div>
           </div>

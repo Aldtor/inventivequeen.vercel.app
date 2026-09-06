@@ -1,5 +1,6 @@
 import {
   Boxes,
+  Crown,
   ExternalLink,
   LayoutDashboard,
   Megaphone,
@@ -54,7 +55,9 @@ export function AdminSidebar({ activeTab, onSelectTab }: AdminSidebarProps) {
               alt="Inventive Queen logo"
               className="size-10 rounded-full object-cover shadow-sm ring-2 ring-lilac-deep/20"
             />
-            <span className="absolute -bottom-1 -right-1 text-xs">👑</span>
+            <span className="absolute -bottom-1 -right-1 flex size-4 items-center justify-center rounded-full bg-amber-200 text-amber-900 shadow-xs border border-white">
+              <Crown className="size-2.5" />
+            </span>
           </div>
           <div>
             <h2 className="font-display text-sm font-extrabold text-lilac-deep leading-tight">

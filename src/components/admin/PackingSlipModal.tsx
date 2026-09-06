@@ -1,4 +1,4 @@
-import { Printer, X } from "lucide-react";
+import { Crown, Printer, X } from "lucide-react";
 import logo from "@/assets/logo.png";
 import type { DbOrder } from "@/lib/supabase";
 import { parseAdminNotes, getOrderItemImageUrl } from "@/lib/order-utils";
@@ -24,7 +24,7 @@ export function PackingSlipModal({ order, onClose }: PackingSlipModalProps) {
         {/* Screen-only Close & Print Actions */}
         <div className="flex items-center justify-between pb-6 mb-6 border-b border-slate-100 print:hidden">
           <div className="flex items-center gap-2">
-            <span className="text-xl">👑</span>
+            <Crown className="size-5 text-lilac-deep" />
             <span className="font-display font-extrabold text-lilac-deep text-sm">
               Royal Packing Slip Preview
             </span>
@@ -181,7 +181,8 @@ export function PackingSlipModal({ order, onClose }: PackingSlipModalProps) {
           {order.gift_note && (
             <div className="rounded-2xl bg-amber-50/80 p-4 border border-amber-200/80 text-xs space-y-1">
               <span className="font-bold text-amber-900 text-[11px] flex items-center gap-1.5">
-                👑 Wax-Sealed Gift Note Enclosed:
+                <Crown className="size-3.5 text-amber-700" />
+                <span>Wax-Sealed Gift Note Enclosed:</span>
               </span>
               <p className="italic text-amber-950 font-serif leading-relaxed">
                 "{order.gift_note}"

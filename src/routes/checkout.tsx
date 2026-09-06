@@ -815,8 +815,9 @@ function CheckoutPage() {
                   </div>
 
                   <div>
-                    <label className="block text-xs font-bold text-foreground mb-1">
-                      👑 Wax-Sealed Gift Note (Optional)
+                    <label className="text-xs font-bold text-foreground mb-1 flex items-center gap-1.5">
+                      <Crown className="size-3.5 text-amber-600" />
+                      <span>Wax-Sealed Gift Note (Optional)</span>
                     </label>
                     <input
                       type="text"
@@ -838,8 +839,8 @@ function CheckoutPage() {
                   <h3 className="font-display text-lg font-bold text-lilac-deep">
                     Basket ({cart.length})
                   </h3>
-                  <span className="text-xs font-bold text-emerald-600 bg-emerald-100/70 px-2.5 py-1 rounded-full">
-                    👑 Free Royal Shipping
+                  <span className="text-xs font-bold text-emerald-700 bg-emerald-100/70 px-2.5 py-1 rounded-full inline-flex items-center gap-1">
+                    <Crown className="size-3 text-emerald-700" /> Free Royal Shipping
                   </span>
                 </div>
 
@@ -1017,10 +1018,13 @@ function CheckoutPage() {
 
               {/* Hand-Crafted Guarantee */}
               <div className="liquid-glass rounded-3xl p-5 border border-white/60 text-center">
-                <p className="text-xs font-semibold text-muted-foreground leading-relaxed">
-                  👑 <strong className="text-foreground">Inventive Queen Guarantee:</strong> Every
-                  amigurumi doll, plushie and bouquet is crafted stitch-by-stitch with soft premium
-                  milk cotton yarn and shipped securely.
+                <p className="text-xs font-semibold text-muted-foreground leading-relaxed flex items-center justify-center gap-1.5">
+                  <Crown className="size-4 text-amber-600 inline shrink-0" />
+                  <span>
+                    <strong className="text-foreground">Inventive Queen Guarantee:</strong> Every
+                    amigurumi doll, plushie and bouquet is crafted stitch-by-stitch with soft
+                    premium milk cotton yarn and shipped securely.
+                  </span>
                 </p>
               </div>
             </div>

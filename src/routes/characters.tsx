@@ -61,7 +61,7 @@ const ITEMS = [
     size: "2 – 3 inches",
     price: "₹700 each",
     note: "Perfect for bag charms and party favours",
-    badge: "🎁 Great gift",
+    badge: "Great Gift",
     image: bearKeychain,
   },
 ];

@@ -79,7 +79,7 @@ export function createWhatsAppChatUrl(order: DbOrder, customMessage?: string): s
 
   const defaultMsg =
     customMessage ||
-    `Hello ${order.customer_name}! 👑\nThis is Inventive Queen regarding your royal crochet order ${order.order_number}.\n\nStatus: ${order.status.toUpperCase()}\nTotal: ₹${order.amount_total?.toLocaleString("en-IN")}\n\nThank you for choosing our handcrafted atelier!`;
+    `Hello ${order.customer_name}!\nThis is Inventive Queen regarding your royal crochet order ${order.order_number}.\n\nStatus: ${order.status.toUpperCase()}\nTotal: ₹${order.amount_total?.toLocaleString("en-IN")}\n\nThank you for choosing our handcrafted atelier!`;
 
   return `https://wa.me/${phone}?text=${encodeURIComponent(defaultMsg)}`;
 }

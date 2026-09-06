@@ -4,6 +4,7 @@ import {
   AlertCircle,
   ArrowRight,
   Calendar,
+  Check,
   CheckCircle2,
   Clock,
   Crown,
@@ -259,7 +260,7 @@ function OrdersPage() {
                                     : "bg-muted text-muted-foreground"
                                 }`}
                               >
-                                {isDone ? "✓" : idx + 1}
+                                {isDone ? <Check className="size-3.5" /> : idx + 1}
                               </span>
                               <span
                                 className={`text-xs font-bold ${
@@ -333,7 +334,10 @@ function OrdersPage() {
 
                       {order.gift_note && (
                         <div className="mt-3 pt-2.5 border-t border-white/60">
-                          <span className="font-bold text-foreground">👑 Wax-Sealed Note:</span>
+                          <span className="font-bold text-foreground inline-flex items-center gap-1">
+                            <Crown className="size-3.5 text-amber-600" />
+                            <span>Wax-Sealed Note:</span>
+                          </span>
                           <p className="italic text-muted-foreground mt-0.5">"{order.gift_note}"</p>
                         </div>
                       )}

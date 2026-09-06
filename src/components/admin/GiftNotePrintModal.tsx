@@ -1,4 +1,4 @@
-import { Printer, X } from "lucide-react";
+import { Crown, Mail, Printer, Sparkles, X } from "lucide-react";
 import logo from "@/assets/logo.png";
 import type { DbOrder } from "@/lib/supabase";
 
@@ -20,7 +20,7 @@ export function GiftNotePrintModal({ order, onClose }: GiftNotePrintModalProps) 
         {/* Actions Bar (hidden on print) */}
         <div className="flex items-center justify-between pb-4 mb-4 border-b border-slate-100 print:hidden">
           <div className="flex items-center gap-2">
-            <span className="text-xl">💌</span>
+            <Mail className="size-5 text-lilac-deep" />
             <h3 className="font-display font-extrabold text-lilac-deep text-sm">
               Royal Calligraphy Gift Card Studio
             </h3>
@@ -47,10 +47,18 @@ export function GiftNotePrintModal({ order, onClose }: GiftNotePrintModalProps) 
         {/* Printable Royal Card (Parchment Aesthetic) */}
         <div className="printable-gift-card relative overflow-hidden rounded-2xl bg-[#FCFBF7] p-8 border-4 border-double border-amber-700/40 text-center space-y-6 shadow-inner">
           {/* Corner Flourishes */}
-          <span className="absolute top-2 left-2 text-amber-600/40 text-sm">❦</span>
-          <span className="absolute top-2 right-2 text-amber-600/40 text-sm">❧</span>
-          <span className="absolute bottom-2 left-2 text-amber-600/40 text-sm">❧</span>
-          <span className="absolute bottom-2 right-2 text-amber-600/40 text-sm">❦</span>
+          <span className="absolute top-2 left-2 text-amber-600/40">
+            <Sparkles className="size-3" />
+          </span>
+          <span className="absolute top-2 right-2 text-amber-600/40">
+            <Sparkles className="size-3" />
+          </span>
+          <span className="absolute bottom-2 left-2 text-amber-600/40">
+            <Sparkles className="size-3" />
+          </span>
+          <span className="absolute bottom-2 right-2 text-amber-600/40">
+            <Sparkles className="size-3" />
+          </span>
 
           {/* Header Crest */}
           <div className="flex flex-col items-center">
@@ -87,7 +95,7 @@ export function GiftNotePrintModal({ order, onClose }: GiftNotePrintModalProps) 
           {/* Wax Seal Graphic */}
           <div className="pt-2 flex flex-col items-center justify-center">
             <div className="size-14 rounded-full bg-gradient-to-br from-[#881337] via-[#9F1239] to-[#4C0519] text-amber-200 flex flex-col items-center justify-center shadow-lg border-2 border-rose-950/40 transform rotate-[-6deg]">
-              <span className="text-base leading-none">👑</span>
+              <Crown className="size-5 text-amber-200" />
               <span className="text-[7px] font-black uppercase tracking-tighter mt-0.5">
                 IQ SEAL
               </span>

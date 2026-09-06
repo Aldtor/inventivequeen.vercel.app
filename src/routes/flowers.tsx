@@ -58,7 +58,7 @@ const FLOWERS = [
     size: "Single stem",
     price: "₹300 per piece",
     image: bouquetRose,
-    badge: "💐 Popular",
+    badge: "Popular",
   },
   { name: "Gradient Rose", size: "Single stem", price: "₹200 per piece", image: bouquetRose2 },
   { name: "Daisy", size: "Single stem", price: "₹200 per piece", image: bouquetPastel },

@@ -51,7 +51,7 @@ const DOLLS = [
     name: "Mini Doll",
     size: "3.5 – 4 inches (depends on design)",
     price: "₹1,600 each",
-    badge: "⭐ Bestseller",
+    badge: "Bestseller",
     image: minisImg,
   },
   {

@@ -1,5 +1,14 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Instagram, Mail, MapPin, MessageCircle, CheckCircle2, Sparkles, Send } from "lucide-react";
+import {
+  Crown,
+  Instagram,
+  Mail,
+  MapPin,
+  MessageCircle,
+  CheckCircle2,
+  Sparkles,
+  Send,
+} from "lucide-react";
 import { useState, type FormEvent } from "react";
 import { toast } from "sonner";
 
@@ -193,8 +202,9 @@ function ContactPage() {
                   <CheckCircle2 className="size-8" />
                 </div>
                 <div>
-                  <span className="inline-flex items-center gap-1 text-[11px] font-black uppercase tracking-wider text-lilac-deep bg-lilac/20 px-3 py-1 rounded-full mb-2">
-                    👑 INQUIRY LOGGED IN ATELIER DATABASE
+                  <span className="inline-flex items-center gap-1.5 text-[11px] font-black uppercase tracking-wider text-lilac-deep bg-lilac/20 px-3 py-1 rounded-full mb-2">
+                    <Crown className="size-3.5 text-lilac-deep" /> INQUIRY LOGGED IN ATELIER
+                    DATABASE
                   </span>
                   <h3 className="text-xl font-display font-extrabold text-slate-800">
                     Thank you, {customerName || "Patron"}!
@@ -286,7 +296,7 @@ function ContactPage() {
                     </span>
                   ) : (
                     <span className="inline-flex items-center gap-2">
-                      <Send className="size-4" /> Send Inquiry ✨
+                      <Send className="size-4" /> Send Inquiry
                     </span>
                   )}
                 </Button>

@@ -290,8 +290,8 @@ export function AccountProfileModal({ isOpen, onClose }: AccountProfileModalProp
         {/* Top Decorative Banner */}
         <div className="relative bg-gradient-to-r from-lilac-deep via-lilac to-lilac-deep px-6 pt-6 pb-5 text-white">
           <div className="absolute -top-12 -right-12 size-36 rounded-full bg-white/10 blur-xl pointer-events-none" />
-          <div className="absolute top-2 left-6 text-white/20 text-5xl font-black select-none pointer-events-none">
-            👑
+          <div className="absolute top-2 left-6 text-white/15 select-none pointer-events-none">
+            <Crown className="size-16" />
           </div>
 
           <button
@@ -315,11 +315,11 @@ export function AccountProfileModal({ isOpen, onClose }: AccountProfileModalProp
                 </h3>
                 {isAdmin ? (
                   <span className="inline-flex items-center gap-1 rounded-full bg-amber-300 text-amber-950 px-2.5 py-0.5 text-[11px] font-black shadow-sm">
-                    👑 Atelier Admin
+                    <Crown className="size-3 text-amber-900" /> Atelier Admin
                   </span>
                 ) : (
                   <span className="inline-flex items-center gap-1 rounded-full bg-white/25 text-white px-2.5 py-0.5 text-[11px] font-bold">
-                    👑 Royal Patron
+                    <Crown className="size-3 text-amber-300" /> Royal Patron
                   </span>
                 )}
               </div>
@@ -666,8 +666,8 @@ export function AccountProfileModal({ isOpen, onClose }: AccountProfileModalProp
               {isAdmin ? (
                 <div className="rounded-2xl border border-amber-300 bg-gradient-to-br from-amber-50 to-orange-50/50 p-4 shadow-sm">
                   <div className="flex items-start gap-3">
-                    <div className="size-10 rounded-xl bg-amber-200 text-amber-900 flex items-center justify-center text-lg shrink-0 shadow-inner">
-                      👑
+                    <div className="size-10 rounded-xl bg-amber-200 text-amber-900 flex items-center justify-center shrink-0 shadow-inner">
+                      <Crown className="size-5 text-amber-900" />
                     </div>
                     <div className="flex-1">
                       <div className="flex items-center gap-2">

@@ -319,8 +319,11 @@ function LoginPage() {
           </form>
 
           {/* Notice */}
-          <p className="relative mt-6 text-center text-xs text-muted-foreground">
-            👑 Safe &amp; verified checkout. Your custom crochet is hand-stitched with care.
+          <p className="relative mt-6 text-center text-xs text-muted-foreground flex items-center justify-center gap-1.5">
+            <Crown className="size-3.5 text-amber-600 inline shrink-0" />
+            <span>
+              Safe &amp; verified checkout. Your custom crochet is hand-stitched with care.
+            </span>
           </p>
         </div>
       </div>

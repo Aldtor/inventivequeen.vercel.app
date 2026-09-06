@@ -1,5 +1,5 @@
 /**
- * 👑 Inventive Queen Secure Server API Handlers
+ * Inventive Queen Secure Server API Handlers
  *
  * Implements server-side Razorpay order generation and cryptographic HMAC
  * payment signature verification with Supabase RPC confirmation.
@@ -90,7 +90,7 @@ export async function handleCreateRazorpayOrder(
   const { amount, currency = "INR", receipt, order_id } = body || {};
   let parsedAmount = Math.round(Number(amount));
 
-  // 🛡️ Integrity check: Cross-validate amount against Supabase database order record
+  // Integrity check: Cross-validate amount against Supabase database order record
   if (order_id) {
     const supabaseUrl = getEnv("VITE_SUPABASE_URL", env);
     const supabaseKey =

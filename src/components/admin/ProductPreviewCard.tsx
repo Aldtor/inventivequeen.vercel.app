@@ -117,8 +117,8 @@ export function ProductPreviewCard({
                   {badge}
                 </span>
               ) : (
-                <span className="clay text-[10px] font-bold text-lilac-deep px-2.5 py-0.5 rounded-full shadow-sm">
-                  ✨ Atelier
+                <span className="clay text-[10px] font-bold text-lilac-deep px-2.5 py-0.5 rounded-full shadow-sm inline-flex items-center gap-1">
+                  <Sparkles className="size-2.5 text-amber-500" /> Atelier
                 </span>
               )}
               {numDiscount > 0 && (
@@ -229,8 +229,8 @@ export function ProductPreviewCard({
                   Inventive Queen
                 </span>
               </div>
-              <span className="text-[9px] bg-lilac/30 text-lilac-deep px-1.5 py-0.5 rounded-full font-bold">
-                👑
+              <span className="flex size-4 items-center justify-center rounded-full bg-lilac/30 text-lilac-deep">
+                <Crown className="size-2.5" />
               </span>
             </div>
 
@@ -337,8 +337,9 @@ export function ProductPreviewCard({
                 </div>
               </div>
 
-              <span className="bg-amber-400 text-slate-950 px-2 py-0.5 rounded-full text-[9px] font-black tracking-wide shadow-sm">
-                {badge || "✨ NEW"}
+              <span className="bg-amber-400 text-slate-950 px-2 py-0.5 rounded-full text-[9px] font-black tracking-wide shadow-sm inline-flex items-center gap-1">
+                <Sparkles className="size-2.5" />
+                <span>{badge || "NEW"}</span>
               </span>
             </div>
 
@@ -377,8 +378,9 @@ export function ProductPreviewCard({
 
             {/* Story CTA Swipe / Sticker */}
             <div className="bg-white/10 backdrop-blur-md rounded-2xl p-2 text-center border border-white/20">
-              <span className="text-[9px] font-bold text-amber-200 block uppercase tracking-wider">
-                👑 Link in Bio to Order
+              <span className="text-[9px] font-bold text-amber-200 block uppercase tracking-wider inline-flex items-center justify-center gap-1 w-full">
+                <Crown className="size-3 text-amber-300" />
+                <span>Link in Bio to Order</span>
               </span>
               <span className="text-[8px] text-white/60">
                 100% Handcrafted · All-India Shipping

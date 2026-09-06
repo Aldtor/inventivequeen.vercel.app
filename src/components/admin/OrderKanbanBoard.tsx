@@ -2,13 +2,17 @@ import { useMemo } from "react";
 import {
   ArrowLeft,
   ArrowRight,
+  ClipboardList,
   Clock,
+  Crown,
   ExternalLink,
+  Mail,
   MessageCircle,
   Package,
   Printer,
   Sparkles,
   Truck,
+  type LucideIcon,
 } from "lucide-react";
 import type { DbOrder, OrderStatus } from "@/lib/supabase";
 import { createWhatsAppChatUrl, parseAdminNotes, getOrderItemImageUrl } from "@/lib/order-utils";
@@ -24,7 +28,7 @@ interface OrderKanbanBoardProps {
 interface ColumnConfig {
   id: OrderStatus;
   title: string;
-  icon: string;
+  icon: LucideIcon;
   accent: string;
   badgeBg: string;
   nextStatus?: OrderStatus;
@@ -36,7 +40,7 @@ const COLUMNS: ColumnConfig[] = [
   {
     id: "pending",
     title: "New Orders & Pending",
-    icon: "📋",
+    icon: ClipboardList,
     accent: "border-amber-300 bg-amber-50/50",
     badgeBg: "bg-amber-100 text-amber-800",
     nextStatus: "crafting",
@@ -45,7 +49,7 @@ const COLUMNS: ColumnConfig[] = [
   {
     id: "crafting",
     title: "In Hand-Crafting (Workshop)",
-    icon: "🧵",
+    icon: Sparkles,
     accent: "border-purple-300 bg-purple-50/50",
     badgeBg: "bg-purple-100 text-purple-800",
     nextStatus: "shipped",
@@ -55,7 +59,7 @@ const COLUMNS: ColumnConfig[] = [
   {
     id: "shipped",
     title: "Dispatched & In Transit",
-    icon: "🚚",
+    icon: Truck,
     accent: "border-blue-300 bg-blue-50/50",
     badgeBg: "bg-blue-100 text-blue-800",
     nextStatus: "delivered",
@@ -65,7 +69,7 @@ const COLUMNS: ColumnConfig[] = [
   {
     id: "delivered",
     title: "Delivered & Cherished",
-    icon: "👑",
+    icon: Crown,
     accent: "border-emerald-300 bg-emerald-50/50",
     badgeBg: "bg-emerald-100 text-emerald-800",
     prevStatus: "shipped",
@@ -114,7 +118,9 @@ export function OrderKanbanBoard({
             {/* Column Header */}
             <div className="pb-3 border-b border-white/60 mb-3 flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <span className="text-base">{col.icon}</span>
+                <span className="flex size-6 items-center justify-center rounded-lg bg-white/70 shadow-xs text-slate-700 shrink-0">
+                  <col.icon className="size-3.5" />
+                </span>
                 <div>
                   <h3 className="font-display text-xs font-bold text-slate-800 leading-tight">
                     {col.title}
@@ -198,7 +204,10 @@ export function OrderKanbanBoard({
                           onClick={() => onOpenGiftNote && onOpenGiftNote(order)}
                           className="w-full text-left rounded-xl bg-amber-50 border border-amber-200 p-1.5 text-[10px] text-amber-900 font-medium hover:bg-amber-100 transition-colors flex items-center justify-between"
                         >
-                          <span className="truncate">💌 Wax Note: "{order.gift_note}"</span>
+                          <span className="truncate inline-flex items-center gap-1">
+                            <Mail className="size-3 text-amber-700 inline shrink-0" />
+                            <span>Wax Note: "{order.gift_note}"</span>
+                          </span>
                           <span className="text-[9px] font-bold underline flex-shrink-0 ml-1">
                             Print
                           </span>
