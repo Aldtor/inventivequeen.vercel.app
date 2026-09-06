@@ -757,39 +757,64 @@ alter table public.faqs enable row level security;
 alter table public.audit_logs enable row level security;
 
 -- RLS Policies
+drop policy if exists "Users can view own addresses" on public.user_addresses;
 create policy "Users can view own addresses" on public.user_addresses for select using (auth.uid() = user_id or public.is_admin());
+drop policy if exists "Users can insert own addresses" on public.user_addresses;
 create policy "Users can insert own addresses" on public.user_addresses for insert with check (auth.uid() = user_id);
+drop policy if exists "Users can update own addresses" on public.user_addresses;
 create policy "Users can update own addresses" on public.user_addresses for update using (auth.uid() = user_id or public.is_admin());
+drop policy if exists "Users can delete own addresses" on public.user_addresses;
 create policy "Users can delete own addresses" on public.user_addresses for delete using (auth.uid() = user_id or public.is_admin());
 
+drop policy if exists "Public can view active product categories" on public.product_categories;
 create policy "Public can view active product categories" on public.product_categories for select using (is_active = true or public.is_admin());
+drop policy if exists "Admins manage product categories" on public.product_categories;
 create policy "Admins manage product categories" on public.product_categories for all using (public.is_admin()) with check (public.is_admin());
 
+drop policy if exists "Users can view history of their orders" on public.order_status_history;
 create policy "Users can view history of their orders" on public.order_status_history for select using (exists (select 1 from public.orders o where o.id = order_status_history.order_id and o.user_id = auth.uid()) or public.is_admin());
+drop policy if exists "Admins can insert status history" on public.order_status_history;
 create policy "Admins can insert status history" on public.order_status_history for insert with check (public.is_admin());
 
+drop policy if exists "Public can view active coupons" on public.coupons;
 create policy "Public can view active coupons" on public.coupons for select using (is_active = true or public.is_admin());
+drop policy if exists "Admins manage coupons" on public.coupons;
 create policy "Admins manage coupons" on public.coupons for all using (public.is_admin()) with check (public.is_admin());
 
+drop policy if exists "Users view own coupon redemptions" on public.coupon_redemptions;
 create policy "Users view own coupon redemptions" on public.coupon_redemptions for select using (auth.uid() = user_id or public.is_admin());
+drop policy if exists "System and users can insert coupon redemptions" on public.coupon_redemptions;
 create policy "System and users can insert coupon redemptions" on public.coupon_redemptions for insert with check (auth.uid() = user_id or public.is_admin());
 
+drop policy if exists "Anyone can submit contact inquiry" on public.contact_inquiries;
 create policy "Anyone can submit contact inquiry" on public.contact_inquiries for insert with check (true);
+drop policy if exists "Admins can view and manage inquiries" on public.contact_inquiries;
 create policy "Admins can view and manage inquiries" on public.contact_inquiries for all using (public.is_admin()) with check (public.is_admin());
 
+drop policy if exists "Public can view approved reviews" on public.reviews;
 create policy "Public can view approved reviews" on public.reviews for select using (is_approved = true or public.is_admin());
+drop policy if exists "Authenticated users can submit reviews" on public.reviews;
 create policy "Authenticated users can submit reviews" on public.reviews for insert with check (auth.uid() is not null or public.is_admin());
+drop policy if exists "Admins manage all reviews" on public.reviews;
 create policy "Admins manage all reviews" on public.reviews for all using (public.is_admin()) with check (public.is_admin());
 
+drop policy if exists "Admins manage workshop inventory" on public.inventory_items;
 create policy "Admins manage workshop inventory" on public.inventory_items for all using (public.is_admin()) with check (public.is_admin());
 
+drop policy if exists "Users manage own wishlist" on public.wishlists;
 create policy "Users manage own wishlist" on public.wishlists for all using (auth.uid() = user_id or public.is_admin()) with check (auth.uid() = user_id);
 
+drop policy if exists "Users manage own cart" on public.cart_items;
 create policy "Users manage own cart" on public.cart_items for all using (auth.uid() = user_id or public.is_admin()) with check (auth.uid() = user_id);
 
+drop policy if exists "Public can view active FAQs" on public.faqs;
 create policy "Public can view active FAQs" on public.faqs for select using (is_active = true or public.is_admin());
+drop policy if exists "Admins manage FAQs" on public.faqs;
 create policy "Admins manage FAQs" on public.faqs for all using (public.is_admin()) with check (public.is_admin());
 
+drop policy if exists "Admins can view audit logs" on public.audit_logs;
 create policy "Admins can view audit logs" on public.audit_logs for select using (public.is_admin());
+drop policy if exists "Admins can create audit logs" on public.audit_logs;
 create policy "Admins can create audit logs" on public.audit_logs for insert with check (public.is_admin());
+
 
