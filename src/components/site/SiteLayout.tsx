@@ -89,7 +89,7 @@ function AnnouncementBar() {
       {/* Ethereal ambient light pulse */}
       <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-transparent via-white/[0.08] to-transparent animate-pulse" />
 
-      <div className="relative mx-auto flex max-w-6xl flex-wrap items-center justify-center gap-x-3.5 gap-y-1.5 px-4 py-2 text-center text-xs sm:text-[13px]">
+      <div className="relative mx-auto flex max-w-7xl items-center justify-center gap-x-3.5 gap-y-1.5 px-4 py-2 text-center text-xs sm:text-[13px]">
         {/* Left Decorative Sparkle */}
         <Sparkles className="size-3 text-amber-300/50 hidden md:inline-block animate-pulse shrink-0" />
 
@@ -140,54 +140,58 @@ function Header() {
   return (
     <header className="sticky top-0 z-40">
       <div className="glass border-x-0 border-t-0">
-        <div className="mx-auto flex max-w-6xl items-center gap-3 px-4 py-3">
-          <Link to="/" className="group flex shrink-0 items-center gap-3">
-            <div className="relative size-11 sm:size-12 shrink-0 rounded-full p-[2px] bg-gradient-to-br from-lilac via-pink-200 to-primary shadow-sm ring-1 ring-white/60 transition-all duration-300 group-hover:scale-105 group-hover:shadow-md group-hover:ring-primary/30">
-              <div className="size-full rounded-full overflow-hidden bg-[#F6EBF2] flex items-center justify-center">
-                <img
-                  src={logo}
-                  alt="Inventive Queen"
-                  width={52}
-                  height={52}
-                  className="size-full object-cover object-[50%_46%] scale-[1.28] transition-transform duration-300 group-hover:scale-[1.38]"
-                />
+        <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 py-3">
+          {/* Left Zone: Brand Logo & Online Status */}
+          <div className="flex shrink-0 items-center gap-3">
+            <Link to="/" className="group flex shrink-0 items-center gap-3">
+              <div className="relative size-11 sm:size-12 shrink-0 rounded-full p-[2px] bg-gradient-to-br from-lilac via-pink-200 to-primary shadow-sm ring-1 ring-white/60 transition-all duration-300 group-hover:scale-105 group-hover:shadow-md group-hover:ring-primary/30">
+                <div className="size-full rounded-full overflow-hidden bg-[#F6EBF2] flex items-center justify-center">
+                  <img
+                    src={logo}
+                    alt="Inventive Queen"
+                    width={52}
+                    height={52}
+                    className="size-full object-cover object-[50%_46%] scale-[1.28] transition-transform duration-300 group-hover:scale-[1.38]"
+                  />
+                </div>
               </div>
-            </div>
-            <div className="flex flex-col justify-center">
-              <div className="flex items-center gap-1.5">
-                <span className="font-display text-lg sm:text-[22px] font-black tracking-tight text-lilac-deep leading-none whitespace-nowrap transition-colors group-hover:text-primary">
-                  Inventive Queen
-                </span>
-                <Crown className="size-3.5 text-amber-500 fill-amber-300 drop-shadow-sm transition-transform duration-300 group-hover:rotate-12 group-hover:scale-110 shrink-0" />
+              <div className="flex flex-col justify-center">
+                <div className="flex items-center gap-1.5">
+                  <span className="font-display text-lg sm:text-[22px] font-black tracking-tight text-lilac-deep leading-none whitespace-nowrap transition-colors group-hover:text-primary">
+                    Inventive Queen
+                  </span>
+                  <Crown className="size-3.5 text-amber-500 fill-amber-300 drop-shadow-sm transition-transform duration-300 group-hover:rotate-12 group-hover:scale-110 shrink-0" />
+                </div>
+                <div className="flex items-center gap-1.5 mt-1">
+                  <span className="text-[9.5px] sm:text-[10px] font-extrabold tracking-[0.2em] text-primary/85 uppercase leading-none whitespace-nowrap">
+                    Handmade Atelier
+                  </span>
+                  <span className="size-1 rounded-full bg-lilac/70 hidden sm:inline-block" />
+                  <span className="text-[9.5px] font-semibold text-muted-foreground hidden sm:inline-block whitespace-nowrap">
+                    Crochet & Keepsakes
+                  </span>
+                </div>
               </div>
-              <div className="flex items-center gap-1.5 mt-1">
-                <span className="text-[9.5px] sm:text-[10px] font-extrabold tracking-[0.2em] text-primary/85 uppercase leading-none whitespace-nowrap">
-                  Handmade Atelier
-                </span>
-                <span className="size-1 rounded-full bg-lilac/70 hidden sm:inline-block" />
-                <span className="text-[9.5px] font-semibold text-muted-foreground hidden sm:inline-block whitespace-nowrap">
-                  Crochet & Keepsakes
-                </span>
-              </div>
-            </div>
-          </Link>
+            </Link>
 
-          <span className="hidden md:inline-flex shrink-0 whitespace-nowrap items-center gap-2 rounded-full border border-emerald-300/70 bg-gradient-to-r from-emerald-50/90 to-teal-50/90 backdrop-blur-md px-3 py-1 text-[11px] font-bold text-emerald-800 shadow-sm">
-            <span className="relative flex size-2 shrink-0">
-              <span className="absolute inline-flex size-full animate-ping rounded-full bg-emerald-400 opacity-75" />
-              <span className="relative inline-flex size-2 rounded-full bg-emerald-500" />
+            <span className="hidden xl:inline-flex shrink-0 whitespace-nowrap items-center gap-2 rounded-full border border-emerald-300/70 bg-gradient-to-r from-emerald-50/90 to-teal-50/90 backdrop-blur-md px-3 py-1 text-[11px] font-bold text-emerald-800 shadow-sm">
+              <span className="relative flex size-2 shrink-0">
+                <span className="absolute inline-flex size-full animate-ping rounded-full bg-emerald-400 opacity-75" />
+                <span className="relative inline-flex size-2 rounded-full bg-emerald-500" />
+              </span>
+              <span>Online Store</span>
             </span>
-            <span>Online Store</span>
-          </span>
+          </div>
 
-          <nav className="ml-auto hidden items-center gap-1 lg:flex">
+          {/* Center Zone: Centered Navigation Links */}
+          <nav className="hidden lg:flex flex-1 items-center justify-center gap-1 px-4">
             {MAIN_NAV.map((item) => (
               <Link
                 key={item.to}
                 to={item.to}
                 activeOptions={{ exact: item.to === "/" }}
                 activeProps={{ className: "glass text-lilac-deep" }}
-                className="rounded-full px-3.5 py-2 text-sm font-semibold text-muted-foreground transition-all hover:text-lilac-deep hover:bg-white/30"
+                className="rounded-full px-3.5 py-2 text-sm font-semibold text-muted-foreground transition-all hover:text-lilac-deep hover:bg-white/30 whitespace-nowrap"
               >
                 {item.label}
               </Link>
@@ -195,7 +199,8 @@ function Header() {
             <MoreMenu />
           </nav>
 
-          <div className="ml-auto flex items-center gap-2 lg:ml-0">
+          {/* Right Zone: Basket & User Controls */}
+          <div className="flex shrink-0 items-center gap-2 ml-auto lg:ml-0">
             {/* Basket Button */}
             <Link
               to="/checkout"
