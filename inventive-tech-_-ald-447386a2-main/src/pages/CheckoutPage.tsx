@@ -10,7 +10,7 @@ import { toast } from "sonner";
 import logo from "@/assets/logo.png";
 
 const RAZORPAY_SCRIPT_URL = "https://checkout.razorpay.com/v1/checkout.js";
-const razorpayKeyId = import.meta.env.VITE_RAZORPAY_KEY_ID ?? "";
+const razorpayKeyId = import.meta.env.VITE_RAZORPAY_KEY_ID || "rzp_live_TYUEKLyErpyGRl";
 
 const steps = [
   { label: "Royal Account", icon: Lock },
@@ -434,7 +434,7 @@ export default function CheckoutPage() {
       }
 
       const rzp = new window.Razorpay({
-        key: razorpayKeyId || "rzp_test_placeholder",
+        key: razorpayKeyId || "rzp_live_TYUEKLyErpyGRl",
         amount: amountInPaise,
         currency: "INR",
         name: "Inventive Queen Atelier",

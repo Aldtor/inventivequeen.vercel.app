@@ -1,11 +1,11 @@
 import { createClient } from "@supabase/supabase-js";
 
 const supabaseUrl =
-  import.meta.env.VITE_SUPABASE_URL ?? "https://tbyewrliurrtkqocqumc.supabase.co";
+  import.meta.env.VITE_SUPABASE_URL ?? "https://fsttdvcntqlhnjdhogic.supabase.co";
 const supabaseKey =
   import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY ??
   import.meta.env.VITE_SUPABASE_ANON_KEY ??
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRieWV3cmxpdXJydGtxb2NxdW1jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ1NjgxNzMsImV4cCI6MjEwMDE0NDE3M30.Z1FZ_ZP0c-gVHL-XVj7tHaTIkYCHAIGV-_t02uch8V0";
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZzdHRkdmNudHFsaG5qZGhvZ2ljIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQyMzM3NDEsImV4cCI6MjA4OTgwOTc0MX0.x_TD4obU3gD4gpMUXhvYOxrbkUix_z5LVjt1vQq8tW4";
 
 export const isSupabaseConfigured = Boolean(supabaseUrl && supabaseKey);
 
