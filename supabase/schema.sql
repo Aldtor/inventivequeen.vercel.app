@@ -579,35 +579,7 @@ on conflict (category) do update
 set last_number = greatest(public.product_id_counters.last_number, excluded.last_number);
 
 -- Seed 6: Master Products Catalog
-insert into public.cms_products (id, name, price, original_price, selling_price, discount_percent, type, size, tagline, description, images, badge, is_new_arrival, is_active, sort_order)
-values
-  ('regular-doll', 'Regular Doll', '₹2,400', '₹2,800', '₹2,400', 14, 'doll', 'Small 7in · Medium 9in · Large 11in', 'Custom keepsake doll hand-stitched from your reference photo', 'Detailed amigurumi doll created from soft milk cotton yarn. Fully customizable clothing, hair, and accessories.', '{}', '⭐ Bestseller', false, true, 1),
-  ('mini-regular-doll', 'Mini Regular Doll', '₹1,600', null, '₹1,600', null, 'doll', '5 inches · 12.7 cm', 'Compact adorable doll with custom outfit', 'Our signature 5-inch miniature amigurumi doll with intricate detailing and posable charm.', '{}', null, false, true, 2),
-  ('custom-portrait-doll', 'Custom Portrait Doll', '₹3,200', '₹3,800', '₹3,200', 16, 'doll', '10 inches · 25.4 cm', 'Heirloom couple or individual portrait doll crafted with artisan precision', 'Bespoke heirloom crochet doll personalized from your portraits with handcrafted outfit accessories.', '{}', '✨ Signature Art', true, true, 3),
-  ('signature-pastel-bouquet', 'Signature Pastel Bouquet', '₹1,899', '₹2,299', '₹1,899', 17, 'bouquet', '12 inches tall · 7 stems', 'Everlasting pastel blossoms crafted in pure milk cotton', 'Enchanting combination of roses, lavender, and daisies wrapped in luxury embossed parchment and satin ribbons.', '{}', '💐 Most Loved', false, true, 4),
-  ('mixed-rose-grand-bouquet', 'Mixed Rose Grand Bouquet', '₹2,799', '₹3,299', '₹2,799', 15, 'bouquet', '15 inches tall · 12 stems', 'A grand arrangement of 12 multi-tonal roses that never wilt', 'Royal arrangement of crocheted velvety roses in peach, cream, lavender, and royal crimson. Wired stems.', '{}', '👑 Royal Pick', false, true, 5),
-  ('yellow-bear-keychain', 'Yellow Bear Charm', '₹349', '₹449', '₹349', 22, 'keychain', '3 inches · 7.6 cm', 'Sunshine-yellow pocket bear with golden swivel clasp', 'Hand-stitched pocket bear buddy with premium gold-plated hardware and hypoallergenic polyfill.', '{}', null, false, true, 6),
-  ('bunny-heart-keychain', 'Bunny Heart Charm', '₹379', '₹499', '₹379', 24, 'keychain', '3.5 inches · 8.9 cm', 'Blushing bunny clutching a pink love heart', 'Adorable pastel amigurumi rabbit holding a plush mini heart. Ideal gift for best friends and partners.', '{}', '💖 Trending', true, true, 7),
-  ('green-dino-keychain', 'Mini Dino Charm', '₹349', '₹449', '₹349', 22, 'keychain', '3 inches · 7.6 cm', 'Spunky sage-green baby dinosaur pocket charm', 'Pocket-sized friendly crochet dinosaur with felt spine ridges and secure keyring.', '{}', null, false, true, 8),
-  ('strawberry-cow-keychain', 'Strawberry Cow Charm', '₹399', '₹499', '₹399', 20, 'keychain', '3.2 inches · 8.1 cm', 'Whimsical pink and cream cow with strawberry horn accents', 'Cute strawberry-themed pasture cow keychain, hand-embroidered snout and blushing cheeks.', '{}', '🍓 Bestseller', false, true, 9),
-  ('white-bear-pink-overalls', 'Velvet Bear in Pink Overalls', '₹1,299', '₹1,599', '₹1,299', 19, 'plushie', '8 inches · 20.3 cm', 'Fluffy milk-white teddy wearing pastel pink dungarees', 'Lovingly crafted cuddle bear made with baby-soft yarn. Overalls are removable with faux-wood buttons.', '{}', null, false, true, 10),
-  ('white-bear-red-overalls', 'Velvet Bear in Red Overalls', '₹1,299', '₹1,599', '₹1,299', 19, 'plushie', '8 inches · 20.3 cm', 'Classic milk-white bear sporting festive crimson overalls', 'Holiday-edition heirloom teddy bear in festive red corduroy-textured crochet dungarees.', '{}', null, false, true, 11),
-  ('cuddle-panda', 'Atelier Cuddle Panda', '₹1,499', '₹1,799', '₹1,499', 17, 'plushie', '8.5 inches · 21.6 cm', 'Chubby monochrome panda with bamboo sprig accessory', 'Snuggly classic giant panda amigurumi holding a tiny hand-crocheted green bamboo sprig.', '{}', null, false, true, 12),
-  ('snowy-penguin', 'Snowy Fluff Penguin', '₹1,199', '₹1,399', '₹1,199', 14, 'plushie', '7 inches · 17.8 cm', 'Adorable arctic penguin chick with a miniature winter scarf', 'Cute penguin amigurumi with fluffy wings and removable mini striped knit scarf.', '{}', null, false, true, 13),
-  ('peacock-feather-bookmark', 'Peacock Feather Bookmark', '₹299', '₹399', '₹299', 25, 'misc', '8 inches length', 'Intricately crocheted peacock eye feather with silky tassel', 'Delicate reading companion crocheted from fine mercerized cotton yarn with jewel-toned accents.', '{}', '🪶 Artisan Craft', false, true, 14)
-on conflict (id) do update set
-  name = excluded.name,
-  price = excluded.price,
-  selling_price = excluded.selling_price,
-  original_price = excluded.original_price,
-  discount_percent = excluded.discount_percent,
-  type = excluded.type,
-  size = excluded.size,
-  tagline = excluded.tagline,
-  description = excluded.description,
-  badge = excluded.badge,
-  is_active = excluded.is_active,
-  sort_order = excluded.sort_order;
+-- Starts empty: all products are created and managed dynamically by the administrator via the Atelier Admin Panel.
 
 -- =============================================================================
 -- SECTION 7: MASTER DATABASE EXPANSION (ADDRESSES, COUPONS, REVIEWS, INVENTORY, INQUIRIES)

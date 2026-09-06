@@ -33,73 +33,24 @@ export const Route = createFileRoute("/dolls")({
   }),
 });
 
-const DOLLS = [
-  {
-    id: "regular-doll",
-    name: "Regular Doll",
-    size: "Small 7in · Medium 9in · Large 11in",
-    price: "₹2,400 – ₹3,600",
-    note: "Bigger sizes priced per inch",
-    image: catKeepsakeDolls,
-  },
-  {
-    id: "mini-regular-doll",
-    name: "Mini Regular Doll",
-    size: "5 inches · 12.7 cm",
-    price: "₹1,600 each",
-    image: dollsImg,
-  },
-  {
-    id: "mini-doll",
-    name: "Mini Doll",
-    size: "3.5 – 4 inches (depends on design)",
-    price: "₹1,600 each",
-    badge: "Bestseller",
-    image: minisImg,
-  },
-  {
-    id: "seated-doll",
-    name: "Seated Doll",
-    size: "5 inches · approx. 16 cm",
-    price: "₹1,600 each",
-    image: whiteBearPink,
-  },
-  {
-    id: "bear-keychain",
-    name: "Keychain Doll",
-    size: "3 inches with clasp",
-    price: "₹900 each",
-    image: bearKeychain,
-  },
-  {
-    id: "chunky-doll",
-    name: "Chunky Doll",
-    size: "12 inches",
-    price: "₹3,600",
-    image: owlKeychain,
-  },
-];
+import { Sparkles } from "lucide-react";
+import { useProducts } from "@/lib/cms-products";
 
 /* Gallery of past work */
 const GALLERY = [catKeepsakeDolls, dollsImg, minisImg, whiteBearPink, bearKeychain, owlKeychain];
 
-import { useProducts } from "@/lib/cms-products";
-
 function DollsPage() {
   const { products } = useProducts();
   const cmsDolls = products.filter((p) => p.type === "doll");
-  const displayDolls =
-    cmsDolls.length > 0
-      ? cmsDolls.map((p) => ({
-          id: p.id,
-          name: p.name,
-          size: p.size || "Custom amigurumi",
-          price: p.sellingPrice || p.price,
-          note: p.tagline || p.description,
-          image: p.images[0] || dollsImg,
-          ...(p.badge ? { badge: p.badge } : {}),
-        }))
-      : DOLLS;
+  const displayDolls = cmsDolls.map((p) => ({
+    id: p.id,
+    name: p.name,
+    size: p.size || "Custom amigurumi",
+    price: p.sellingPrice || p.price,
+    note: p.tagline || p.description,
+    image: p.images[0] || dollsImg,
+    ...(p.badge ? { badge: p.badge } : {}),
+  }));
 
   return (
     <SiteLayout>
@@ -108,11 +59,33 @@ function DollsPage() {
         title="Crochet dolls"
         description="These are sample designs — all are customizable. Highly detailed dolls may need a small extra fee, just message me."
       />
-      <div className="mx-auto grid max-w-6xl gap-6 px-4 py-16 sm:grid-cols-2 lg:grid-cols-3">
-        {displayDolls.map((doll) => (
-          <PriceCard key={doll.name} {...doll} />
-        ))}
-      </div>
+      {displayDolls.length > 0 ? (
+        <div className="mx-auto grid max-w-6xl gap-6 px-4 py-16 sm:grid-cols-2 lg:grid-cols-3">
+          {displayDolls.map((doll) => (
+            <PriceCard key={doll.id || doll.name} {...doll} />
+          ))}
+        </div>
+      ) : (
+        <div className="mx-auto max-w-2xl px-4 py-20 text-center">
+          <div className="liquid-glass mx-auto mb-6 flex size-16 items-center justify-center rounded-2xl bg-lilac/30 text-lilac-deep">
+            <Sparkles className="size-8 text-lilac-deep" />
+          </div>
+          <h2 className="font-display text-2xl font-bold text-lilac-deep">Artisanal Dolls Coming Soon</h2>
+          <p className="mt-3 text-muted-foreground">
+            Our atelier is currently hand-crafting bespoke amigurumi doll designs. You can also request a custom doll made from your reference photo!
+          </p>
+          <div className="mt-8 flex justify-center">
+            <a
+              href="https://wa.me/919876543210?text=Hello%20Inventive%20Queen!%20I'd%20like%20to%20order%20a%20custom%20crochet%20doll."
+              target="_blank"
+              rel="noopener noreferrer"
+              className="clay-primary liquid-btn inline-flex items-center gap-2 rounded-full px-7 py-3.5 font-bold"
+            >
+              Order Custom Doll on WhatsApp →
+            </a>
+          </div>
+        </div>
+      )}
 
       {/* Sample Gallery */}
       <section className="mx-auto max-w-6xl px-4 pb-16">

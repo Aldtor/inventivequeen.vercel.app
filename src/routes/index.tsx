@@ -3,6 +3,7 @@ import { Crown, Feather, Heart, Palette, Play, Quote, Sparkles, Star, Truck } fr
 
 import { SiteLayout } from "@/components/site/SiteLayout";
 import logo from "@/assets/logo.png";
+import { useProducts } from "@/lib/cms-products";
 
 /* ─── Real product images ─── */
 import dollsImg from "@/assets/dolls.jpg";
@@ -127,27 +128,6 @@ const WHY = [
   },
 ];
 
-const HERO_THUMBNAILS = [
-  { id: "rose-stem", src: bouquetRose, alt: "Rose bouquet" },
-  { id: "bear-keychain", src: bearKeychain, alt: "Bear keychain" },
-  { id: "white-bear-overalls", src: whiteBearPink, alt: "Bear plushie" },
-  { id: "pastel-bouquet", src: bouquetPastel, alt: "Pastel bouquet" },
-];
-
-const CATALOGUE = [
-  { id: "rose-stem", name: "Rose bouquet", image: bouquetRose },
-  { id: "mixed-rose-grand-bouquet", name: "Mixed bouquet", image: bouquetMixed1 },
-  { id: "pastel-bouquet", name: "Pastel bouquet", image: bouquetPastel },
-  { id: "lily-vase-bouquet", name: "Lily bouquet", image: bouquetLily },
-  { id: "bear-keychain", name: "Bear keychain", image: bearKeychain },
-  { id: "bunny-heart-keychain", name: "Bunny keychain", image: bunnyKeychain },
-  { id: "dino-keychain", name: "Dino keychain", image: dinoKeychain },
-  { id: "owl-keychain", name: "Owl keychain", image: owlKeychain },
-  { id: "strawberry-cow-keychain", name: "Strawberry cow", image: strawberryCow },
-  { id: "black-bear", name: "Black bear keychain", image: blackBear },
-  { id: "white-bear-overalls", name: "White bear plushie", image: whiteBearPink },
-  { id: "peacock-bookmark", name: "Peacock bookmark", image: bookmark },
-];
 
 const INSTAGRAM_GALLERY = [
   { src: bouquetGrand, alt: "Grand bouquet" },
@@ -188,6 +168,9 @@ const LOVE = [
 ];
 
 function Home() {
+  const { products } = useProducts();
+  const heroThumbnails = products.slice(0, 4);
+
   return (
     <SiteLayout>
       {/* ═══════ HERO ═══════ */}
@@ -269,26 +252,28 @@ function Home() {
                 />
               </div>
             </div>
-            <div className="float-slower relative mt-8 grid grid-cols-4 gap-3">
-              {HERO_THUMBNAILS.map((item) => (
-                <Link
-                  key={item.alt}
-                  to="/product/$productId"
-                  params={{ productId: item.id }}
-                  className="clay-soft img-hover-zoom overflow-hidden rounded-2xl p-1 block cursor-pointer transition-transform hover:scale-105"
-                  title={`View ${item.alt}`}
-                >
-                  <img
-                    src={item.src}
-                    alt={item.alt}
-                    width={200}
-                    height={200}
-                    loading="lazy"
-                    className="aspect-square w-full rounded-xl object-cover"
-                  />
-                </Link>
-              ))}
-            </div>
+            {heroThumbnails.length > 0 && (
+              <div className="float-slower relative mt-8 grid grid-cols-4 gap-3">
+                {heroThumbnails.map((item) => (
+                  <Link
+                    key={item.id}
+                    to="/product/$productId"
+                    params={{ productId: item.id }}
+                    className="clay-soft img-hover-zoom overflow-hidden rounded-2xl p-1 block cursor-pointer transition-transform hover:scale-105"
+                    title={`View ${item.name}`}
+                  >
+                    <img
+                      src={item.images[0] || logo}
+                      alt={item.name}
+                      width={200}
+                      height={200}
+                      loading="lazy"
+                      className="aspect-square w-full rounded-xl object-cover"
+                    />
+                  </Link>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </section>
@@ -378,41 +363,73 @@ function Home() {
         <p className="mx-auto mt-4 max-w-xl text-center text-muted-foreground">
           A peek at past orders — every design is customizable in your own colours.
         </p>
-        <div className="mt-12 grid gap-5 grid-cols-2 sm:grid-cols-3 lg:grid-cols-4">
-          {CATALOGUE.map((item) => (
-            <Link
-              key={item.name}
-              to="/product/$productId"
-              params={{ productId: item.id }}
-              className="clay-glow group overflow-hidden p-2 img-hover-zoom block transition-all hover:scale-102 hover:shadow-xl cursor-pointer"
-            >
-              <figure className="relative">
-                <div className="overflow-hidden rounded-[1.4rem]">
-                  <img
-                    src={item.image}
-                    alt={item.name}
-                    width={900}
-                    height={900}
-                    loading="lazy"
-                    className="relative z-10 aspect-square w-full rounded-[1.4rem] object-cover shadow-lg group-hover:scale-105 transition-transform duration-500"
-                  />
-                </div>
-                <figcaption className="relative z-10 p-3 text-center text-sm font-bold text-lilac-deep group-hover:text-primary transition-colors flex items-center justify-center gap-1">
-                  <span>{item.name}</span>
-                  <span className="text-xs opacity-0 group-hover:opacity-100 transition-opacity">→</span>
-                </figcaption>
-              </figure>
-            </Link>
-          ))}
-        </div>
-        <div className="mt-10 text-center">
-          <Link
-            to="/dolls"
-            className="clay-primary liquid-btn inline-flex rounded-full px-7 py-3.5 font-bold"
-          >
-            Explore Complete Pricelist &amp; Order
-          </Link>
-        </div>
+        {products.length > 0 ? (
+          <>
+            <div className="mt-12 grid gap-5 grid-cols-2 sm:grid-cols-3 lg:grid-cols-4">
+              {products.slice(0, 12).map((item) => (
+                <Link
+                  key={item.id}
+                  to="/product/$productId"
+                  params={{ productId: item.id }}
+                  className="clay-glow group overflow-hidden p-2 img-hover-zoom block transition-all hover:scale-102 hover:shadow-xl cursor-pointer"
+                >
+                  <figure className="relative">
+                    <div className="overflow-hidden rounded-[1.4rem]">
+                      <img
+                        src={item.images[0] || logo}
+                        alt={item.name}
+                        width={900}
+                        height={900}
+                        loading="lazy"
+                        className="relative z-10 aspect-square w-full rounded-[1.4rem] object-cover shadow-lg group-hover:scale-105 transition-transform duration-500"
+                      />
+                    </div>
+                    <figcaption className="relative z-10 p-3 text-center text-sm font-bold text-lilac-deep group-hover:text-primary transition-colors flex items-center justify-center gap-1">
+                      <span>{item.name}</span>
+                      <span className="text-xs opacity-0 group-hover:opacity-100 transition-opacity">→</span>
+                    </figcaption>
+                  </figure>
+                </Link>
+              ))}
+            </div>
+            <div className="mt-10 text-center">
+              <Link
+                to="/dolls"
+                className="clay-primary liquid-btn inline-flex rounded-full px-7 py-3.5 font-bold"
+              >
+                Explore Complete Pricelist &amp; Order
+              </Link>
+            </div>
+          </>
+        ) : (
+          <div className="mt-12 liquid-glass max-w-2xl mx-auto p-10 text-center rounded-3xl">
+            <div className="mx-auto mb-4 flex size-14 items-center justify-center rounded-2xl bg-lilac/30 text-lilac-deep">
+              <Sparkles className="size-7 text-lilac-deep" />
+            </div>
+            <h3 className="font-display text-2xl font-bold text-lilac-deep">
+              Royal Atelier — New Creations Coming Soon
+            </h3>
+            <p className="mt-2 text-muted-foreground text-sm max-w-md mx-auto">
+              Our handcrafted catalogue is currently being prepared with fresh amigurumi dolls, plushies, and everlasting flowers.
+            </p>
+            <div className="mt-6 flex flex-wrap justify-center gap-4">
+              <a
+                href="https://wa.me/919876543210?text=Hello%20Inventive%20Queen!%20I'd%20like%20to%20place%20a%20custom%20order."
+                target="_blank"
+                rel="noopener noreferrer"
+                className="clay-primary liquid-btn inline-flex items-center gap-2 rounded-full px-6 py-3 font-bold"
+              >
+                Order Custom Creation on WhatsApp →
+              </a>
+              <Link
+                to="/how-to-order"
+                className="clay inline-flex items-center rounded-full px-6 py-3 font-bold text-lilac-deep"
+              >
+                How To Order
+              </Link>
+            </div>
+          </div>
+        )}
       </section>
 
       {/* ═══════ VIDEO SHOWCASE ═══════ */}

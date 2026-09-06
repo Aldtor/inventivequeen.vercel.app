@@ -28,7 +28,7 @@ import {
 import { toast } from "sonner";
 
 import { SiteLayout } from "@/components/site/SiteLayout";
-import { products as fallbackProducts, type Product, type ProductType } from "@/lib/products";
+import type { Product, ProductType } from "@/lib/products";
 import { useProducts } from "@/lib/cms-products";
 import { addToCart, parsePrice } from "@/lib/cart";
 
@@ -77,12 +77,10 @@ function ProductDetailsPage() {
   const navigate = useNavigate();
   const { products: cmsProducts } = useProducts();
 
-  // Combine products
-  const allProducts = useMemo(() => {
-    return cmsProducts.length > 0 ? cmsProducts : fallbackProducts;
-  }, [cmsProducts]);
+  // Products from CMS
+  const allProducts = cmsProducts;
 
-  // Resilient product matching: exact id -> slug -> fallback list -> fuzzy match
+  // Resilient product matching: exact id -> slug -> fuzzy match
   const product: Product | undefined = useMemo(() => {
     if (!productId) return undefined;
     const cleanId = decodeURIComponent(productId).toLowerCase().trim();
@@ -98,17 +96,7 @@ function ProductDetailsPage() {
     });
     if (found) return found;
 
-    // 3. Check fallback catalogue directly
-    found = fallbackProducts.find((p) => p.id.toLowerCase() === cleanId);
-    if (found) return found;
-
-    found = fallbackProducts.find((p) => {
-      const slug = p.name.toLowerCase().replace(/[^\w\s-]/g, "").trim().replace(/\s+/g, "-");
-      return slug === cleanId;
-    });
-    if (found) return found;
-
-    // 4. Substring / name matching
+    // 3. Substring / name matching
     return allProducts.find(
       (p) =>
         p.id.toLowerCase().includes(cleanId) ||

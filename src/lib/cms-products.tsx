@@ -1,5 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
-import { products as fallbackProducts, type Product, type ProductType } from "@/lib/products";
+import type { Product, ProductType } from "@/lib/products";
 import { isSupabaseConfigured, supabase } from "@/lib/supabase";
 
 export interface CmsProductRow {
@@ -41,13 +41,7 @@ interface ProductsContextValue {
 
 const ProductsContext = createContext<ProductsContextValue | null>(null);
 
-const fallbackById = new Map(
-  fallbackProducts.map((product, index) => [product.id, { product, index }]),
-);
-
 function rowToProduct(row: CmsProductRow): Product {
-  const fallback = fallbackById.get(row.id);
-  const fallbackProduct = fallback?.product;
   const images = row.images?.filter(Boolean) ?? [];
   const sellingPrice = row.selling_price || row.price;
 
@@ -58,17 +52,17 @@ function rowToProduct(row: CmsProductRow): Product {
     originalPrice: row.original_price ?? "",
     sellingPrice,
     discountPercent: row.discount_percent ?? 0,
-    type: row.type || fallbackProduct?.type || "doll",
-    size: row.size ?? fallbackProduct?.size ?? "",
-    tagline: row.tagline || fallbackProduct?.tagline || "",
-    description: row.description || fallbackProduct?.description || "",
-    images: images.length > 0 ? images : (fallbackProduct?.images ?? []),
-    badge: row.badge ?? fallbackProduct?.badge ?? "",
+    type: row.type || "doll",
+    size: row.size ?? "",
+    tagline: row.tagline || "",
+    description: row.description || "",
+    images,
+    badge: row.badge ?? "",
     isNewArrival: row.is_new_arrival,
     newArrivalDays: row.new_arrival_days,
     newArrivalStartedAt: row.new_arrival_started_at,
     isActive: row.is_active,
-    sortOrder: row.sort_order,
+    sortOrder: row.sort_order ?? 0,
     isCmsProduct: true,
   };
 }
@@ -87,7 +81,7 @@ function productToRow(product: ProductInput): CmsProductRow {
     size: product.size ?? null,
     tagline: product.tagline || "",
     description: product.description || "",
-    images: product.images.filter(Boolean).slice(0, 10),
+    images: (product.images || []).filter(Boolean).slice(0, 10),
     badge: product.badge ?? null,
     is_new_arrival: product.isNewArrival ?? false,
     new_arrival_days: product.newArrivalDays ?? 30,
@@ -95,34 +89,14 @@ function productToRow(product: ProductInput): CmsProductRow {
       ? (product.newArrivalStartedAt ?? new Date().toISOString())
       : null,
     is_active: product.isActive !== false,
-    sort_order: product.sortOrder ?? fallbackById.get(product.id)?.index ?? fallbackProducts.length,
+    sort_order: product.sortOrder ?? 0,
   };
 }
 
-function mergeProducts(cmsRows: CmsProductRow[]) {
-  const cmsProducts = cmsRows.map(rowToProduct);
-  const cmsById = new Map(cmsProducts.map((product) => [product.id, product]));
-  const merged: Product[] = [];
-
-  fallbackProducts.forEach((fallback, index) => {
-    const cmsProduct = cmsById.get(fallback.id);
-    merged.push(
-      cmsProduct ?? {
-        ...fallback,
-        isActive: true,
-        sortOrder: index,
-        isCmsProduct: false,
-      },
-    );
-  });
-
-  cmsProducts.forEach((product) => {
-    if (!fallbackById.has(product.id)) merged.push(product);
-  });
-
-  return merged.sort(
-    (a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0) || a.name.localeCompare(b.name),
-  );
+function mergeProducts(cmsRows: CmsProductRow[]): Product[] {
+  return cmsRows
+    .map(rowToProduct)
+    .sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0) || a.name.localeCompare(b.name));
 }
 
 export function ProductsProvider({ children }: { children: React.ReactNode }) {
@@ -250,13 +224,8 @@ export function useProducts() {
   const context = useContext(ProductsContext);
   if (!context) {
     return {
-      products: fallbackProducts,
-      adminProducts: fallbackProducts.map((product, index) => ({
-        ...product,
-        isActive: true,
-        sortOrder: index,
-        isCmsProduct: false,
-      })),
+      products: [],
+      adminProducts: [],
       loading: false,
       error: "",
       refreshProducts: async () => undefined,

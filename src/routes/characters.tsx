@@ -41,33 +41,8 @@ export const Route = createFileRoute("/characters")({
   }),
 });
 
-const ITEMS = [
-  {
-    id: "white-bear-overalls",
-    name: "Animal Crochet",
-    size: "3 inches up to any size",
-    price: "₹340 per inch",
-    note: "Option 1: chunky yarn · Option 2: soft polyester yarn",
-    image: whiteBearPink,
-  },
-  {
-    id: "panda-plushie",
-    name: "Plushie Crochet",
-    size: "4 inches up to any size",
-    price: "₹340 per inch",
-    note: "Any design — send me a reference photo",
-    image: panda,
-  },
-  {
-    id: "bear-keychain",
-    name: "Charms & Keychains",
-    size: "2 – 3 inches",
-    price: "₹700 each",
-    note: "Perfect for bag charms and party favours",
-    badge: "Great Gift",
-    image: bearKeychain,
-  },
-];
+import { Sparkles } from "lucide-react";
+import { useProducts } from "@/lib/cms-products";
 
 /* Gallery of all character/plushie products */
 const GALLERY = [
@@ -85,23 +60,18 @@ const GALLERY = [
   { src: catPlush, alt: "Category plush" },
 ];
 
-import { useProducts } from "@/lib/cms-products";
-
 function CharactersPage() {
   const { products } = useProducts();
   const cmsCharacters = products.filter((p) => p.type === "plushie" || p.type === "keychain");
-  const displayItems =
-    cmsCharacters.length > 0
-      ? cmsCharacters.map((p) => ({
-          id: p.id,
-          name: p.name,
-          size: p.size || "Custom amigurumi",
-          price: p.sellingPrice || p.price,
-          note: p.tagline || p.description,
-          image: p.images[0] || whiteBearPink,
-          ...(p.badge ? { badge: p.badge } : {}),
-        }))
-      : ITEMS;
+  const displayItems = cmsCharacters.map((p) => ({
+    id: p.id,
+    name: p.name,
+    size: p.size || "Custom amigurumi",
+    price: p.sellingPrice || p.price,
+    note: p.tagline || p.description,
+    image: p.images[0] || whiteBearPink,
+    ...(p.badge ? { badge: p.badge } : {}),
+  }));
 
   return (
     <SiteLayout>
@@ -110,11 +80,33 @@ function CharactersPage() {
         title="Characters & plushies"
         description="For crochet pieces other than the human doll style — animals, mascots, characters, anything you can send me a photo of."
       />
-      <div className="mx-auto grid max-w-6xl gap-6 px-4 py-16 sm:grid-cols-2 lg:grid-cols-3">
-        {displayItems.map((item) => (
-          <PriceCard key={item.name} {...item} />
-        ))}
-      </div>
+      {displayItems.length > 0 ? (
+        <div className="mx-auto grid max-w-6xl gap-6 px-4 py-16 sm:grid-cols-2 lg:grid-cols-3">
+          {displayItems.map((item) => (
+            <PriceCard key={item.id || item.name} {...item} />
+          ))}
+        </div>
+      ) : (
+        <div className="mx-auto max-w-2xl px-4 py-20 text-center">
+          <div className="liquid-glass mx-auto mb-6 flex size-16 items-center justify-center rounded-2xl bg-lilac/30 text-lilac-deep">
+            <Sparkles className="size-8 text-lilac-deep" />
+          </div>
+          <h2 className="font-display text-2xl font-bold text-lilac-deep">Plushies & Characters Coming Soon</h2>
+          <p className="mt-3 text-muted-foreground">
+            Our atelier is crafting custom amigurumi animals, mascots, and character plushies. You can also request a custom design via WhatsApp!
+          </p>
+          <div className="mt-8 flex justify-center">
+            <a
+              href="https://wa.me/919876543210?text=Hello%20Inventive%20Queen!%20I'd%20like%20to%20order%20a%20custom%20crochet%20character%20or%20plushie."
+              target="_blank"
+              rel="noopener noreferrer"
+              className="clay-primary liquid-btn inline-flex items-center gap-2 rounded-full px-7 py-3.5 font-bold"
+            >
+              Order Custom Plushie on WhatsApp →
+            </a>
+          </div>
+        </div>
+      )}
 
       {/* Sample Gallery */}
       <section className="aurora-rich border-y border-white/50 py-16">
