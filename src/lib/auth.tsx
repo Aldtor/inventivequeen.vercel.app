@@ -22,6 +22,28 @@ interface AuthContextValue {
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
+const KNOWN_ADMIN_EMAILS = [
+  "sk6945104@gmail.com",
+  "inventivequeen@gmail.com",
+  "hello@inventivequeen.com",
+  "admin@inventivequeen.com",
+];
+
+export function checkIsAdminEmail(email?: string | null): boolean {
+  if (!email) return false;
+  const cleanEmail = email.trim().toLowerCase();
+  const envAdmins = (
+    (typeof process !== "undefined" && (process.env?.["VITE_ADMIN_EMAILS"] || process.env?.["ADMIN_EMAILS"])) ||
+    (import.meta as any).env?.VITE_ADMIN_EMAILS ||
+    ""
+  )
+    .split(",")
+    .map((e: string) => e.trim().toLowerCase())
+    .filter(Boolean);
+
+  return KNOWN_ADMIN_EMAILS.includes(cleanEmail) || envAdmins.includes(cleanEmail);
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
@@ -44,9 +66,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       ]);
 
       setProfile(profileData ?? null);
-      setIsAdmin(Boolean(adminData));
+
+      const userEmail = user.email?.toLowerCase();
+      const isEmailAdmin = checkIsAdminEmail(userEmail);
+      const isMetadataAdmin =
+        user.app_metadata?.role === "admin" ||
+        user.user_metadata?.role === "admin" ||
+        user.user_metadata?.is_admin === true;
+
+      setIsAdmin(Boolean(adminData) || isEmailAdmin || isMetadataAdmin);
     } catch {
-      // Fallback
+      // Fallback in case of network or RLS delay
+      const userEmail = user.email?.toLowerCase();
+      const isEmailAdmin = checkIsAdminEmail(userEmail);
+      const isMetadataAdmin =
+        user.app_metadata?.role === "admin" ||
+        user.user_metadata?.role === "admin" ||
+        user.user_metadata?.is_admin === true;
+      setIsAdmin(isEmailAdmin || isMetadataAdmin);
     }
   }, [user]);
 

@@ -20,6 +20,7 @@ import bunnyKeychain from "@/assets/products/keychains/product-bunny-heart-keych
 import whiteBear from "@/assets/products/plushies/product-white-bear-pink-overalls.png";
 import bookmark from "@/assets/products/misc/product-peacock-bookmark-real.png";
 import { CookieConsent } from "./CookieConsent";
+import { AccountProfileModal } from "@/components/account/AccountProfileModal";
 
 export const INSTAGRAM_URL = "https://www.instagram.com/inventivequeen";
 
@@ -34,7 +35,6 @@ const MAIN_NAV = [
 const MORE_NAV = [
   { to: "/how-to-order", label: "How to order" },
   { to: "/reviews", label: "Reviews & Stories" },
-  { to: "/admin", label: "👑 Admin Panel" },
   { to: "/about", label: "About" },
   { to: "/faq", label: "FAQ" },
   { to: "/contact", label: "Contact" },
@@ -110,6 +110,7 @@ function AnnouncementBar() {
 
 function Header() {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [profileModalOpen, setProfileModalOpen] = useState(false);
   const [cartCount, setCartCount] = useState(0);
   const { user, profile, isAdmin, signOut } = useAuth();
 
@@ -182,17 +183,20 @@ function Header() {
                     👑 CMS
                   </Link>
                 )}
-                <Link
-                  to="/orders"
-                  className="clay hidden items-center gap-1.5 rounded-full px-3 py-2 text-xs font-bold text-lilac-deep sm:inline-flex"
-                  title={user.email ?? "Royal Account"}
+                <button
+                  type="button"
+                  onClick={() => setProfileModalOpen(true)}
+                  className="clay hidden items-center gap-1.5 rounded-full px-3.5 py-2 text-xs font-bold text-lilac-deep sm:inline-flex hover:bg-white/40 transition-all hover:scale-105 cursor-pointer"
+                  title="Royal Account Profile & Settings"
                 >
                   <UserIcon className="size-3.5" />
-                  <span className="max-w-[80px] truncate">{profile?.full_name || user.email?.split("@")[0]}</span>
-                </Link>
+                  <span className="max-w-[100px] truncate">
+                    {profile?.full_name || user.email?.split("@")[0] || "Account"}
+                  </span>
+                </button>
                 <button
                   onClick={() => signOut()}
-                  className="rounded-full p-2 text-muted-foreground hover:bg-rose-50 hover:text-rose-600 transition-colors"
+                  className="rounded-full p-2 text-muted-foreground hover:bg-rose-50 hover:text-rose-600 transition-colors cursor-pointer"
                   title="Sign Out"
                 >
                   <LogOut className="size-4" />
@@ -210,7 +214,7 @@ function Header() {
             {/* Mobile menu toggle */}
             <button
               onClick={() => setMobileOpen(!mobileOpen)}
-              className="inline-flex items-center justify-center rounded-full p-2 text-lilac-deep lg:hidden hover:bg-white/30 transition-colors"
+              className="inline-flex items-center justify-center rounded-full p-2 text-lilac-deep lg:hidden hover:bg-white/30 transition-colors cursor-pointer"
               aria-label="Toggle mobile menu"
             >
               {mobileOpen ? <X className="size-5" /> : <Menu className="size-5" />}
@@ -241,7 +245,21 @@ function Header() {
               👑 CMS
             </Link>
           )}
-          {!user && (
+          {user ? (
+            <button
+              type="button"
+              onClick={() => {
+                setMobileOpen(false);
+                setProfileModalOpen(true);
+              }}
+              className="rounded-full px-3 py-1.5 text-xs sm:text-sm font-bold whitespace-nowrap text-lilac-deep bg-white/60 border border-lilac-deep/20 inline-flex items-center gap-1.5 cursor-pointer"
+            >
+              <UserIcon className="size-3.5" />
+              <span className="max-w-[120px] truncate">
+                {profile?.full_name || user.email?.split("@")[0] || "My Account"}
+              </span>
+            </button>
+          ) : (
             <Link
               to="/login"
               className="rounded-full px-3 py-1.5 text-xs sm:text-sm font-semibold whitespace-nowrap text-lilac-deep font-bold"
@@ -252,6 +270,12 @@ function Header() {
           )}
           <MoreMenu className="px-3 py-1.5" />
         </nav>
+
+        {/* Royal Account Profile Dialog */}
+        <AccountProfileModal
+          isOpen={profileModalOpen}
+          onClose={() => setProfileModalOpen(false)}
+        />
       </div>
     </header>
   );
