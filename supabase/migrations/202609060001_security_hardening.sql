@@ -19,6 +19,7 @@ create or replace function public.enforce_order_security_integrity()
 returns trigger
 language plpgsql
 security definer
+set search_path = public
 as $$
 begin
   -- Allow if administrator or executing inside verified payment confirmation RPC
