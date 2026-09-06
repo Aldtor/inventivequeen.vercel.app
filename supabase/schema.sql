@@ -261,7 +261,8 @@ begin
 end;
 $$;
 
-grant execute on function public.reserve_product_id(text) to authenticated, anon;
+revoke execute on function public.reserve_product_id(text) from public, anon;
+grant execute on function public.reserve_product_id(text) to authenticated;
 
 -- Trigger Function: Prevent non-admin users from tampering with payment and status fields
 create or replace function public.enforce_order_security_integrity()
@@ -274,6 +275,11 @@ begin
   -- Allow if administrator or executing inside verified payment confirmation RPC
   if public.is_admin() or current_setting('app.payment_verification_in_progress', true) = 'true' then
     return new;
+  end if;
+
+  -- Prevent tampering with order ownership
+  if old.user_id is distinct from new.user_id then
+    raise exception 'Security violation: Order ownership cannot be modified.';
   end if;
 
   -- Prevent tampering with sensitive order fields
@@ -311,7 +317,16 @@ set search_path = public
 as $$
 declare
   v_rows_affected integer;
+  v_caller_uid uuid := auth.uid();
 begin
+  -- Non-admin callers can only confirm payment for their own order
+  if not public.is_admin() then
+    if v_caller_uid is null then
+      raise exception 'Unauthorized: Authentication required.';
+    end if;
+    p_user_id := v_caller_uid;
+  end if;
+
   -- Set transaction-local setting so integrity trigger permits verified payment confirmation
   perform set_config('app.payment_verification_in_progress', 'true', true);
 
@@ -329,7 +344,8 @@ begin
 end;
 $$;
 
-grant execute on function public.confirm_order_payment(uuid, text, uuid) to authenticated, anon;
+revoke execute on function public.confirm_order_payment(uuid, text, uuid) from public, anon;
+grant execute on function public.confirm_order_payment(uuid, text, uuid) to authenticated;
 
 -- RPC Function: Atomically validate and redeem discount coupon
 create or replace function public.redeem_coupon(
@@ -346,6 +362,10 @@ declare
   v_coupon record;
   v_user_id uuid := auth.uid();
 begin
+  if v_user_id is null and not public.is_admin() then
+    return jsonb_build_object('success', false, 'message', 'Authentication required to redeem coupon');
+  end if;
+
   select * into v_coupon from public.coupons where code = upper(p_coupon_code) and is_active = true;
   if not found then
     return jsonb_build_object('success', false, 'message', 'Coupon is invalid or inactive');
@@ -368,7 +388,8 @@ begin
 end;
 $$;
 
-grant execute on function public.redeem_coupon(text, uuid, numeric) to authenticated, anon;
+revoke execute on function public.redeem_coupon(text, uuid, numeric) from public, anon;
+grant execute on function public.redeem_coupon(text, uuid, numeric) to authenticated;
 
 -- =============================================================================
 -- SECTION 4: ROW LEVEL SECURITY (RLS) POLICIES
@@ -416,8 +437,18 @@ drop policy if exists "Authenticated users can create orders" on public.orders;
 drop policy if exists "Anyone can create orders" on public.orders;
 create policy "Anyone can create orders" on public.orders for insert with check (user_id is null or auth.uid() = user_id or public.is_admin());
 drop policy if exists "Users can update own orders during payment" on public.orders;
+drop policy if exists "Users can update own cancelled or failed orders" on public.orders;
+create policy "Users can update own cancelled or failed orders" on public.orders
+  for update
+  using (auth.uid() = user_id and payment_status in ('pending', 'failed'))
+  with check (auth.uid() = user_id and payment_status in ('pending', 'failed', 'cancelled') and status in ('pending', 'cancelled'));
+
 drop policy if exists "Admins can update orders" on public.orders;
 create policy "Admins can update orders" on public.orders for update using (public.is_admin()) with check (public.is_admin());
+drop policy if exists "Users can delete own cancelled or failed orders" on public.orders;
+create policy "Users can delete own cancelled or failed orders" on public.orders
+  for delete
+  using (auth.uid() = user_id and (payment_status in ('failed', 'cancelled') or status in ('cancelled', 'pending')));
 drop policy if exists "Admins can delete orders" on public.orders;
 create policy "Admins can delete orders" on public.orders for delete using (public.is_admin());
 
@@ -428,6 +459,15 @@ create policy "Users can view own order items" on public.order_items for select 
 drop policy if exists "Users can insert own order items" on public.order_items;
 drop policy if exists "Anyone can insert order items" on public.order_items;
 create policy "Anyone can insert order items" on public.order_items for insert with check (exists (select 1 from public.orders where orders.id = order_items.order_id and (orders.user_id is null or orders.user_id = auth.uid() or public.is_admin())));
+drop policy if exists "Users can delete own order items" on public.order_items;
+create policy "Users can delete own order items" on public.order_items
+  for delete
+  using (exists (
+    select 1 from public.orders
+    where orders.id = order_items.order_id
+      and orders.user_id = auth.uid()
+      and (orders.payment_status in ('failed', 'cancelled') or orders.status in ('cancelled', 'pending'))
+  ));
 drop policy if exists "Admins can manage order items" on public.order_items;
 create policy "Admins can manage order items" on public.order_items for all using (public.is_admin()) with check (public.is_admin());
 

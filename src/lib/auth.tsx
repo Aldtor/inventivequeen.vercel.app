@@ -81,10 +81,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         user.app_metadata?.["provider"] === "google",
       );
       const isEmailAdmin = isEmailVerified && checkIsAdminEmail(userEmail);
-      const isMetadataAdmin =
-        user.app_metadata?.["role"] === "admin" ||
-        user.user_metadata?.["role"] === "admin" ||
-        user.user_metadata?.["is_admin"] === true;
+      const isMetadataAdmin = user.app_metadata?.["role"] === "admin";
 
       setIsAdmin(Boolean(adminData) || isEmailAdmin || isMetadataAdmin);
     } catch {
@@ -97,10 +94,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         user.app_metadata?.["provider"] === "google",
       );
       const isEmailAdmin = isEmailVerified && checkIsAdminEmail(userEmail);
-      const isMetadataAdmin =
-        user.app_metadata?.["role"] === "admin" ||
-        user.user_metadata?.["role"] === "admin" ||
-        user.user_metadata?.["is_admin"] === true;
+      const isMetadataAdmin = user.app_metadata?.["role"] === "admin";
       setIsAdmin(isEmailAdmin || isMetadataAdmin);
     }
   }, [user]);

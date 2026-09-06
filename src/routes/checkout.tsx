@@ -310,7 +310,14 @@ function CheckoutPage() {
         );
       }
 
-      const orderNumber = `IQ-${Date.now().toString().slice(-6)}-${Math.floor(100 + Math.random() * 900)}`;
+      const randomSuffix =
+        typeof crypto !== "undefined" && crypto.getRandomValues
+          ? Array.from(crypto.getRandomValues(new Uint8Array(3)))
+              .map((b) => b.toString(16).padStart(2, "0"))
+              .join("")
+              .toUpperCase()
+          : Math.random().toString(36).substring(2, 8).toUpperCase();
+      const orderNumber = `IQ-${Date.now().toString().slice(-8)}-${randomSuffix}`;
       const fullAddress = `${safeStreet}, ${safeCity}`;
 
       // 1. Insert order into Supabase with sanitized details
@@ -382,17 +389,15 @@ function CheckoutPage() {
         );
       }
 
-      // 4. Razorpay configuration (prefer env variable, fallback to hardcoded key)
+      // 4. Razorpay configuration (from environment variable)
       const metaEnv = (import.meta as unknown as { env?: Record<string, string> }).env;
       const razorpayKey =
         metaEnv?.["VITE_RAZORPAY_KEY_ID"] ||
         (typeof process !== "undefined" &&
           (process.env?.["VITE_RAZORPAY_KEY_ID"] || process.env?.["RAZORPAY_KEY_ID"])) ||
-        "rzp_live_TYUEKLyErpyGRl";
-      if (razorpayKey === "rzp_live_TYUEKLyErpyGRl") {
-        console.warn(
-          "[Security] Using fallback Razorpay key. Set VITE_RAZORPAY_KEY_ID env variable for production.",
-        );
+        "";
+      if (!razorpayKey) {
+        throw new Error("Razorpay key is not configured. Please set VITE_RAZORPAY_KEY_ID.");
       }
 
       const razorpayOptions: Record<string, unknown> = {
@@ -456,28 +461,25 @@ function CheckoutPage() {
               }
             } catch (apiErr) {
               console.warn(
-                "Backend verification endpoint unavailable, finalizing via Supabase:",
+                "Backend verification endpoint unavailable, finalizing via Supabase RPC:",
                 apiErr,
               );
             }
 
-            // 2. Direct database confirmation fallback
+            // 2. Database confirmation via Security Definer RPC (never direct table update)
             if (!serverVerified) {
-              try {
-                await supabase.rpc("confirm_order_payment", {
-                  p_order_id: orderData.id,
-                  p_payment_id: response.razorpay_payment_id || "captured",
-                  p_user_id: user.id,
-                });
-              } catch {
-                await supabase
-                  .from("orders")
-                  .update({
-                    payment_status: "paid",
-                    status: "confirmed",
-                    payment_id: response.razorpay_payment_id || null,
-                  })
-                  .eq("id", orderData.id);
+              const { data: rpcOk, error: rpcErr } = await supabase.rpc("confirm_order_payment", {
+                p_order_id: orderData.id,
+                p_payment_id: response.razorpay_payment_id || "captured",
+                p_user_id: user.id,
+              });
+              if (rpcErr || !rpcOk) {
+                console.error("RPC payment confirmation failed:", rpcErr);
+                throw new Error(
+                  "Payment could not be confirmed automatically. If payment was deducted, please save reference ID: " +
+                    response.razorpay_payment_id +
+                    " and contact support.",
+                );
               }
             }
 

@@ -43,7 +43,7 @@ export function saveCart(items: CartItem[]): void {
 
 export function addToCart(item: Omit<CartItem, "quantity">, quantity: number = 1): void {
   const cart = getCart();
-  const existingIndex = cart.findIndex((i) => i.id === item.id || i.name === item.name);
+  const existingIndex = cart.findIndex((i) => (item.id ? i.id === item.id : i.name === item.name));
   if (existingIndex > -1 && cart[existingIndex]) {
     cart[existingIndex].quantity += quantity;
   } else {
@@ -55,10 +55,10 @@ export function addToCart(item: Omit<CartItem, "quantity">, quantity: number = 1
 export function updateCartQuantity(id: string, quantity: number): void {
   const cart = getCart();
   if (quantity <= 0) {
-    const filtered = cart.filter((i) => i.id !== id && i.name !== id);
+    const filtered = cart.filter((i) => i.id !== id);
     saveCart(filtered);
   } else {
-    const item = cart.find((i) => i.id === id || i.name === id);
+    const item = cart.find((i) => i.id === id);
     if (item) {
       item.quantity = quantity;
       saveCart(cart);
@@ -67,7 +67,7 @@ export function updateCartQuantity(id: string, quantity: number): void {
 }
 
 export function removeFromCart(id: string): void {
-  const cart = getCart().filter((i) => i.id !== id && i.name !== id);
+  const cart = getCart().filter((i) => i.id !== id);
   saveCart(cart);
 }
 

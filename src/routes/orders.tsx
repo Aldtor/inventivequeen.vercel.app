@@ -122,6 +122,14 @@ function OrdersPage() {
   }, [filterTab, orders, activeOrders, cancelledOrders]);
 
   const handleDeleteOrder = async (orderId: string) => {
+    const targetOrder = orders.find((o) => o.id === orderId);
+    if (!targetOrder) return;
+
+    if (targetOrder.payment_status === "paid" && targetOrder.status !== "cancelled") {
+      alert("Confirmed active orders cannot be removed from history.");
+      return;
+    }
+
     if (!window.confirm("Remove this cancelled or incomplete order from your history?")) {
       return;
     }

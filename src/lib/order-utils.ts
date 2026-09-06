@@ -21,11 +21,19 @@ export function parseAdminNotes(raw?: string | null): ParsedAdminNotes {
   if (raw.trim().startsWith("{") && raw.trim().endsWith("}")) {
     try {
       const parsed = JSON.parse(raw);
-      return {
-        courier: parsed.courier || "",
-        trackingNumber: parsed.trackingNumber || "",
-        internalNotes: parsed.internalNotes || parsed.notes || "",
-      };
+      if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
+        return {
+          courier: typeof parsed.courier === "string" ? parsed.courier.slice(0, 100) : "",
+          trackingNumber:
+            typeof parsed.trackingNumber === "string" ? parsed.trackingNumber.slice(0, 100) : "",
+          internalNotes:
+            typeof parsed.internalNotes === "string"
+              ? parsed.internalNotes.slice(0, 1000)
+              : typeof parsed.notes === "string"
+                ? parsed.notes.slice(0, 1000)
+                : "",
+        };
+      }
     } catch {
       // Fall through to text parsing
     }

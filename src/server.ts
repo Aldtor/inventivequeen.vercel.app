@@ -120,9 +120,23 @@ export default {
         return applySecurityHeaders(rateLimitResponse);
       }
 
-      // B. CSRF & Same-Origin Verification for state-changing requests
+      // B. CSRF, Payload Size & Same-Origin Verification for state-changing requests
       const isMutationMethod = ["POST", "PUT", "PATCH", "DELETE"].includes(request.method);
       if (isMutationMethod) {
+        // Check 0: Content-Length payload size limit (max 32KB)
+        const contentLength = request.headers.get("content-length");
+        if (contentLength && parseInt(contentLength, 10) > 32_768) {
+          console.warn(`[SECURITY ALERT] Payload too large: ${contentLength} bytes on ${url.pathname}`);
+          const payloadTooLarge = new Response(
+            JSON.stringify({ error: "Payload Too Large: Exceeds 32KB limit." }),
+            {
+              status: 413,
+              headers: { "Content-Type": "application/json" },
+            },
+          );
+          return applySecurityHeaders(payloadTooLarge);
+        }
+
         // Check 1: Modern browser Sec-Fetch-Site check
         const secFetchSite = request.headers.get("sec-fetch-site");
         if (secFetchSite === "cross-site") {
