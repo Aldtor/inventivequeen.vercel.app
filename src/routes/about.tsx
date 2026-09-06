@@ -54,7 +54,8 @@ function AboutPage() {
   return (
     <SiteLayout>
       <PageHeader
-        eyebrow="About"
+        eyebrow="The Story Behind The Stitches"
+        icon={<Heart className="size-3.5 text-rose-500 fill-rose-300" />}
         title="Hi, I'm the Inventive Queen"
         description="I turn yarn into tiny companions and everlasting bouquets — each one handmade to order."
       />

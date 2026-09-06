@@ -147,8 +147,12 @@ function Home() {
         />
         <div className="relative mx-auto grid max-w-6xl items-center gap-12 px-4 py-20 lg:grid-cols-2 lg:py-28">
           <div>
-            <span className="liquid-glass inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-xs font-bold tracking-[0.18em] text-lilac-deep uppercase">
-              <Sparkles className="size-3.5" /> Handmade with love
+            <span className="inline-flex items-center gap-2 rounded-full border border-white/80 bg-white/70 px-4.5 py-2 text-xs font-black tracking-[0.18em] text-lilac-deep uppercase shadow-md shadow-lilac/10 backdrop-blur-md transition-transform hover:scale-105">
+              <span className="flex size-4 items-center justify-center rounded-full bg-gradient-to-tr from-pink-400 to-primary text-white shadow-xs">
+                <Heart className="size-2.5 fill-current" />
+              </span>
+              <span>Handmade with love</span>
+              <Crown className="size-3 text-amber-500 fill-amber-300 ml-0.5" />
             </span>
             <h1 className="sheen-text mt-6 text-5xl leading-[1.02] font-extrabold sm:text-6xl lg:text-7xl">
               Custom crochet dolls, plushies &amp; flowers
@@ -253,9 +257,12 @@ function Home() {
 
       {/* ═══════ CATEGORIES ═══════ */}
       <section className="mx-auto max-w-6xl px-4 py-20">
-        <p className="text-center text-xs font-bold tracking-[0.18em] text-primary uppercase">
-          Shop
-        </p>
+        <div className="text-center">
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-white/80 bg-white/70 px-4.5 py-1.5 text-xs font-black tracking-[0.18em] text-lilac-deep uppercase shadow-sm backdrop-blur-md">
+            <Crown className="size-3.5 text-amber-500 fill-amber-300" />
+            <span>Atelier Collections</span>
+          </span>
+        </div>
         <h2 className="mt-3 text-center text-4xl font-extrabold text-lilac-deep">What I make</h2>
         <p className="mx-auto mt-4 max-w-xl text-center text-muted-foreground">
           Every category has its own pricelist page with sizes, prices and sample designs.
@@ -290,10 +297,13 @@ function Home() {
       {/* ═══════ WHY SECTION ═══════ */}
       <section className="aurora-rich border-y border-white/50 py-20">
         <div className="mx-auto max-w-6xl px-4">
-          <p className="text-center text-xs font-bold tracking-[0.18em] text-primary uppercase">
-            Crafted with love
-          </p>
-          <h2 className="mt-3 text-center text-4xl font-extrabold text-lilac-deep">
+          <div className="text-center">
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-white/80 bg-white/70 px-4.5 py-1.5 text-xs font-black tracking-[0.18em] text-lilac-deep uppercase shadow-sm backdrop-blur-md">
+              <Heart className="size-3.5 text-rose-500 fill-rose-200" />
+              <span>Crafted with love</span>
+            </span>
+          </div>
+        <h2 className="mt-3 text-center text-4xl font-extrabold text-lilac-deep">
             Why order from Inventive Queen?
           </h2>
           <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
@@ -312,9 +322,12 @@ function Home() {
 
       {/* ═══════ CATALOGUE / PRODUCT SHOWCASE ═══════ */}
       <section className="mx-auto max-w-6xl px-4 py-20">
-        <p className="text-center text-xs font-bold tracking-[0.18em] text-primary uppercase">
-          Catalogue
-        </p>
+        <div className="text-center">
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-white/80 bg-white/70 px-4.5 py-1.5 text-xs font-black tracking-[0.18em] text-lilac-deep uppercase shadow-sm backdrop-blur-md">
+            <Sparkles className="size-3.5 text-amber-500 fill-amber-300" />
+            <span>Handmade Catalogue</span>
+          </span>
+        </div>
         <h2 className="mt-3 text-center text-4xl font-extrabold text-lilac-deep">
           Designs I&apos;ve made
         </h2>
@@ -360,9 +373,9 @@ function Home() {
             </div>
           </>
         ) : (
-          <div className="mt-12 liquid-glass max-w-2xl mx-auto p-10 text-center rounded-3xl">
-            <div className="mx-auto mb-4 flex size-14 items-center justify-center rounded-2xl bg-lilac/30 text-lilac-deep">
-              <Sparkles className="size-7 text-lilac-deep" />
+          <div className="mt-12 liquid-glass max-w-2xl mx-auto p-10 text-center rounded-3xl border border-white/80 shadow-xl">
+            <div className="mx-auto mb-5 flex size-16 items-center justify-center rounded-2xl bg-gradient-to-tr from-amber-100 to-amber-200 border border-amber-300/80 shadow-md">
+              <Crown className="size-8 text-amber-700" />
             </div>
             <h3 className="font-display text-2xl font-bold text-lilac-deep">
               Royal Atelier — New Creations Coming Soon
@@ -393,9 +406,12 @@ function Home() {
       {/* ═══════ VIDEO SHOWCASE ═══════ */}
       <section className="aurora-rich border-y border-white/50 py-20">
         <div className="mx-auto max-w-6xl px-4">
-          <p className="text-center text-xs font-bold tracking-[0.18em] text-primary uppercase">
-            <Play className="inline size-3 mr-1" /> Behind the scenes
-          </p>
+          <div className="text-center">
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-white/80 bg-white/70 px-4.5 py-1.5 text-xs font-black tracking-[0.18em] text-lilac-deep uppercase shadow-sm backdrop-blur-md">
+              <Play className="size-3.5 text-primary fill-primary" />
+              <span>Behind the scenes</span>
+            </span>
+          </div>
           <h2 className="mt-3 text-center text-4xl font-extrabold text-lilac-deep">
             Watch them come to life
           </h2>
@@ -428,9 +444,12 @@ function Home() {
       {/* ═══════ TESTIMONIALS ═══════ */}
       <section className="aurora-rich border-t border-white/50 py-20">
         <div className="mx-auto max-w-6xl px-4">
-          <p className="text-center text-xs font-bold tracking-[0.18em] text-primary uppercase">
-            Kind words
-          </p>
+          <div className="text-center">
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-white/80 bg-white/70 px-4.5 py-1.5 text-xs font-black tracking-[0.18em] text-lilac-deep uppercase shadow-sm backdrop-blur-md">
+              <Star className="size-3.5 text-amber-500 fill-amber-300" />
+              <span>Patron Reviews</span>
+            </span>
+          </div>
           <h2 className="mt-3 text-center text-4xl font-extrabold text-lilac-deep">
             Loved by little hearts
           </h2>

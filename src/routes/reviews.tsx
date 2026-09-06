@@ -102,6 +102,7 @@ function ReviewsPage() {
     <SiteLayout>
       <PageHeader
         eyebrow="Patron Love"
+        icon={<Star className="size-3.5 text-amber-500 fill-amber-300" />}
         title="Cherished across India"
         description="Heartwarming unboxing reviews and feedback from collectors who have gifted or commissioned our bespoke crochet creations."
       />

@@ -128,23 +128,35 @@ function Header() {
     <header className="sticky top-0 z-40">
       <div className="glass border-x-0 border-t-0">
         <div className="mx-auto flex max-w-6xl items-center gap-3 px-4 py-3">
-          <Link to="/" className="group flex items-center gap-2.5">
-            <span className="clay-soft rounded-full p-1 transition-transform duration-500 group-hover:scale-105">
+          <Link to="/" className="group flex shrink-0 items-center gap-2.5 sm:gap-3">
+            <div className="relative size-10 sm:size-11 shrink-0 rounded-full p-0.5 bg-gradient-to-tr from-lilac to-primary shadow-sm transition-transform duration-300 group-hover:scale-105">
               <img
                 src={logo}
                 alt="Inventive Queen logo"
                 width={48}
                 height={48}
-                className="size-10 sm:size-11 rounded-full object-cover transition-transform duration-500 group-hover:rotate-6"
+                className="size-full rounded-full object-cover bg-white"
               />
-            </span>
-            <span className="sheen-text font-display text-base font-bold sm:text-xl">
-              Inventive Queen
-            </span>
+              <span className="absolute -bottom-0.5 -right-0.5 flex size-4 items-center justify-center rounded-full bg-amber-400 text-[9px] shadow-sm ring-2 ring-white" title="Royal Atelier">
+                👑
+              </span>
+            </div>
+            <div className="flex flex-col">
+              <span className="sheen-text font-display text-base sm:text-xl font-bold tracking-tight leading-tight whitespace-nowrap">
+                Inventive Queen
+              </span>
+              <span className="hidden sm:block text-[10px] font-bold text-muted-foreground tracking-wider uppercase leading-none whitespace-nowrap">
+                Handmade Atelier
+              </span>
+            </div>
           </Link>
 
-          <span className="liquid-glass hidden items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold text-lilac-deep md:inline-flex">
-            <span className="size-2 animate-pulse rounded-full bg-emerald-500" /> Online Store
+          <span className="hidden sm:inline-flex shrink-0 whitespace-nowrap items-center gap-2 rounded-full border border-emerald-300/80 bg-emerald-50/80 backdrop-blur-md px-3.5 py-1 text-xs font-bold text-emerald-800 shadow-sm">
+            <span className="relative flex size-2 shrink-0">
+              <span className="absolute inline-flex size-full animate-ping rounded-full bg-emerald-400 opacity-75" />
+              <span className="relative inline-flex size-2 rounded-full bg-emerald-500" />
+            </span>
+            <span>Online Store</span>
           </span>
 
           <nav className="ml-auto hidden items-center gap-1 lg:flex">
@@ -398,10 +410,12 @@ export function PageHeader({
   eyebrow,
   title,
   description,
+  icon,
 }: {
   eyebrow: string;
   title: string;
   description: string;
+  icon?: ReactNode;
 }) {
   return (
     <section className="aurora-rich sparkle-field relative overflow-hidden border-b border-white/50">
@@ -415,8 +429,9 @@ export function PageHeader({
         aria-hidden
       />
       <div className="relative mx-auto max-w-3xl px-4 py-20 text-center">
-        <span className="liquid-glass inline-flex items-center gap-2 rounded-full px-5 py-1.5 text-xs font-bold tracking-[0.18em] text-lilac-deep uppercase">
-          <Sparkles className="size-3" /> {eyebrow}
+        <span className="inline-flex items-center gap-2 rounded-full border border-white/80 bg-white/70 px-5 py-2 text-xs font-black tracking-[0.18em] text-lilac-deep uppercase shadow-md shadow-lilac/10 backdrop-blur-md transition-transform hover:scale-105">
+          {icon ?? <Sparkles className="size-3.5 text-amber-500 fill-amber-300" />}
+          <span>{eyebrow}</span>
         </span>
         <h1 className="sheen-text mt-5 text-4xl font-extrabold sm:text-5xl">{title}</h1>
         <p className="mt-4 text-muted-foreground">{description}</p>

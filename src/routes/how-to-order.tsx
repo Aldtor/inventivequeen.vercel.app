@@ -48,8 +48,9 @@ function HowToOrderPage() {
   return (
     <SiteLayout>
       <PageHeader
-        eyebrow="How to order"
-        title="Direct Online Ordering"
+        eyebrow="Easy 3-Step Guide"
+        icon={<ClipboardList className="size-3.5 text-primary" />}
+        title="How To Order"
         description="Place your order online in 3 simple steps, pay securely with Razorpay, and track your parcel live."
       />
 

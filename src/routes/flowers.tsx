@@ -1,8 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Sparkles } from "lucide-react";
+import { Flower2, Sparkles } from "lucide-react";
 
 import { OrderCta, PageHeader, PriceCard, SiteLayout } from "@/components/site/SiteLayout";
 import bouquetRose from "@/assets/products/bouquets/product-bouquet-rose.png";
+import flowersEmpty from "@/assets/flowers-empty.jpg";
 import { useProducts } from "@/lib/cms-products";
 
 export const Route = createFileRoute("/flowers")({
@@ -44,7 +45,8 @@ function FlowersPage() {
   return (
     <SiteLayout>
       <PageHeader
-        eyebrow="Pricelist"
+        eyebrow="Everlasting Floral Collection"
+        icon={<Flower2 className="size-3.5 text-pink-500 fill-pink-200" />}
         title="Crochet flowers"
         description="All prices include basic wrapping and ribbon. Want a flower that isn't listed? Send a photo and I'll see if I can make it."
       />
@@ -55,23 +57,35 @@ function FlowersPage() {
           ))}
         </div>
       ) : (
-        <div className="mx-auto max-w-2xl px-4 py-20 text-center">
-          <div className="liquid-glass mx-auto mb-6 flex size-16 items-center justify-center rounded-2xl bg-lilac/30 text-lilac-deep">
-            <Sparkles className="size-8 text-lilac-deep" />
-          </div>
-          <h2 className="font-display text-2xl font-bold text-lilac-deep">Everlasting Flowers Coming Soon</h2>
-          <p className="mt-3 text-muted-foreground">
-            Our atelier is crafting vibrant new everlasting bouquet arrangements. You can also customize your own bouquet colorway via WhatsApp!
-          </p>
-          <div className="mt-8 flex justify-center">
-            <a
-              href="https://wa.me/919876543210?text=Hello%20Inventive%20Queen!%20I'd%20like%20to%20order%20a%20custom%20crochet%20bouquet."
-              target="_blank"
-              rel="noopener noreferrer"
-              className="clay-primary liquid-btn inline-flex items-center gap-2 rounded-full px-7 py-3.5 font-bold"
-            >
-              Customize Bouquet on WhatsApp →
-            </a>
+        <div className="mx-auto max-w-xl px-4 py-16 text-center">
+          <div className="liquid-glass relative mx-auto mb-8 max-w-md overflow-hidden rounded-3xl p-6 shadow-xl border border-white/80">
+            <div className="relative mx-auto mb-5 size-48 sm:size-56 overflow-hidden rounded-2xl shadow-lg ring-4 ring-lilac/30">
+              <img
+                src={flowersEmpty}
+                alt="Handcrafted crochet everlasting bouquet"
+                className="size-full object-cover transition-transform duration-700 hover:scale-105"
+              />
+              <div className="absolute top-2.5 right-2.5 rounded-full bg-white/90 backdrop-blur-md px-3 py-1 text-[11px] font-extrabold text-lilac-deep shadow-sm flex items-center gap-1">
+                <Flower2 className="size-3 text-pink-500 fill-pink-200" />
+                <span>Never Wilts</span>
+              </div>
+            </div>
+            <h2 className="font-display text-2xl sm:text-3xl font-extrabold text-lilac-deep">
+              Everlasting Flowers Coming Soon
+            </h2>
+            <p className="mt-3 text-sm text-muted-foreground leading-relaxed">
+              Our atelier is crafting vibrant new everlasting bouquet arrangements with satin ribbons and wrapping. You can also customize your own bouquet colorway via WhatsApp!
+            </p>
+            <div className="mt-6 flex flex-wrap justify-center gap-3">
+              <a
+                href="https://wa.me/919876543210?text=Hello%20Inventive%20Queen!%20I'd%20like%20to%20order%20a%20custom%20crochet%20bouquet."
+                target="_blank"
+                rel="noopener noreferrer"
+                className="clay-primary liquid-btn inline-flex items-center gap-2 rounded-full px-6 py-3 font-bold text-sm shadow-md"
+              >
+                Customize Bouquet on WhatsApp →
+              </a>
+            </div>
           </div>
         </div>
       )}

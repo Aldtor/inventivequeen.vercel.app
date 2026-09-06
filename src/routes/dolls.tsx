@@ -1,8 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Sparkles } from "lucide-react";
+import { Crown, Sparkles } from "lucide-react";
 
 import { OrderCta, PageHeader, PriceCard, SiteLayout } from "@/components/site/SiteLayout";
 import dollsImg from "@/assets/dolls.jpg";
+import dollEmpty from "@/assets/doll-empty.jpg";
 import { useProducts } from "@/lib/cms-products";
 
 export const Route = createFileRoute("/dolls")({
@@ -44,7 +45,8 @@ function DollsPage() {
   return (
     <SiteLayout>
       <PageHeader
-        eyebrow="Pricelist"
+        eyebrow="Royal Collection · Dolls Pricelist"
+        icon={<Crown className="size-3.5 text-amber-500 fill-amber-300" />}
         title="Crochet dolls"
         description="These are sample designs — all are customizable. Highly detailed dolls may need a small extra fee, just message me."
       />
@@ -55,23 +57,35 @@ function DollsPage() {
           ))}
         </div>
       ) : (
-        <div className="mx-auto max-w-2xl px-4 py-20 text-center">
-          <div className="liquid-glass mx-auto mb-6 flex size-16 items-center justify-center rounded-2xl bg-lilac/30 text-lilac-deep">
-            <Sparkles className="size-8 text-lilac-deep" />
-          </div>
-          <h2 className="font-display text-2xl font-bold text-lilac-deep">Artisanal Dolls Coming Soon</h2>
-          <p className="mt-3 text-muted-foreground">
-            Our atelier is currently hand-crafting bespoke amigurumi doll designs. You can also request a custom doll made from your reference photo!
-          </p>
-          <div className="mt-8 flex justify-center">
-            <a
-              href="https://wa.me/919876543210?text=Hello%20Inventive%20Queen!%20I'd%20like%20to%20order%20a%20custom%20crochet%20doll."
-              target="_blank"
-              rel="noopener noreferrer"
-              className="clay-primary liquid-btn inline-flex items-center gap-2 rounded-full px-7 py-3.5 font-bold"
-            >
-              Order Custom Doll on WhatsApp →
-            </a>
+        <div className="mx-auto max-w-xl px-4 py-16 text-center">
+          <div className="liquid-glass relative mx-auto mb-8 max-w-md overflow-hidden rounded-3xl p-6 shadow-xl border border-white/80">
+            <div className="relative mx-auto mb-5 size-48 sm:size-56 overflow-hidden rounded-2xl shadow-lg ring-4 ring-lilac/30">
+              <img
+                src={dollEmpty}
+                alt="Handcrafted crochet princess doll atelier"
+                className="size-full object-cover transition-transform duration-700 hover:scale-105"
+              />
+              <div className="absolute top-2.5 right-2.5 rounded-full bg-white/90 backdrop-blur-md px-3 py-1 text-[11px] font-extrabold text-lilac-deep shadow-sm flex items-center gap-1">
+                <Crown className="size-3 text-amber-500 fill-amber-300" />
+                <span>In Atelier</span>
+              </div>
+            </div>
+            <h2 className="font-display text-2xl sm:text-3xl font-extrabold text-lilac-deep">
+              Artisanal Dolls Coming Soon
+            </h2>
+            <p className="mt-3 text-sm text-muted-foreground leading-relaxed">
+              Our atelier is currently hand-crafting bespoke amigurumi doll designs with soft milk cotton yarn. You can also request a custom doll made from your reference photo!
+            </p>
+            <div className="mt-6 flex flex-wrap justify-center gap-3">
+              <a
+                href="https://wa.me/919876543210?text=Hello%20Inventive%20Queen!%20I'd%20like%20to%20order%20a%20custom%20crochet%20doll."
+                target="_blank"
+                rel="noopener noreferrer"
+                className="clay-primary liquid-btn inline-flex items-center gap-2 rounded-full px-6 py-3 font-bold text-sm shadow-md"
+              >
+                Order Custom Doll on WhatsApp →
+              </a>
+            </div>
           </div>
         </div>
       )}
