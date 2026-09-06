@@ -128,30 +128,38 @@ function Header() {
     <header className="sticky top-0 z-40">
       <div className="glass border-x-0 border-t-0">
         <div className="mx-auto flex max-w-6xl items-center gap-3 px-4 py-3">
-          <Link to="/" className="group flex shrink-0 items-center gap-2.5 sm:gap-3">
-            <div className="relative size-10 sm:size-11 shrink-0 rounded-full p-0.5 bg-gradient-to-tr from-lilac to-primary shadow-sm transition-transform duration-300 group-hover:scale-105">
-              <img
-                src={logo}
-                alt="Inventive Queen logo"
-                width={48}
-                height={48}
-                className="size-full rounded-full object-cover bg-white"
-              />
-              <span className="absolute -bottom-0.5 -right-0.5 flex size-4 items-center justify-center rounded-full bg-amber-400 text-[9px] shadow-sm ring-2 ring-white" title="Royal Atelier">
-                👑
-              </span>
+          <Link to="/" className="group flex shrink-0 items-center gap-3">
+            <div className="relative size-11 sm:size-12 shrink-0 rounded-full p-[2px] bg-gradient-to-br from-lilac via-pink-200 to-primary shadow-sm ring-1 ring-white/60 transition-all duration-300 group-hover:scale-105 group-hover:shadow-md group-hover:ring-primary/30">
+              <div className="size-full rounded-full overflow-hidden bg-[#F6EBF2] flex items-center justify-center">
+                <img
+                  src={logo}
+                  alt="Inventive Queen"
+                  width={52}
+                  height={52}
+                  className="size-full object-cover object-[50%_46%] scale-[1.28] transition-transform duration-300 group-hover:scale-[1.38]"
+                />
+              </div>
             </div>
-            <div className="flex flex-col">
-              <span className="sheen-text font-display text-base sm:text-xl font-bold tracking-tight leading-tight whitespace-nowrap">
-                Inventive Queen
-              </span>
-              <span className="hidden sm:block text-[10px] font-bold text-muted-foreground tracking-wider uppercase leading-none whitespace-nowrap">
-                Handmade Atelier
-              </span>
+            <div className="flex flex-col justify-center">
+              <div className="flex items-center gap-1.5">
+                <span className="font-display text-lg sm:text-[22px] font-black tracking-tight text-lilac-deep leading-none whitespace-nowrap transition-colors group-hover:text-primary">
+                  Inventive Queen
+                </span>
+                <Crown className="size-3.5 text-amber-500 fill-amber-300 drop-shadow-sm transition-transform duration-300 group-hover:rotate-12 group-hover:scale-110 shrink-0" />
+              </div>
+              <div className="flex items-center gap-1.5 mt-1">
+                <span className="text-[9.5px] sm:text-[10px] font-extrabold tracking-[0.2em] text-primary/85 uppercase leading-none whitespace-nowrap">
+                  Handmade Atelier
+                </span>
+                <span className="size-1 rounded-full bg-lilac/70 hidden sm:inline-block" />
+                <span className="text-[9.5px] font-semibold text-muted-foreground hidden sm:inline-block whitespace-nowrap">
+                  Crochet & Keepsakes
+                </span>
+              </div>
             </div>
           </Link>
 
-          <span className="hidden sm:inline-flex shrink-0 whitespace-nowrap items-center gap-2 rounded-full border border-emerald-300/80 bg-emerald-50/80 backdrop-blur-md px-3.5 py-1 text-xs font-bold text-emerald-800 shadow-sm">
+          <span className="hidden md:inline-flex shrink-0 whitespace-nowrap items-center gap-2 rounded-full border border-emerald-300/70 bg-gradient-to-r from-emerald-50/90 to-teal-50/90 backdrop-blur-md px-3 py-1 text-[11px] font-bold text-emerald-800 shadow-sm">
             <span className="relative flex size-2 shrink-0">
               <span className="absolute inline-flex size-full animate-ping rounded-full bg-emerald-400 opacity-75" />
               <span className="relative inline-flex size-2 rounded-full bg-emerald-500" />
