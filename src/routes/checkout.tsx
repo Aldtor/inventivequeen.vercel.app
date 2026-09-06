@@ -185,13 +185,26 @@ function CheckoutPage() {
     return () => window.removeEventListener("cart-updated", handleCartUpdate);
   }, []);
 
-  // Pre-fill customer details from profile when logged in
+  // Pre-fill customer details and saved address vault from profile when logged in
   useEffect(() => {
     if (profile) {
-      setCustomerName((prev) => prev || profile.full_name || "");
-      setPhone((prev) => prev || profile.phone || "");
+      setCustomerName((prev: string) => prev || profile.full_name || "");
+      setPhone((prev: string) => prev || profile.phone || "");
     }
-  }, [profile]);
+    if (user?.user_metadata) {
+      const meta = user.user_metadata;
+      if (meta["street"]) setStreetAddress((prev: string) => prev || (meta["street"] as string));
+      if (meta["city"]) {
+        const cityStr = meta["state"]
+          ? `${meta["city"]}, ${meta["state"]}`
+          : (meta["city"] as string);
+        setCityState((prev: string) => prev || cityStr);
+      }
+      if (meta["pincode"]) setPincode((prev: string) => prev || (meta["pincode"] as string));
+      if (meta["gift_note_pref"])
+        setGiftNote((prev: string) => prev || (meta["gift_note_pref"] as string));
+    }
+  }, [profile, user]);
 
   // Handle in-line login/registration
   const handleInlineAuth = async (e: React.FormEvent) => {
