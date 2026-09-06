@@ -699,6 +699,21 @@ create table if not exists public.contact_inquiries (
 create index if not exists idx_contact_inquiries_status on public.contact_inquiries(status);
 
 -- 7.7 Customer Reviews & Testimonials
+-- If public.reviews already exists with uuid id from earlier schema, drop it so it recreates cleanly with text id
+do $$
+begin
+  if exists (
+    select 1
+    from information_schema.columns
+    where table_schema = 'public'
+      and table_name = 'reviews'
+      and column_name = 'id'
+      and data_type = 'uuid'
+  ) then
+    drop table public.reviews cascade;
+  end if;
+end $$;
+
 create table if not exists public.reviews (
   id text primary key default gen_random_uuid()::text,
   user_id uuid references auth.users(id) on delete set null,

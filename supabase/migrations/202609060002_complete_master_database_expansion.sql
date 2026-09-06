@@ -147,7 +147,7 @@ create index if not exists idx_contact_inquiries_status on public.contact_inquir
 -- 7. CUSTOMER REVIEWS & TESTIMONIALS
 -- =============================================================================
 create table if not exists public.reviews (
-  id uuid primary key default gen_random_uuid(),
+  id text primary key default gen_random_uuid()::text,
   user_id uuid references auth.users(id) on delete set null,
   order_id uuid references public.orders(id) on delete set null,
   product_id text references public.cms_products(id) on delete set null,
