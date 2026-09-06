@@ -92,7 +92,10 @@ export function OrderStatusChart({ orders }: OrderStatusChartProps) {
                   if (active && payload && payload.length) {
                     const item = payload[0];
                     if (!item) return null;
-                    const percent = totalOrders > 0 ? Math.round(((item.value as number) / totalOrders) * 100) : 0;
+                    const percent =
+                      totalOrders > 0
+                        ? Math.round(((item.value as number) / totalOrders) * 100)
+                        : 0;
                     return (
                       <div className="rounded-xl bg-white/95 backdrop-blur-md p-2.5 border border-white shadow-lg text-xs space-y-0.5">
                         <p className="font-bold text-foreground">{item.name}</p>
@@ -115,7 +118,10 @@ export function OrderStatusChart({ orders }: OrderStatusChartProps) {
         {data.map((item) => (
           <div key={item.name} className="flex items-center justify-between">
             <span className="flex items-center gap-1.5 truncate">
-              <span className="size-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: item.color }} />
+              <span
+                className="size-2.5 rounded-full flex-shrink-0"
+                style={{ backgroundColor: item.color }}
+              />
               <span className="text-muted-foreground truncate">{item.name}</span>
             </span>
             <span className="font-bold text-foreground">{item.value}</span>

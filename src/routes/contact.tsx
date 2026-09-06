@@ -24,7 +24,8 @@ export const Route = createFileRoute("/contact")({
       { property: "og:title", content: "Contact — Inventive Queen" },
       {
         property: "og:description",
-        content: "Get in touch with Inventive Queen for custom inquiries, bridal bouquets, or bulk crochet gifts.",
+        content:
+          "Get in touch with Inventive Queen for custom inquiries, bridal bouquets, or bulk crochet gifts.",
       },
       { property: "og:type", content: "article" },
       { property: "og:url", content: "/contact" },
@@ -62,13 +63,11 @@ function ContactPage() {
     e.preventDefault();
     const form = e.currentTarget;
     const formData = new FormData(form);
-    const name = encodeURIComponent(String(formData.get("name") ?? ""));
-    const email = encodeURIComponent(String(formData.get("email") ?? ""));
-    const message = encodeURIComponent(String(formData.get("message") ?? ""));
+    const name = String(formData.get("name") ?? "").trim();
+    const email = String(formData.get("email") ?? "").trim();
+    const message = String(formData.get("message") ?? "").trim();
     const subject = encodeURIComponent(`Inventive Queen inquiry from ${name}`);
-    const body = encodeURIComponent(
-      `Name: ${name}\nEmail: ${email}\n\nMessage:\n${message}`,
-    );
+    const body = encodeURIComponent(`Name: ${name}\nEmail: ${email}\n\nMessage:\n${message}`);
     window.location.href = `mailto:hello@inventivequeen.com?subject=${subject}&body=${body}`;
     setSent(true);
   }
@@ -101,7 +100,8 @@ function ContactPage() {
             <div className="liquid-glass p-6">
               <h2 className="font-display text-2xl font-bold text-lilac-deep">Get in touch</h2>
               <p className="mt-2 text-muted-foreground">
-                For custom bridal or bulk order inquiries, send a message using the form below or email us. We usually reply within 1–2 business days.
+                For custom bridal or bulk order inquiries, send a message using the form below or
+                email us. We usually reply within 1–2 business days.
               </p>
               <ul className="mt-6 space-y-4">
                 {CONTACT_METHODS.map((method) => (
@@ -128,7 +128,9 @@ function ContactPage() {
             </div>
 
             <div className="skeu-card p-6">
-              <h3 className="relative z-10 font-display text-lg font-bold text-lilac-deep">Order tips</h3>
+              <h3 className="relative z-10 font-display text-lg font-bold text-lilac-deep">
+                Order tips
+              </h3>
               <ul className="relative z-10 mt-3 list-disc space-y-1 pl-5 text-sm text-muted-foreground">
                 <li>Attach a clear reference photo if you have one.</li>
                 <li>Mention size, colours and any deadline.</li>
@@ -138,11 +140,15 @@ function ContactPage() {
           </div>
 
           <div className="liquid-glass p-6 sm:p-8">
-            <h2 className="relative z-10 font-display text-2xl font-bold text-lilac-deep">Send a message</h2>
+            <h2 className="relative z-10 font-display text-2xl font-bold text-lilac-deep">
+              Send a message
+            </h2>
             {sent ? (
               <div className="relative z-10 mt-6 clay-soft p-6 text-center">
                 <MessageCircle className="mx-auto size-8 text-lilac-deep" />
-                <p className="mt-3 font-semibold text-lilac-deep">Message opened in your email app</p>
+                <p className="mt-3 font-semibold text-lilac-deep">
+                  Message opened in your email app
+                </p>
                 <p className="mt-1 text-sm text-muted-foreground">
                   Hit send in your email client to complete the inquiry.
                 </p>
@@ -154,7 +160,13 @@ function ContactPage() {
                     <label htmlFor="name" className="text-sm font-semibold text-lilac-deep">
                       Name
                     </label>
-                    <Input id="name" name="name" placeholder="Your name" required className="rounded-xl" />
+                    <Input
+                      id="name"
+                      name="name"
+                      placeholder="Your name"
+                      required
+                      className="rounded-xl"
+                    />
                   </div>
                   <div className="space-y-2">
                     <label htmlFor="email" className="text-sm font-semibold text-lilac-deep">
@@ -183,7 +195,10 @@ function ContactPage() {
                     className="rounded-xl"
                   />
                 </div>
-                <Button type="submit" className="clay-primary liquid-btn w-full rounded-full py-6 text-base font-bold border-0">
+                <Button
+                  type="submit"
+                  className="clay-primary liquid-btn w-full rounded-full py-6 text-base font-bold border-0"
+                >
                   Send inquiry ✨
                 </Button>
                 <p className="text-center text-xs text-muted-foreground">

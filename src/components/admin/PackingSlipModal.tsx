@@ -194,8 +194,8 @@ export function PackingSlipModal({ order, onClose }: PackingSlipModalProps) {
               Handcrafted with royal passion &amp; love in our atelier.
             </p>
             <p>
-              For any questions or custom inquiries, message us on Instagram @inventivequeen or email
-              help@inventivequeen.in
+              For any questions or custom inquiries, message us on Instagram @inventivequeen or
+              email help@inventivequeen.in
             </p>
           </div>
         </div>

@@ -53,7 +53,13 @@ export const Route = createFileRoute("/flowers")({
 const FLOWERS = [
   { name: "Sunflower", size: "4×4 in · 6×6 in", price: "₹500 – ₹700", image: bouquetSunflower },
   { name: "Tulip", size: "Single stem", price: "₹260 per piece", image: bouquetTulip },
-  { name: "Rose", size: "Single stem", price: "₹300 per piece", image: bouquetRose, badge: "💐 Popular" },
+  {
+    name: "Rose",
+    size: "Single stem",
+    price: "₹300 per piece",
+    image: bouquetRose,
+    badge: "💐 Popular",
+  },
   { name: "Gradient Rose", size: "Single stem", price: "₹200 per piece", image: bouquetRose2 },
   { name: "Daisy", size: "Single stem", price: "₹200 per piece", image: bouquetPastel },
   { name: "Lavender", size: "Single stem", price: "₹100 per piece", image: catForeverFlowers },
@@ -121,7 +127,10 @@ function FlowersPage() {
           </p>
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
             {GALLERY.map((item) => (
-              <div key={item.alt} className="liquid-glass img-hover-zoom overflow-hidden p-1.5 hover-lift">
+              <div
+                key={item.alt}
+                className="liquid-glass img-hover-zoom overflow-hidden p-1.5 hover-lift"
+              >
                 <img
                   src={item.src}
                   alt={item.alt}

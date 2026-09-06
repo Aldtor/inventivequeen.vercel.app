@@ -19,7 +19,14 @@ import {
   X,
 } from "lucide-react";
 import { SiteLayout } from "@/components/site/SiteLayout";
-import { clearCart, getCart, getCartTotal, removeFromCart, updateCartQuantity, type CartItem } from "@/lib/cart";
+import {
+  clearCart,
+  getCart,
+  getCartTotal,
+  removeFromCart,
+  updateCartQuantity,
+  type CartItem,
+} from "@/lib/cart";
 import { useAuth } from "@/lib/auth";
 import { supabase } from "@/lib/supabase";
 import { useCoupons, type Coupon } from "@/lib/cms-coupons";
@@ -30,10 +37,44 @@ export const Route = createFileRoute("/checkout")({
   head: () => ({
     meta: [
       { title: "Royal Checkout & Payment — Inventive Queen" },
-      { name: "description", content: "Secure checkout for handmade crochet dolls, plushies and everlasting bouquets." },
+      {
+        name: "description",
+        content: "Secure checkout for handmade crochet dolls, plushies and everlasting bouquets.",
+      },
     ],
   }),
 });
+
+interface RazorpaySuccessResponse {
+  razorpay_payment_id: string;
+  razorpay_order_id?: string;
+  razorpay_signature?: string;
+}
+
+interface RazorpayFailedResponse {
+  error?: {
+    code?: string;
+    description?: string;
+    source?: string;
+    step?: string;
+    reason?: string;
+  };
+}
+
+interface RazorpayInstance {
+  open: () => void;
+  on: (event: string, callback: (res: RazorpayFailedResponse) => void) => void;
+}
+
+interface RazorpayConstructor {
+  new (options: Record<string, unknown>): RazorpayInstance;
+}
+
+declare global {
+  interface Window {
+    Razorpay?: RazorpayConstructor;
+  }
+}
 
 function loadRazorpayScript(): Promise<boolean> {
   return new Promise((resolve) => {
@@ -41,7 +82,7 @@ function loadRazorpayScript(): Promise<boolean> {
       resolve(false);
       return;
     }
-    if ((window as any).Razorpay) {
+    if (window.Razorpay) {
       resolve(true);
       return;
     }
@@ -104,7 +145,7 @@ function CheckoutPage() {
         setCouponError(`Coupon removed: ${result.message}`);
       }
     }
-  }, [cartTotal]);
+  }, [cartTotal, appliedCoupon, validateAndApply]);
 
   const handleApplyCoupon = (e: React.FormEvent) => {
     e.preventDefault();
@@ -147,8 +188,8 @@ function CheckoutPage() {
   // Pre-fill customer details from profile when logged in
   useEffect(() => {
     if (profile) {
-      if (profile.full_name && !customerName) setCustomerName(profile.full_name);
-      if (profile.phone && !phone) setPhone(profile.phone);
+      setCustomerName((prev) => prev || profile.full_name || "");
+      setPhone((prev) => prev || profile.phone || "");
     }
   }, [profile]);
 
@@ -189,8 +230,10 @@ function CheckoutPage() {
           });
         }
       }
-    } catch (err: any) {
-      setAuthError(err.message || "Authentication failed. Please check credentials.");
+    } catch (err: unknown) {
+      const msg =
+        err instanceof Error ? err.message : "Authentication failed. Please check credentials.";
+      setAuthError(msg);
     } finally {
       setAuthLoadingState(false);
     }
@@ -243,7 +286,9 @@ function CheckoutPage() {
     try {
       const razorpayLoaded = await loadRazorpayScript();
       if (!razorpayLoaded) {
-        throw new Error("Could not initialize Razorpay checkout. Please check internet connection.");
+        throw new Error(
+          "Could not initialize Razorpay checkout. Please check internet connection.",
+        );
       }
 
       const orderNumber = `IQ-${Date.now().toString().slice(-6)}-${Math.floor(100 + Math.random() * 900)}`;
@@ -260,7 +305,9 @@ function CheckoutPage() {
           address: fullAddress,
           pincode: cleanPincode,
           gift_note: safeGiftNote || null,
-          admin_notes: appliedCoupon ? `Coupon Applied: ${appliedCoupon.code} (-₹${discountAmount})` : null,
+          admin_notes: appliedCoupon
+            ? `Coupon Applied: ${appliedCoupon.code} (-₹${discountAmount})`
+            : null,
           status: "pending",
           payment_status: "pending",
           amount_total: payableTotal,
@@ -310,19 +357,26 @@ function CheckoutPage() {
           }
         }
       } catch (createErr) {
-        console.warn("Could not initialize server Razorpay order, proceeding with standard checkout:", createErr);
+        console.warn(
+          "Could not initialize server Razorpay order, proceeding with standard checkout:",
+          createErr,
+        );
       }
 
       // 4. Razorpay configuration (prefer env variable, fallback to hardcoded key)
+      const metaEnv = (import.meta as unknown as { env?: Record<string, string> }).env;
       const razorpayKey =
-        (import.meta as any).env?.VITE_RAZORPAY_KEY_ID ||
-        (typeof process !== "undefined" && (process.env?.['VITE_RAZORPAY_KEY_ID'] || process.env?.['RAZORPAY_KEY_ID'])) ||
+        metaEnv?.["VITE_RAZORPAY_KEY_ID"] ||
+        (typeof process !== "undefined" &&
+          (process.env?.["VITE_RAZORPAY_KEY_ID"] || process.env?.["RAZORPAY_KEY_ID"])) ||
         "rzp_live_TYUEKLyErpyGRl";
       if (razorpayKey === "rzp_live_TYUEKLyErpyGRl") {
-        console.warn("[Security] Using fallback Razorpay key. Set VITE_RAZORPAY_KEY_ID env variable for production.");
+        console.warn(
+          "[Security] Using fallback Razorpay key. Set VITE_RAZORPAY_KEY_ID env variable for production.",
+        );
       }
 
-      const razorpayOptions = {
+      const razorpayOptions: Record<string, unknown> = {
         key: razorpayKey,
         amount: Math.round(payableTotal * 100), // in paise
         currency: "INR",
@@ -343,7 +397,7 @@ function CheckoutPage() {
             setPaying(false);
           },
         },
-        handler: async (response: any) => {
+        handler: async (response: RazorpaySuccessResponse) => {
           try {
             let serverVerified = false;
 
@@ -361,13 +415,16 @@ function CheckoutPage() {
               });
 
               if (verifyRes.ok) {
-                const verifyJson = await verifyRes.json();
+                const verifyJson = (await verifyRes.json()) as { success?: boolean };
                 if (verifyJson.success) {
                   serverVerified = true;
                 }
               }
             } catch (apiErr) {
-              console.warn("Backend verification endpoint unavailable, finalizing via Supabase:", apiErr);
+              console.warn(
+                "Backend verification endpoint unavailable, finalizing via Supabase:",
+                apiErr,
+              );
             }
 
             // 2. Direct database confirmation fallback
@@ -401,9 +458,13 @@ function CheckoutPage() {
                 orderNumber: orderNumber,
               },
             });
-          } catch (verificationErr: any) {
+          } catch (verificationErr: unknown) {
             console.error("Payment confirmation failed:", verificationErr);
-            setPaymentError(verificationErr.message || "Payment could not be finalized. Please contact support.");
+            const msg =
+              verificationErr instanceof Error
+                ? verificationErr.message
+                : "Payment could not be finalized. Please contact support.";
+            setPaymentError(msg);
             navigate({
               to: "/orders",
             });
@@ -411,8 +472,13 @@ function CheckoutPage() {
         },
       };
 
-      const rzpInstance = new (window as any).Razorpay(razorpayOptions);
-      rzpInstance.on("payment.failed", (failedRes: any) => {
+      const RazorpayClass = window.Razorpay;
+      if (!RazorpayClass) {
+        throw new Error("Razorpay checkout SDK is not available.");
+      }
+
+      const rzpInstance = new RazorpayClass(razorpayOptions);
+      rzpInstance.on("payment.failed", (failedRes: RazorpayFailedResponse) => {
         setPaying(false);
         const reasonMsg = failedRes.error?.description || "Payment failed or was cancelled.";
         setPaymentError(reasonMsg);
@@ -428,9 +494,13 @@ function CheckoutPage() {
       });
 
       rzpInstance.open();
-    } catch (err: any) {
+    } catch (err: unknown) {
       setPaying(false);
-      setPaymentError(err.message || "An unexpected error occurred during payment processing.");
+      const msg =
+        err instanceof Error
+          ? err.message
+          : "An unexpected error occurred during payment processing.";
+      setPaymentError(msg);
     }
   };
 
@@ -461,9 +531,12 @@ function CheckoutPage() {
             <div className="inline-flex size-16 items-center justify-center rounded-2xl bg-lilac/30 text-lilac-deep mb-4">
               <ShoppingBag className="size-8" />
             </div>
-            <h2 className="font-display text-2xl font-bold text-lilac-deep">Your Basket is Empty</h2>
+            <h2 className="font-display text-2xl font-bold text-lilac-deep">
+              Your Basket is Empty
+            </h2>
             <p className="mt-2 text-sm text-muted-foreground">
-              Explore our handmade amigurumi dolls, plushies and everlasting flowers to add to your order.
+              Explore our handmade amigurumi dolls, plushies and everlasting flowers to add to your
+              order.
             </p>
             <div className="mt-6 flex flex-wrap justify-center gap-3">
               <Link
@@ -487,9 +560,11 @@ function CheckoutPage() {
               {/* ─────── STEP 1: AUTHENTICATION GATE ─────── */}
               <div className="liquid-glass relative overflow-hidden rounded-3xl p-6 sm:p-8 shadow-xl border border-white/60">
                 <div className="flex items-center gap-3 mb-4">
-                  <span className={`flex size-8 items-center justify-center rounded-full text-sm font-black shadow-sm ${
-                    user ? "bg-emerald-500 text-white" : "bg-lilac-deep text-white"
-                  }`}>
+                  <span
+                    className={`flex size-8 items-center justify-center rounded-full text-sm font-black shadow-sm ${
+                      user ? "bg-emerald-500 text-white" : "bg-lilac-deep text-white"
+                    }`}
+                  >
                     {user ? <CheckCircle2 className="size-5" /> : "1"}
                   </span>
                   <div>
@@ -548,7 +623,9 @@ function CheckoutPage() {
                       {authMode === "signup" && (
                         <div className="grid gap-3 sm:grid-cols-2">
                           <div>
-                            <label className="block text-xs font-bold text-foreground mb-1">Full Name</label>
+                            <label className="block text-xs font-bold text-foreground mb-1">
+                              Full Name
+                            </label>
                             <input
                               type="text"
                               required
@@ -559,7 +636,9 @@ function CheckoutPage() {
                             />
                           </div>
                           <div>
-                            <label className="block text-xs font-bold text-foreground mb-1">Mobile Phone</label>
+                            <label className="block text-xs font-bold text-foreground mb-1">
+                              Mobile Phone
+                            </label>
                             <input
                               type="tel"
                               required
@@ -575,7 +654,9 @@ function CheckoutPage() {
 
                       <div className="grid gap-3 sm:grid-cols-2">
                         <div>
-                          <label className="block text-xs font-bold text-foreground mb-1">Email</label>
+                          <label className="block text-xs font-bold text-foreground mb-1">
+                            Email
+                          </label>
                           <input
                             type="email"
                             required
@@ -586,7 +667,9 @@ function CheckoutPage() {
                           />
                         </div>
                         <div>
-                          <label className="block text-xs font-bold text-foreground mb-1">Password</label>
+                          <label className="block text-xs font-bold text-foreground mb-1">
+                            Password
+                          </label>
                           <input
                             type="password"
                             required
@@ -607,8 +690,8 @@ function CheckoutPage() {
                         {authLoadingState
                           ? "Authenticating..."
                           : authMode === "signin"
-                          ? "Sign In & Continue Order"
-                          : "Create Account & Continue"}
+                            ? "Sign In & Continue Order"
+                            : "Create Account & Continue"}
                       </button>
                     </form>
                   </div>
@@ -616,9 +699,11 @@ function CheckoutPage() {
               </div>
 
               {/* ─────── STEP 2: DELIVERY INFORMATION ─────── */}
-              <div className={`liquid-glass relative overflow-hidden rounded-3xl p-6 sm:p-8 shadow-xl border border-white/60 transition-opacity ${
-                !user ? "opacity-60 pointer-events-none" : "opacity-100"
-              }`}>
+              <div
+                className={`liquid-glass relative overflow-hidden rounded-3xl p-6 sm:p-8 shadow-xl border border-white/60 transition-opacity ${
+                  !user ? "opacity-60 pointer-events-none" : "opacity-100"
+                }`}
+              >
                 <div className="flex items-center gap-3 mb-5">
                   <span className="flex size-8 items-center justify-center rounded-full bg-lilac-deep text-white text-sm font-black shadow-sm">
                     2
@@ -804,7 +889,9 @@ function CheckoutPage() {
                         <Tag className="size-3.5 text-emerald-600" />
                         <div>
                           <span className="font-mono font-bold">{appliedCoupon.code}</span> applied
-                          <p className="text-[10px] text-emerald-700">You save ₹{discountAmount.toLocaleString("en-IN")}</p>
+                          <p className="text-[10px] text-emerald-700">
+                            You save ₹{discountAmount.toLocaleString("en-IN")}
+                          </p>
                         </div>
                       </div>
                       <button
@@ -837,7 +924,9 @@ function CheckoutPage() {
                     </form>
                   )}
                   {couponMessage && (
-                    <p className="text-[11px] text-emerald-700 mt-1 font-semibold">{couponMessage}</p>
+                    <p className="text-[11px] text-emerald-700 mt-1 font-semibold">
+                      {couponMessage}
+                    </p>
                   )}
                   {couponError && (
                     <p className="text-[11px] text-rose-600 mt-1 font-semibold">{couponError}</p>
@@ -910,7 +999,9 @@ function CheckoutPage() {
               {/* Hand-Crafted Guarantee */}
               <div className="liquid-glass rounded-3xl p-5 border border-white/60 text-center">
                 <p className="text-xs font-semibold text-muted-foreground leading-relaxed">
-                  👑 <strong className="text-foreground">Inventive Queen Guarantee:</strong> Every amigurumi doll, plushie and bouquet is crafted stitch-by-stitch with soft premium milk cotton yarn and shipped securely.
+                  👑 <strong className="text-foreground">Inventive Queen Guarantee:</strong> Every
+                  amigurumi doll, plushie and bouquet is crafted stitch-by-stitch with soft premium
+                  milk cotton yarn and shipped securely.
                 </p>
               </div>
             </div>

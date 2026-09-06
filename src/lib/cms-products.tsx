@@ -41,7 +41,9 @@ interface ProductsContextValue {
 
 const ProductsContext = createContext<ProductsContextValue | null>(null);
 
-const fallbackById = new Map(fallbackProducts.map((product, index) => [product.id, { product, index }]));
+const fallbackById = new Map(
+  fallbackProducts.map((product, index) => [product.id, { product, index }]),
+);
 
 function rowToProduct(row: CmsProductRow): Product {
   const fallback = fallbackById.get(row.id);
@@ -60,7 +62,7 @@ function rowToProduct(row: CmsProductRow): Product {
     size: row.size ?? fallbackProduct?.size ?? "",
     tagline: row.tagline || fallbackProduct?.tagline || "",
     description: row.description || fallbackProduct?.description || "",
-    images: images.length > 0 ? images : fallbackProduct?.images ?? [],
+    images: images.length > 0 ? images : (fallbackProduct?.images ?? []),
     badge: row.badge ?? fallbackProduct?.badge ?? "",
     isNewArrival: row.is_new_arrival,
     newArrivalDays: row.new_arrival_days,
@@ -89,7 +91,9 @@ function productToRow(product: ProductInput): CmsProductRow {
     badge: product.badge ?? null,
     is_new_arrival: product.isNewArrival ?? false,
     new_arrival_days: product.newArrivalDays ?? 30,
-    new_arrival_started_at: product.isNewArrival ? product.newArrivalStartedAt ?? new Date().toISOString() : null,
+    new_arrival_started_at: product.isNewArrival
+      ? (product.newArrivalStartedAt ?? new Date().toISOString())
+      : null,
     is_active: product.isActive !== false,
     sort_order: product.sortOrder ?? fallbackById.get(product.id)?.index ?? fallbackProducts.length,
   };
@@ -108,7 +112,7 @@ function mergeProducts(cmsRows: CmsProductRow[]) {
         isActive: true,
         sortOrder: index,
         isCmsProduct: false,
-      }
+      },
     );
   });
 
@@ -116,7 +120,9 @@ function mergeProducts(cmsRows: CmsProductRow[]) {
     if (!fallbackById.has(product.id)) merged.push(product);
   });
 
-  return merged.sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0) || a.name.localeCompare(b.name));
+  return merged.sort(
+    (a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0) || a.name.localeCompare(b.name),
+  );
 }
 
 export function ProductsProvider({ children }: { children: React.ReactNode }) {
@@ -145,8 +151,9 @@ export function ProductsProvider({ children }: { children: React.ReactNode }) {
         setError("");
         setCmsRows((data ?? []) as CmsProductRow[]);
       }
-    } catch (err: any) {
-      setError(err?.message || "Failed to fetch CMS products");
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Failed to fetch CMS products";
+      setError(msg);
     } finally {
       setLoading(false);
     }
@@ -157,24 +164,37 @@ export function ProductsProvider({ children }: { children: React.ReactNode }) {
   }, [refreshProducts]);
 
   const adminProducts = useMemo(() => mergeProducts(cmsRows), [cmsRows]);
-  const products = useMemo(() => adminProducts.filter((product) => product.isActive !== false), [adminProducts]);
+  const products = useMemo(
+    () => adminProducts.filter((product) => product.isActive !== false),
+    [adminProducts],
+  );
 
-  const saveProduct = useCallback(async (product: ProductInput) => {
-    const row = productToRow(product);
-    const { error: saveError } = await supabase.from("cms_products").upsert(row, { onConflict: "id" });
-    if (saveError) throw new Error(saveError.message);
-    await refreshProducts();
-  }, [refreshProducts]);
+  const saveProduct = useCallback(
+    async (product: ProductInput) => {
+      const row = productToRow(product);
+      const { error: saveError } = await supabase
+        .from("cms_products")
+        .upsert(row, { onConflict: "id" });
+      if (saveError) throw new Error(saveError.message);
+      await refreshProducts();
+    },
+    [refreshProducts],
+  );
 
-  const deleteProduct = useCallback(async (id: string) => {
-    const { error: deleteError } = await supabase.from("cms_products").delete().eq("id", id);
-    if (deleteError) throw new Error(deleteError.message);
-    await refreshProducts();
-  }, [refreshProducts]);
+  const deleteProduct = useCallback(
+    async (id: string) => {
+      const { error: deleteError } = await supabase.from("cms_products").delete().eq("id", id);
+      if (deleteError) throw new Error(deleteError.message);
+      await refreshProducts();
+    },
+    [refreshProducts],
+  );
 
   const generateProductId = useCallback(async (type: ProductType) => {
     try {
-      const { data, error: idError } = await supabase.rpc("reserve_product_id", { product_type: type });
+      const { data, error: idError } = await supabase.rpc("reserve_product_id", {
+        product_type: type,
+      });
       if (!idError && typeof data === "string") return data;
     } catch {
       // Fallback
@@ -210,7 +230,17 @@ export function ProductsProvider({ children }: { children: React.ReactNode }) {
       uploadProductImage,
       generateProductId,
     }),
-    [adminProducts, deleteProduct, error, generateProductId, loading, products, refreshProducts, saveProduct, uploadProductImage]
+    [
+      adminProducts,
+      deleteProduct,
+      error,
+      generateProductId,
+      loading,
+      products,
+      refreshProducts,
+      saveProduct,
+      uploadProductImage,
+    ],
   );
 
   return <ProductsContext.Provider value={value}>{children}</ProductsContext.Provider>;
@@ -239,7 +269,8 @@ export function useProducts() {
       uploadProductImage: async () => {
         throw new Error("Product image uploads are not ready.");
       },
-      generateProductId: async (type: ProductType) => `IQ-${type.slice(0, 3).toUpperCase()}-${Date.now().toString().slice(-4)}`,
+      generateProductId: async (type: ProductType) =>
+        `IQ-${type.slice(0, 3).toUpperCase()}-${Date.now().toString().slice(-4)}`,
     } satisfies ProductsContextValue;
   }
   return context;

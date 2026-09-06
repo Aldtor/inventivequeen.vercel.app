@@ -65,7 +65,7 @@ function CookiesPage() {
           ...settings,
           essential: true,
           timestamp: new Date().toISOString(),
-        })
+        }),
       );
       setSavedMessage(true);
       setTimeout(() => setSavedMessage(false), 3000);
@@ -131,8 +131,9 @@ function CookiesPage() {
                   </span>
                 </div>
                 <p className="text-xs text-muted-foreground leading-relaxed">
-                  Crucial for our website to operate safely. They preserve your shopping basket, maintain
-                  encrypted login sessions via Supabase, and support secure checkout through Razorpay.
+                  Crucial for our website to operate safely. They preserve your shopping basket,
+                  maintain encrypted login sessions via Supabase, and support secure checkout
+                  through Razorpay.
                 </p>
               </div>
               <span className="text-xs font-bold text-emerald-700 bg-emerald-50 px-3 py-1.5 rounded-full border border-emerald-200 shrink-0">
@@ -149,15 +150,13 @@ function CookiesPage() {
                   </span>
                 </div>
                 <p className="text-xs text-muted-foreground leading-relaxed">
-                  Enables enhanced features such as remembering your delivery details for future visits,
-                  saving notification dismissal states, and personalizing greeting messages.
+                  Enables enhanced features such as remembering your delivery details for future
+                  visits, saving notification dismissal states, and personalizing greeting messages.
                 </p>
               </div>
               <button
                 type="button"
-                onClick={() =>
-                  setSettings((prev) => ({ ...prev, functional: !prev.functional }))
-                }
+                onClick={() => setSettings((prev) => ({ ...prev, functional: !prev.functional }))}
                 className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
                   settings.functional ? "bg-lilac-deep" : "bg-slate-300"
                 }`}
@@ -179,15 +178,14 @@ function CookiesPage() {
                   </span>
                 </div>
                 <p className="text-xs text-muted-foreground leading-relaxed">
-                  Helps us understand which crochet creations are most adored and identify any slow-loading
-                  pages so we can make your browsing experience silk-smooth. Data is anonymized.
+                  Helps us understand which crochet creations are most adored and identify any
+                  slow-loading pages so we can make your browsing experience silk-smooth. Data is
+                  anonymized.
                 </p>
               </div>
               <button
                 type="button"
-                onClick={() =>
-                  setSettings((prev) => ({ ...prev, analytics: !prev.analytics }))
-                }
+                onClick={() => setSettings((prev) => ({ ...prev, analytics: !prev.analytics }))}
                 className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
                   settings.analytics ? "bg-lilac-deep" : "bg-slate-300"
                 }`}
@@ -209,10 +207,10 @@ function CookiesPage() {
               What are Cookies?
             </h2>
             <p className="relative z-10 mt-3 text-sm text-muted-foreground leading-relaxed">
-              Cookies are miniature text files placed on your browser or device when you visit Inventive
-              Queen. They allow our website to remember your actions and preferences (such as shopping
-              cart items, authentication states, and display settings) over a period of time, so you
-              don’t have to re-enter them every time you return.
+              Cookies are miniature text files placed on your browser or device when you visit
+              Inventive Queen. They allow our website to remember your actions and preferences (such
+              as shopping cart items, authentication states, and display settings) over a period of
+              time, so you don’t have to re-enter them every time you return.
             </p>
           </div>
 
@@ -222,18 +220,19 @@ function CookiesPage() {
             </h2>
             <div className="relative z-10 mt-3 space-y-3 text-sm text-muted-foreground leading-relaxed">
               <p>
-                <strong>Basket &amp; Checkout Continuity:</strong> We store a lightweight item list in
-                your local storage so that items you select in our Dolls, Characters, or Flowers
+                <strong>Basket &amp; Checkout Continuity:</strong> We store a lightweight item list
+                in your local storage so that items you select in our Dolls, Characters, or Flowers
                 galleries remain safely in your basket as you navigate.
               </p>
               <p>
-                <strong>Secure Authentication:</strong> If you sign in to manage orders or track your
-                crafting status, Supabase Auth utilizes secure session cookies to verify your identity
-                without transmitting credentials repeatedly.
+                <strong>Secure Authentication:</strong> If you sign in to manage orders or track
+                your crafting status, Supabase Auth utilizes secure session cookies to verify your
+                identity without transmitting credentials repeatedly.
               </p>
               <p>
-                <strong>Payment Verification:</strong> When checking out via Razorpay, necessary security
-                tokens and anti-fraud cookies are verified to shield your bank account and card details.
+                <strong>Payment Verification:</strong> When checking out via Razorpay, necessary
+                security tokens and anti-fraud cookies are verified to shield your bank account and
+                card details.
               </p>
             </div>
           </div>
@@ -244,9 +243,10 @@ function CookiesPage() {
             </h2>
             <p className="relative z-10 mt-3 text-sm text-muted-foreground leading-relaxed">
               In addition to the interactive preference toggle above, most web browsers allow you to
-              control cookies through their system settings. You can choose to block or delete cookies in
-              Chrome, Safari, Firefox, Edge, or mobile browsers. Please note that disabling essential
-              cookies will prevent you from placing orders or signing into your account.
+              control cookies through their system settings. You can choose to block or delete
+              cookies in Chrome, Safari, Firefox, Edge, or mobile browsers. Please note that
+              disabling essential cookies will prevent you from placing orders or signing into your
+              account.
             </p>
           </div>
 
@@ -255,8 +255,8 @@ function CookiesPage() {
               Questions &amp; Contact
             </h2>
             <p className="relative z-10 mt-3 text-sm text-muted-foreground leading-relaxed">
-              If you have any inquiries regarding our cookie practices or data privacy, please reach out to
-              our royal support team via{" "}
+              If you have any inquiries regarding our cookie practices or data privacy, please reach
+              out to our royal support team via{" "}
               <Link
                 to="/contact"
                 className="font-semibold text-primary underline hover:text-lilac-deep transition-colors"

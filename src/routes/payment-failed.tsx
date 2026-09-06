@@ -15,7 +15,9 @@ import { SiteLayout } from "@/components/site/SiteLayout";
 
 export const Route = createFileRoute("/payment-failed")({
   component: PaymentFailedPage,
-  validateSearch: (search: Record<string, unknown>): {
+  validateSearch: (
+    search: Record<string, unknown>,
+  ): {
     orderId?: string | undefined;
     orderNumber?: string | undefined;
     reason?: string | undefined;
@@ -43,13 +45,12 @@ function PaymentFailedPage() {
   const { orderId, orderNumber, reason, code } = search;
 
   const failureReason =
-    reason ||
-    "The transaction was interrupted, timed out, or declined by the issuing bank.";
+    reason || "The transaction was interrupted, timed out, or declined by the issuing bank.";
 
   const whatsappMessage = encodeURIComponent(
     `Hello Inventive Queen! My order ${
       orderNumber ? `#${orderNumber}` : ""
-    } payment was unsuccessful with message: "${failureReason}". Could you please assist me?`
+    } payment was unsuccessful with message: "${failureReason}". Could you please assist me?`,
   );
 
   return (
@@ -82,9 +83,7 @@ function PaymentFailedPage() {
                 <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
                   Order Reference
                 </span>
-                <span className="font-mono text-sm font-black text-lilac-deep">
-                  {orderNumber}
-                </span>
+                <span className="font-mono text-sm font-black text-lilac-deep">{orderNumber}</span>
               </div>
             )}
 
@@ -112,8 +111,9 @@ function PaymentFailedPage() {
             <div className="text-xs">
               <h3 className="font-bold text-amber-900">Was money debited from your bank?</h3>
               <p className="mt-0.5 text-amber-800 leading-relaxed">
-                If funds were deducted from your bank account, banking guidelines ensure that the amount
-                will be automatically reversed back to your source account within <strong>3–5 business days</strong>.
+                If funds were deducted from your bank account, banking guidelines ensure that the
+                amount will be automatically reversed back to your source account within{" "}
+                <strong>3–5 business days</strong>.
               </p>
             </div>
           </div>
@@ -121,7 +121,8 @@ function PaymentFailedPage() {
           {/* Common reasons list */}
           <div className="relative mt-8 pt-6 border-t border-white/50 text-left">
             <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-3 flex items-center gap-1.5">
-              <HelpCircle className="size-3.5 text-lilac-deep" /> Common Reasons for Payment Declines:
+              <HelpCircle className="size-3.5 text-lilac-deep" /> Common Reasons for Payment
+              Declines:
             </h3>
             <ul className="grid gap-2 text-xs text-muted-foreground sm:grid-cols-2">
               <li className="flex items-start gap-2">

@@ -61,10 +61,30 @@ export interface Product {
 }
 
 export const categories = [
-  { slug: "doll", title: "Crochet Dolls", emoji: "👑", description: "Handmade amigurumi dolls customizable to your reference photo." },
-  { slug: "bouquet", title: "Forever Flowers", emoji: "💐", description: "Everlasting crochet bouquets that keep their vibrant colour forever." },
-  { slug: "plushie", title: "Characters & Animals", emoji: "🧸", description: "Cute custom animal plushies, mascots and companions." },
-  { slug: "keychain", title: "Charms & Keychains", emoji: "🔑", description: "Pocket-sized crochet charms perfect for bag accessories & gifts." },
+  {
+    slug: "doll",
+    title: "Crochet Dolls",
+    emoji: "👑",
+    description: "Handmade amigurumi dolls customizable to your reference photo.",
+  },
+  {
+    slug: "bouquet",
+    title: "Forever Flowers",
+    emoji: "💐",
+    description: "Everlasting crochet bouquets that keep their vibrant colour forever.",
+  },
+  {
+    slug: "plushie",
+    title: "Characters & Animals",
+    emoji: "🧸",
+    description: "Cute custom animal plushies, mascots and companions.",
+  },
+  {
+    slug: "keychain",
+    title: "Charms & Keychains",
+    emoji: "🔑",
+    description: "Pocket-sized crochet charms perfect for bag accessories & gifts.",
+  },
 ] as const;
 
 export const products: Product[] = [
@@ -79,7 +99,8 @@ export const products: Product[] = [
     type: "doll",
     size: "Small 7in · Medium 9in · Large 11in",
     tagline: "Custom keepsake doll hand-stitched from your reference photo",
-    description: "Detailed amigurumi doll created from soft milk cotton yarn. Fully customizable clothing, hair, and accessories.",
+    description:
+      "Detailed amigurumi doll created from soft milk cotton yarn. Fully customizable clothing, hair, and accessories.",
     images: [catKeepsakeDolls, dollsImg],
     badge: "⭐ Bestseller",
     isActive: true,
@@ -93,7 +114,8 @@ export const products: Product[] = [
     type: "doll",
     size: "5 inches · 12.7 cm",
     tagline: "Compact adorable doll with custom outfit",
-    description: "Our signature 5-inch miniature amigurumi doll with intricate detailing and posable charm.",
+    description:
+      "Our signature 5-inch miniature amigurumi doll with intricate detailing and posable charm.",
     images: [dollsImg],
     isActive: true,
     sortOrder: 2,
@@ -152,7 +174,8 @@ export const products: Product[] = [
     type: "bouquet",
     size: "Multi-stem full wrap",
     tagline: "A majestic symphony of forever roses hand-stitched in milk cotton 💐",
-    description: "A show-stopping crochet bouquet featuring meticulously hand-shaped roses wrapped in premium layered lilac-gold tissue and silk ribbon.",
+    description:
+      "A show-stopping crochet bouquet featuring meticulously hand-shaped roses wrapped in premium layered lilac-gold tissue and silk ribbon.",
     images: [bouquetGrand, bouquetRose, bouquetRose2, roseBouquetHandheld],
     badge: "💐 Popular",
     isActive: true,
@@ -166,7 +189,8 @@ export const products: Product[] = [
     type: "bouquet",
     size: "4×4 in · 6×6 in",
     tagline: "Bright cheerful sunflower that never wilts",
-    description: "Vibrant yellow petals with realistic textured seed centre, wired stem and leaf detail.",
+    description:
+      "Vibrant yellow petals with realistic textured seed centre, wired stem and leaf detail.",
     images: [bouquetSunflower],
     isActive: true,
     sortOrder: 7,
@@ -179,7 +203,8 @@ export const products: Product[] = [
     type: "bouquet",
     size: "Single stem with ribbon",
     tagline: "Elegant Dutch-style crochet tulip",
-    description: "Soft pastel tulip blossom with graceful stem, wrapped in translucent frosted paper.",
+    description:
+      "Soft pastel tulip blossom with graceful stem, wrapped in translucent frosted paper.",
     images: [bouquetTulip],
     isActive: true,
     sortOrder: 8,
@@ -208,7 +233,8 @@ export const products: Product[] = [
     type: "bouquet",
     size: "Medium arrangement",
     tagline: "Dreamy lavender, daisies and blush blossoms",
-    description: "Curated harmonious arrangement in lilac and baby pink tones, wrapped with matching ribbon.",
+    description:
+      "Curated harmonious arrangement in lilac and baby pink tones, wrapped with matching ribbon.",
     images: [bouquetPastel, bouquetPastel2],
     isActive: true,
     sortOrder: 10,
@@ -331,7 +357,8 @@ export const products: Product[] = [
     type: "misc",
     size: "8 inches length",
     tagline: "Lace feather tail bookmark for novel lovers",
-    description: "Exquisite crochet bookmark with peacock fan motif that drapes down the book spine.",
+    description:
+      "Exquisite crochet bookmark with peacock fan motif that drapes down the book spine.",
     images: [bookmark],
     isActive: true,
     sortOrder: 19,

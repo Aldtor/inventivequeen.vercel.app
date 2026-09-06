@@ -109,7 +109,9 @@ function FaqPage() {
                 <AccordionTrigger className="font-display text-lg font-bold text-lilac-deep hover:text-primary transition-colors">
                   {faq.question}
                 </AccordionTrigger>
-                <AccordionContent className="text-muted-foreground pb-4">{faq.answer}</AccordionContent>
+                <AccordionContent className="text-muted-foreground pb-4">
+                  {faq.answer}
+                </AccordionContent>
               </AccordionItem>
             ))}
           </Accordion>

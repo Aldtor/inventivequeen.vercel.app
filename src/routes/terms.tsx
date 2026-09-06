@@ -65,16 +65,23 @@ function TermsPage() {
         <div className="space-y-6">
           {SECTIONS.map((section) => (
             <div key={section.title} className="liquid-glass p-6 hover-lift">
-              <h2 className="relative z-10 font-display text-2xl font-bold text-lilac-deep">{section.title}</h2>
+              <h2 className="relative z-10 font-display text-2xl font-bold text-lilac-deep">
+                {section.title}
+              </h2>
               <p className="relative z-10 mt-3 text-muted-foreground">{section.text}</p>
             </div>
           ))}
 
           <div className="liquid-glass p-6 hover-lift">
-            <h2 className="relative z-10 font-display text-2xl font-bold text-lilac-deep">7. Contact</h2>
+            <h2 className="relative z-10 font-display text-2xl font-bold text-lilac-deep">
+              7. Contact
+            </h2>
             <p className="relative z-10 mt-3 text-muted-foreground">
               For questions about these terms or your order, please{" "}
-              <Link to="/contact" className="font-semibold text-primary underline hover:text-lilac-deep transition-colors">
+              <Link
+                to="/contact"
+                className="font-semibold text-primary underline hover:text-lilac-deep transition-colors"
+              >
                 contact me
               </Link>
               .

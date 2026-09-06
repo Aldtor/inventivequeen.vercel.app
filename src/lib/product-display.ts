@@ -12,7 +12,10 @@ export function formatPrice(value: string | number | null | undefined) {
   return `₹${amount.toLocaleString("en-IN")}`;
 }
 
-export function calculateDiscountPercent(originalPrice: string | number, sellingPrice: string | number) {
+export function calculateDiscountPercent(
+  originalPrice: string | number,
+  sellingPrice: string | number,
+) {
   const original = parsePriceValue(originalPrice);
   const selling = parsePriceValue(sellingPrice);
   if (original <= 0 || selling <= 0 || selling >= original) return 0;

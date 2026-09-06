@@ -68,7 +68,10 @@ export function saveCoupons(coupons: Coupon[]): void {
       supabase
         .from("site_settings")
         .upsert({ id: "coupons_cms", settings: coupons, updated_at: new Date().toISOString() })
-        .then(() => {}, () => {});
+        .then(
+          () => {},
+          () => {},
+        );
     }
   } catch (err) {
     console.error("Failed to save coupons to storage:", err);
@@ -77,14 +80,24 @@ export function saveCoupons(coupons: Coupon[]): void {
 
 export function calculateCouponDiscount(
   coupon: Coupon,
-  cartTotal: number
+  cartTotal: number,
 ): { valid: boolean; discountAmount: number; finalTotal: number; message: string } {
   if (!coupon.isActive) {
-    return { valid: false, discountAmount: 0, finalTotal: cartTotal, message: "This coupon code is currently inactive." };
+    return {
+      valid: false,
+      discountAmount: 0,
+      finalTotal: cartTotal,
+      message: "This coupon code is currently inactive.",
+    };
   }
 
   if (coupon.expiryDate && new Date(coupon.expiryDate) < new Date()) {
-    return { valid: false, discountAmount: 0, finalTotal: cartTotal, message: "This coupon code has expired." };
+    return {
+      valid: false,
+      discountAmount: 0,
+      finalTotal: cartTotal,
+      message: "This coupon code has expired.",
+    };
   }
 
   if (cartTotal < coupon.minOrderValue) {
@@ -121,7 +134,10 @@ export function useCoupons(): {
   updateCoupon: (code: string, patch: Partial<Coupon>) => void;
   deleteCoupon: (code: string) => void;
   resetCoupons: () => void;
-  validateAndApply: (code: string, cartTotal: number) => {
+  validateAndApply: (
+    code: string,
+    cartTotal: number,
+  ) => {
     valid: boolean;
     discountAmount: number;
     finalTotal: number;
@@ -158,7 +174,10 @@ export function useCoupons(): {
             localStorage.setItem(STORAGE_KEY, JSON.stringify(data.settings));
           }
         })
-        .then(() => {}, () => {});
+        .then(
+          () => {},
+          () => {},
+        );
     }
 
     return () => {

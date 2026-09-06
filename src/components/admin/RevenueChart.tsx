@@ -54,7 +54,10 @@ export function RevenueChart({ orders }: RevenueChartProps) {
         existing.revenue += order.amount_total || 0;
         existing.ordersCount += 1;
       } else if (timeRange === "all" || orderDate >= cutoff) {
-        const displayLabel = orderDate.toLocaleDateString("en-IN", { month: "short", day: "numeric" });
+        const displayLabel = orderDate.toLocaleDateString("en-IN", {
+          month: "short",
+          day: "numeric",
+        });
         dateMap[key] = {
           date: displayLabel,
           revenue: order.amount_total || 0,
@@ -133,7 +136,12 @@ export function RevenueChart({ orders }: RevenueChartProps) {
                   <stop offset="95%" stopColor="#7E57C2" stopOpacity={0.0} />
                 </linearGradient>
               </defs>
-              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E2E8F0" opacity={0.6} />
+              <CartesianGrid
+                strokeDasharray="3 3"
+                vertical={false}
+                stroke="#E2E8F0"
+                opacity={0.6}
+              />
               <XAxis
                 dataKey="date"
                 tickLine={false}

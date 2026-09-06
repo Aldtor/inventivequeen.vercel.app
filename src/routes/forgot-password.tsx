@@ -40,10 +40,12 @@ function ForgotPasswordPage() {
 
       if (error) throw error;
       setSubmitted(true);
-    } catch (err: any) {
-      setErrorMessage(
-        err.message || "Unable to send password reset email. Please verify your address and try again."
-      );
+    } catch (err: unknown) {
+      const msg =
+        err instanceof Error
+          ? err.message
+          : "Unable to send password reset email. Please verify your address and try again.";
+      setErrorMessage(msg);
     } finally {
       setLoading(false);
     }
@@ -65,8 +67,8 @@ function ForgotPasswordPage() {
               Recover Royal Access
             </h1>
             <p className="mt-2 text-xs sm:text-sm text-muted-foreground leading-relaxed">
-              Enter the email address registered with your Inventive Queen account, and we'll dispatch
-              a secure recovery link.
+              Enter the email address registered with your Inventive Queen account, and we'll
+              dispatch a secure recovery link.
             </p>
           </div>
 
@@ -151,7 +153,8 @@ function ForgotPasswordPage() {
 
           <div className="relative mt-6 text-center">
             <span className="inline-flex items-center gap-1.5 text-[11px] text-muted-foreground">
-              <Sparkles className="size-3 text-amber-500" /> Crown security protected by encrypted authentication
+              <Sparkles className="size-3 text-amber-500" /> Crown security protected by encrypted
+              authentication
             </span>
           </div>
         </div>

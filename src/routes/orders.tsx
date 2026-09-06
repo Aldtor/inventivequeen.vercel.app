@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   AlertCircle,
   ArrowRight,
@@ -26,7 +26,10 @@ export const Route = createFileRoute("/orders")({
   head: () => ({
     meta: [
       { title: "My Royal Orders & Tracking — Inventive Queen" },
-      { name: "description", content: "Track your handmade crochet doll and flower orders in real-time." },
+      {
+        name: "description",
+        content: "Track your handmade crochet doll and flower orders in real-time.",
+      },
     ],
   }),
 });
@@ -61,7 +64,7 @@ function OrdersPage() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
-  const fetchOrders = async () => {
+  const fetchOrders = useCallback(async () => {
     if (!user) {
       setLoading(false);
       return;
@@ -81,13 +84,13 @@ function OrdersPage() {
       setLoading(false);
       setRefreshing(false);
     }
-  };
+  }, [user]);
 
   useEffect(() => {
     if (!authLoading) {
       fetchOrders();
     }
-  }, [user, authLoading]);
+  }, [authLoading, fetchOrders]);
 
   const handleManualRefresh = () => {
     setRefreshing(true);
@@ -130,7 +133,8 @@ function OrdersPage() {
               Sign In to View Orders
             </h2>
             <p className="mt-2 text-sm text-muted-foreground">
-              Please sign in with your Inventive Queen royal account to view and track your handmade crochet orders.
+              Please sign in with your Inventive Queen royal account to view and track your handmade
+              crochet orders.
             </p>
             <div className="mt-6 flex flex-wrap justify-center gap-3">
               <Link
@@ -166,7 +170,8 @@ function OrdersPage() {
             </div>
             <h2 className="font-display text-2xl font-bold text-lilac-deep">No Orders Found</h2>
             <p className="mt-2 text-sm text-muted-foreground">
-              You haven't placed any orders yet. Explore our amigurumi dolls, cute keychains, and everlasting bouquets!
+              You haven't placed any orders yet. Explore our amigurumi dolls, cute keychains, and
+              everlasting bouquets!
             </p>
             <div className="mt-6">
               <Link
@@ -217,7 +222,10 @@ function OrdersPage() {
                         <span>{formattedDate}</span>
                       </div>
                       <div className="font-extrabold text-foreground">
-                        Total: <span className="text-base text-lilac-deep">₹{order.amount_total?.toLocaleString("en-IN")}</span>
+                        Total:{" "}
+                        <span className="text-base text-lilac-deep">
+                          ₹{order.amount_total?.toLocaleString("en-IN")}
+                        </span>
                       </div>
                       <span className="rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-bold text-emerald-700">
                         Paid (Razorpay)
@@ -312,7 +320,9 @@ function OrdersPage() {
                       </div>
                       <p className="font-bold text-foreground">{order.customer_name}</p>
                       <p className="text-muted-foreground leading-relaxed">{order.address}</p>
-                      <p className="font-semibold text-muted-foreground">Pincode: {order.pincode}</p>
+                      <p className="font-semibold text-muted-foreground">
+                        Pincode: {order.pincode}
+                      </p>
                       <p className="font-semibold text-muted-foreground flex items-center gap-1 mt-1">
                         <Phone className="size-3" /> +91 {order.phone}
                       </p>

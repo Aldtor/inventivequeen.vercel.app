@@ -1,6 +1,6 @@
 # Remix of Remix of Inventive Queen's Reign
 
-make a website for my brand Inventive Queen ( I attached the logo ) clone this full website but for mine brand   https://cydoescraft.vercel.app/
+make a website for my brand Inventive Queen ( I attached the logo ) clone this full website but for mine brand https://cydoescraft.vercel.app/
 
 This project was built with [Lovable](https://lovable.dev).
 

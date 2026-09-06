@@ -77,7 +77,8 @@ function PrivacyPage() {
               7. Contact Our Privacy Officer
             </h2>
             <p className="relative z-10 mt-3 text-muted-foreground leading-relaxed">
-              If you have any questions or requests regarding our privacy policy, please reach out via{" "}
+              If you have any questions or requests regarding our privacy policy, please reach out
+              via{" "}
               <Link
                 to="/contact"
                 className="font-semibold text-primary underline hover:text-lilac-deep transition-colors"

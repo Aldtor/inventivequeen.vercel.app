@@ -4,7 +4,12 @@ import { Crown, Heart, Lock, Mail, Phone, Sparkles, User as UserIcon } from "luc
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/lib/auth";
 import { SiteLayout } from "@/components/site/SiteLayout";
-import { getSafeRedirectUrl, sanitizeText, validatePasswordStrength, validatePhone } from "@/lib/security";
+import {
+  getSafeRedirectUrl,
+  sanitizeText,
+  validatePasswordStrength,
+  validatePhone,
+} from "@/lib/security";
 
 export const Route = createFileRoute("/login")({
   component: LoginPage,
@@ -15,7 +20,10 @@ export const Route = createFileRoute("/login")({
   head: () => ({
     meta: [
       { title: "Royal Account — Inventive Queen" },
-      { name: "description", content: "Sign in or create your Inventive Queen account to place and track orders." },
+      {
+        name: "description",
+        content: "Sign in or create your Inventive Queen account to place and track orders.",
+      },
     ],
   }),
 });
@@ -37,7 +45,7 @@ function LoginPage() {
 
   // If already logged in, redirect
   if (user) {
-    navigate({ to: redirectPath as any });
+    navigate({ href: redirectPath });
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -54,7 +62,7 @@ function LoginPage() {
         });
         if (error) throw error;
 
-        navigate({ to: redirectPath as any });
+        navigate({ href: redirectPath });
       } else {
         const cleanName = sanitizeText(fullName, 100);
         const cleanPhone = phone.replace(/[^\d]/g, "");
@@ -94,14 +102,15 @@ function LoginPage() {
         }
 
         if (data.session) {
-          navigate({ to: redirectPath as any });
+          navigate({ href: redirectPath });
         } else {
           setSuccessMsg("Royal account created! Please check your email to verify or sign in.");
           setMode("signin");
         }
       }
-    } catch (err: any) {
-      setErrorMsg(err.message || "Failed to authenticate. Please try again.");
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Failed to authenticate. Please try again.";
+      setErrorMsg(msg);
     } finally {
       setLoading(false);
     }
@@ -217,9 +226,7 @@ function LoginPage() {
             )}
 
             <div>
-              <label className="block text-xs font-bold text-foreground mb-1">
-                Email Address
-              </label>
+              <label className="block text-xs font-bold text-foreground mb-1">Email Address</label>
               <div className="relative">
                 <Mail className="absolute left-3.5 top-3 size-4 text-muted-foreground" />
                 <input
@@ -235,9 +242,7 @@ function LoginPage() {
 
             <div>
               <div className="flex items-center justify-between mb-1">
-                <label className="block text-xs font-bold text-foreground">
-                  Password
-                </label>
+                <label className="block text-xs font-bold text-foreground">Password</label>
                 {mode === "signin" && (
                   <Link
                     to="/forgot-password"
@@ -269,8 +274,8 @@ function LoginPage() {
               {loading
                 ? "Processing..."
                 : mode === "signin"
-                ? "Sign In to Royal Account"
-                : "Create Royal Account"}
+                  ? "Sign In to Royal Account"
+                  : "Create Royal Account"}
             </button>
           </form>
 

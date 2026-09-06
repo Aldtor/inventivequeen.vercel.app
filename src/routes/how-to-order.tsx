@@ -85,10 +85,10 @@ function HowToOrderPage() {
                 />
                 <div className="flex-1">
                   <div className="flex items-center gap-3 mb-3">
-                    <span className="skeu-step">
-                      {i + 1}
-                    </span>
-                    <h3 className="font-display text-2xl font-bold text-lilac-deep">{step.title}</h3>
+                    <span className="skeu-step">{i + 1}</span>
+                    <h3 className="font-display text-2xl font-bold text-lilac-deep">
+                      {step.title}
+                    </h3>
                   </div>
                   <p className="text-muted-foreground">{step.text}</p>
                 </div>

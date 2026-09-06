@@ -13,8 +13,14 @@ export function sanitizeText(input: unknown, maxLength: number = 1000): string {
     return "";
   }
 
-  // 1. Remove NULL bytes and low ASCII control characters
-  let clean = input.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, "");
+  // 1. Remove NULL bytes and low ASCII control characters (preserving tab, newline, carriage return)
+  let clean = "";
+  for (let i = 0; i < input.length; i++) {
+    const code = input.charCodeAt(i);
+    if ((code >= 32 && code !== 127) || code === 9 || code === 10 || code === 13) {
+      clean += input[i];
+    }
+  }
 
   // 2. Strip full <script>...</script> and <style>...</style> blocks with content
   clean = clean.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, "");
@@ -29,6 +35,26 @@ export function sanitizeText(input: unknown, maxLength: number = 1000): string {
 
   // 5. Trim whitespace and enforce length boundary
   return clean.trim().slice(0, maxLength);
+}
+
+/**
+ * Recursively sanitizes strings in an object or array.
+ */
+export function sanitizeObject<T>(input: T, maxStringLength = 1000): T {
+  if (typeof input === "string") {
+    return sanitizeText(input, maxStringLength) as unknown as T;
+  }
+  if (Array.isArray(input)) {
+    return input.map((item) => sanitizeObject(item, maxStringLength)) as unknown as T;
+  }
+  if (input !== null && typeof input === "object") {
+    const output: Record<string, unknown> = {};
+    for (const [key, value] of Object.entries(input)) {
+      output[key] = sanitizeObject(value, maxStringLength);
+    }
+    return output as T;
+  }
+  return input;
 }
 
 /**
@@ -104,7 +130,7 @@ export async function verifyRazorpaySignature(
   orderId: string,
   paymentId: string,
   signature: string,
-  secret: string
+  secret: string,
 ): Promise<boolean> {
   if (!orderId || !paymentId || !signature || !secret) {
     return false;
@@ -127,7 +153,7 @@ export async function verifyRazorpaySignature(
       keyData,
       { name: "HMAC", hash: "SHA-256" },
       false,
-      ["sign"]
+      ["sign"],
     );
 
     const signatureBuffer = await subtle.sign("HMAC", cryptoKey, messageData);
@@ -149,7 +175,10 @@ export async function verifyRazorpaySignature(
  * - At least 1 numeric digit
  * - At least 1 special character
  */
-export function validatePasswordStrength(password: unknown): { isValid: boolean; message?: string } {
+export function validatePasswordStrength(password: unknown): {
+  isValid: boolean;
+  message?: string;
+} {
   if (typeof password !== "string" || !password) {
     return { isValid: false, message: "Password is required." };
   }
@@ -163,19 +192,28 @@ export function validatePasswordStrength(password: unknown): { isValid: boolean;
   }
 
   if (!/[a-z]/.test(password)) {
-    return { isValid: false, message: "Password must contain at least one lowercase letter (a-z)." };
+    return {
+      isValid: false,
+      message: "Password must contain at least one lowercase letter (a-z).",
+    };
   }
 
   if (!/[A-Z]/.test(password)) {
-    return { isValid: false, message: "Password must contain at least one uppercase letter (A-Z)." };
+    return {
+      isValid: false,
+      message: "Password must contain at least one uppercase letter (A-Z).",
+    };
   }
 
   if (!/\d/.test(password)) {
     return { isValid: false, message: "Password must contain at least one number (0-9)." };
   }
 
-  if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~`]/.test(password)) {
-    return { isValid: false, message: "Password must contain at least one special character (e.g. !@#$%^&*)." };
+  if (!/[[\]!@#$%^&*()_+\-={};':"\\|,.<>/?~`]/.test(password)) {
+    return {
+      isValid: false,
+      message: "Password must contain at least one special character (e.g. !@#$%^&*).",
+    };
   }
 
   return { isValid: true };

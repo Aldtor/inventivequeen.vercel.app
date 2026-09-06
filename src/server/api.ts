@@ -2,16 +2,47 @@
  * 👑 Inventive Queen Secure Server API Handlers
  *
  * Implements server-side Razorpay order generation and cryptographic HMAC
- * payment signature verification.
+ * payment signature verification with Supabase RPC confirmation.
  */
 
 import { verifyRazorpaySignature, sanitizeText } from "../lib/security";
 
 const RAZORPAY_ORDERS_URL = "https://api.razorpay.com/v1/orders";
 
-function getEnv(name: string, env?: any): string {
-  if (env && typeof env[name] === "string" && env[name]) {
-    return env[name];
+interface CreateOrderPayload {
+  amount?: number | string;
+  currency?: string;
+  receipt?: string;
+  order_id?: string;
+}
+
+interface VerifyPaymentPayload {
+  razorpay_order_id?: string;
+  razorpay_payment_id?: string;
+  razorpay_signature?: string;
+  order_id?: string;
+}
+
+interface RazorpayOrderResponse {
+  id?: string;
+  amount?: number;
+  currency?: string;
+  error?: {
+    description?: string;
+    message?: string;
+  };
+}
+
+interface DbOrderRow {
+  id: string;
+  amount_total: number;
+  payment_status: string;
+}
+
+function getEnv(name: string, env?: unknown): string {
+  if (env && typeof env === "object" && name in env) {
+    const val = (env as Record<string, unknown>)[name];
+    if (typeof val === "string" && val) return val;
   }
   if (typeof process !== "undefined" && process.env && process.env[name]) {
     return process.env[name]!;
@@ -19,7 +50,7 @@ function getEnv(name: string, env?: any): string {
   return "";
 }
 
-function jsonResponse(body: any, status = 200): Response {
+function jsonResponse(body: unknown, status = 200): Response {
   return new Response(JSON.stringify(body), {
     status,
     headers: {
@@ -36,7 +67,7 @@ function jsonResponse(body: any, status = 200): Response {
  */
 export async function handleCreateRazorpayOrder(
   request: Request,
-  env?: any
+  env?: unknown,
 ): Promise<Response> {
   if (request.method !== "POST") {
     return jsonResponse({ error: "Method not allowed" }, 405);
@@ -49,9 +80,9 @@ export async function handleCreateRazorpayOrder(
     return jsonResponse({ error: "Razorpay credentials are not configured on server." }, 500);
   }
 
-  let body: any;
+  let body: CreateOrderPayload;
   try {
-    body = await request.json();
+    body = (await request.json()) as CreateOrderPayload;
   } catch {
     return jsonResponse({ error: "Invalid JSON payload" }, 400);
   }
@@ -63,8 +94,7 @@ export async function handleCreateRazorpayOrder(
   if (order_id) {
     const supabaseUrl = getEnv("VITE_SUPABASE_URL", env);
     const supabaseKey =
-      getEnv("SUPABASE_SERVICE_ROLE_KEY", env) ||
-      getEnv("VITE_SUPABASE_ANON_KEY", env);
+      getEnv("SUPABASE_SERVICE_ROLE_KEY", env) || getEnv("VITE_SUPABASE_ANON_KEY", env);
 
     if (supabaseUrl && supabaseKey) {
       try {
@@ -75,12 +105,12 @@ export async function handleCreateRazorpayOrder(
               apikey: supabaseKey,
               Authorization: `Bearer ${supabaseKey}`,
             },
-          }
+          },
         );
 
         if (orderCheckRes.ok) {
-          const rows: any = await orderCheckRes.json();
-          if (rows && rows.length > 0) {
+          const rows = (await orderCheckRes.json()) as DbOrderRow[];
+          if (rows && rows.length > 0 && rows[0]) {
             const dbOrder = rows[0];
             if (dbOrder.payment_status === "paid") {
               return jsonResponse({ error: "Order has already been paid and finalized." }, 400);
@@ -88,15 +118,21 @@ export async function handleCreateRazorpayOrder(
             const expectedPaise = Math.round(Number(dbOrder.amount_total) * 100);
             if (expectedPaise > 0 && Math.abs(expectedPaise - parsedAmount) > 1) {
               console.warn(
-                `[SECURITY ALERT] Order amount tampering detected! Client sent: ${parsedAmount}, Database requires: ${expectedPaise}`
+                `[SECURITY ALERT] Order amount tampering detected! Client sent: ${parsedAmount}, Database requires: ${expectedPaise}`,
               );
-              return jsonResponse({ error: "Order price discrepancy detected. Integrity check failed." }, 400);
+              return jsonResponse(
+                { error: "Order price discrepancy detected. Integrity check failed." },
+                400,
+              );
             }
             parsedAmount = expectedPaise;
           }
         }
       } catch (dbErr) {
-        console.warn("Could not cross-check order price from DB, falling back to validated payload:", dbErr);
+        console.warn(
+          "Could not cross-check order price from DB, falling back to validated payload:",
+          dbErr,
+        );
       }
     }
   }
@@ -134,11 +170,12 @@ export async function handleCreateRazorpayOrder(
       }),
     });
 
-    const data: any = await rzpRes.json();
+    const data = (await rzpRes.json()) as RazorpayOrderResponse;
 
     if (!rzpRes.ok) {
       console.error("Razorpay API error:", data);
-      const errMsg = data?.error?.description || data?.error?.message || "Failed to create Razorpay order";
+      const errMsg =
+        data?.error?.description || data?.error?.message || "Failed to create Razorpay order";
       return jsonResponse({ error: errMsg }, rzpRes.status === 401 ? 401 : 500);
     }
 
@@ -147,7 +184,7 @@ export async function handleCreateRazorpayOrder(
       amount: data.amount,
       currency: data.currency,
     });
-  } catch (err: any) {
+  } catch (err) {
     console.error("Failed to connect to Razorpay:", err);
     return jsonResponse({ error: "Network error connecting to payment gateway" }, 502);
   }
@@ -156,10 +193,7 @@ export async function handleCreateRazorpayOrder(
 /**
  * Handles POST /api/verify-payment
  */
-export async function handleVerifyPayment(
-  request: Request,
-  env?: any
-): Promise<Response> {
+export async function handleVerifyPayment(request: Request, env?: unknown): Promise<Response> {
   if (request.method !== "POST") {
     return jsonResponse({ error: "Method not allowed" }, 405);
   }
@@ -169,9 +203,9 @@ export async function handleVerifyPayment(
     return jsonResponse({ error: "Razorpay secret is not configured." }, 500);
   }
 
-  let body: any;
+  let body: VerifyPaymentPayload;
   try {
-    body = await request.json();
+    body = (await request.json()) as VerifyPaymentPayload;
   } catch {
     return jsonResponse({ error: "Invalid JSON payload" }, 400);
   }
@@ -187,41 +221,65 @@ export async function handleVerifyPayment(
     String(razorpay_order_id).trim(),
     String(razorpay_payment_id).trim(),
     String(razorpay_signature).trim(),
-    keySecret
+    keySecret,
   );
 
   if (!isValid) {
-    console.warn(`[SECURITY ALERT] Payment signature verification failed for payment: ${razorpay_payment_id}`);
-    return jsonResponse({ error: "Cryptographic signature verification failed. Untrusted payment payload." }, 400);
+    console.warn(
+      `[SECURITY ALERT] Payment signature verification failed for payment: ${razorpay_payment_id}`,
+    );
+    return jsonResponse(
+      { error: "Cryptographic signature verification failed. Untrusted payment payload." },
+      400,
+    );
   }
 
-  // If order_id was provided, update Supabase order record
+  // If order_id was provided, update Supabase order record via atomic confirm_order_payment RPC
   if (order_id) {
     const supabaseUrl = getEnv("VITE_SUPABASE_URL", env);
     const supabaseKey =
-      getEnv("SUPABASE_SERVICE_ROLE_KEY", env) ||
-      getEnv("VITE_SUPABASE_ANON_KEY", env);
+      getEnv("SUPABASE_SERVICE_ROLE_KEY", env) || getEnv("VITE_SUPABASE_ANON_KEY", env);
 
     if (supabaseUrl && supabaseKey) {
       try {
-        const updateRes = await fetch(`${supabaseUrl}/rest/v1/orders?id=eq.${encodeURIComponent(order_id)}`, {
-          method: "PATCH",
+        // Priority 1: Call confirm_order_payment RPC (SECURITY DEFINER with trigger override)
+        const rpcRes = await fetch(`${supabaseUrl}/rest/v1/rpc/confirm_order_payment`, {
+          method: "POST",
           headers: {
             apikey: supabaseKey,
             Authorization: `Bearer ${supabaseKey}`,
             "Content-Type": "application/json",
-            Prefer: "return=representation",
           },
           body: JSON.stringify({
-            payment_status: "paid",
-            status: "confirmed",
-            payment_id: String(razorpay_payment_id).trim(),
+            p_order_id: order_id,
+            p_payment_id: String(razorpay_payment_id).trim(),
           }),
         });
 
-        if (!updateRes.ok) {
-          const errText = await updateRes.text();
-          console.error("Failed to update order status in Supabase:", errText);
+        if (!rpcRes.ok) {
+          // Priority 2: Fallback to direct PATCH if service role key is active
+          const updateRes = await fetch(
+            `${supabaseUrl}/rest/v1/orders?id=eq.${encodeURIComponent(order_id)}`,
+            {
+              method: "PATCH",
+              headers: {
+                apikey: supabaseKey,
+                Authorization: `Bearer ${supabaseKey}`,
+                "Content-Type": "application/json",
+                Prefer: "return=representation",
+              },
+              body: JSON.stringify({
+                payment_status: "paid",
+                status: "confirmed",
+                payment_id: String(razorpay_payment_id).trim(),
+              }),
+            },
+          );
+
+          if (!updateRes.ok) {
+            const errText = await updateRes.text();
+            console.error("Failed to update order status in Supabase:", errText);
+          }
         }
       } catch (dbErr) {
         console.error("Database connection error during payment confirmation:", dbErr);

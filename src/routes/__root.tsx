@@ -14,6 +14,9 @@ import { reportLovableError } from "../lib/lovable-error-reporting";
 
 import { RoyalNotFoundContent } from "./404";
 import { SiteLayout } from "../components/site/SiteLayout";
+import { AuthProvider } from "../lib/auth";
+import { ProductsProvider } from "../lib/cms-products";
+import { Toaster } from "../components/ui/sonner";
 
 function NotFoundComponent() {
   return (
@@ -111,10 +114,6 @@ function RootShell({ children }: { children: ReactNode }) {
     </html>
   );
 }
-
-import { AuthProvider } from "../lib/auth";
-import { ProductsProvider } from "../lib/cms-products";
-import { Toaster } from "../components/ui/sonner";
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();

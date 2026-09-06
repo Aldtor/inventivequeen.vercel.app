@@ -53,13 +53,15 @@ export function AccountProfileModal({ isOpen, onClose }: AccountProfileModalProp
   const [resetEmailSent, setResetEmailSent] = useState(false);
 
   // Feedback status
-  const [feedback, setFeedback] = useState<{ type: "success" | "error"; message: string } | null>(null);
+  const [feedback, setFeedback] = useState<{ type: "success" | "error"; message: string } | null>(
+    null,
+  );
 
   // Sync inputs when user/profile changes or modal opens
   useEffect(() => {
     if (isOpen && user) {
-      setFullName(profile?.['full_name'] || (user.user_metadata?.['full_name'] as string) || "");
-      setPhone(profile?.['phone'] || (user.user_metadata?.['phone'] as string) || "");
+      setFullName(profile?.full_name || (user.user_metadata?.["full_name"] as string) || "");
+      setPhone(profile?.phone || (user.user_metadata?.["phone"] as string) || "");
       setNewPassword("");
       setConfirmPassword("");
       setFeedback(null);
@@ -70,9 +72,7 @@ export function AccountProfileModal({ isOpen, onClose }: AccountProfileModalProp
   if (!isOpen || !user) return null;
 
   const userEmail = user.email || "patron@inventivequeen.com";
-  const userInitials = (fullName || userEmail.split("@")[0] || "IQ")
-    .slice(0, 2)
-    .toUpperCase();
+  const userInitials = (fullName || userEmail.split("@")[0] || "IQ").slice(0, 2).toUpperCase();
 
   const joinedDate = user.created_at
     ? new Date(user.created_at).toLocaleDateString("en-US", {
@@ -82,7 +82,7 @@ export function AccountProfileModal({ isOpen, onClose }: AccountProfileModalProp
     : "September 2026";
 
   const isEmailVerified = Boolean(
-    user.email_confirmed_at || user.confirmed_at || (user.identities && user.identities.length > 0)
+    user.email_confirmed_at || user.confirmed_at || (user.identities && user.identities.length > 0),
   );
 
   // 1. Save Profile Details (Name & Phone)
@@ -137,11 +137,13 @@ export function AccountProfileModal({ isOpen, onClose }: AccountProfileModalProp
         message: "Royal profile details saved successfully!",
       });
       toast.success("Profile updated successfully!");
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Failed to update profile:", err);
+      const msg =
+        err instanceof Error ? err.message : "Failed to update profile. Please try again.";
       setFeedback({
         type: "error",
-        message: err.message || "Failed to update profile. Please try again.",
+        message: msg,
       });
       toast.error("Could not update profile details.");
     } finally {
@@ -184,11 +186,13 @@ export function AccountProfileModal({ isOpen, onClose }: AccountProfileModalProp
         message: "Your royal account password has been updated successfully!",
       });
       toast.success("Password updated successfully!");
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Password update error:", err);
+      const msg =
+        err instanceof Error ? err.message : "Could not update password. Please try again.";
       setFeedback({
         type: "error",
-        message: err.message || "Could not update password. Please try again.",
+        message: msg,
       });
       toast.error("Failed to update password.");
     } finally {
@@ -202,7 +206,8 @@ export function AccountProfileModal({ isOpen, onClose }: AccountProfileModalProp
     setFeedback(null);
 
     try {
-      const origin = typeof window !== "undefined" ? window.location.origin : "https://inventivequeen.com";
+      const origin =
+        typeof window !== "undefined" ? window.location.origin : "https://inventivequeen.com";
       const { error } = await supabase.auth.resetPasswordForEmail(userEmail, {
         redirectTo: `${origin}/reset-password`,
       });
@@ -215,11 +220,12 @@ export function AccountProfileModal({ isOpen, onClose }: AccountProfileModalProp
         message: `A secure password reset link has been dispatched to ${userEmail}. Please check your inbox.`,
       });
       toast.success("Password reset link sent to your email!");
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Reset email error:", err);
+      const msg = err instanceof Error ? err.message : "Unable to send reset email at this moment.";
       setFeedback({
         type: "error",
-        message: err.message || "Unable to send reset email at this moment.",
+        message: msg,
       });
       toast.error("Could not send password reset link.");
     } finally {
@@ -507,7 +513,11 @@ export function AccountProfileModal({ isOpen, onClose }: AccountProfileModalProp
                       onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                       className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 cursor-pointer"
                     >
-                      {showConfirmPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+                      {showConfirmPassword ? (
+                        <EyeOff className="size-4" />
+                      ) : (
+                        <Eye className="size-4" />
+                      )}
                     </button>
                   </div>
                 </div>
@@ -538,7 +548,9 @@ export function AccountProfileModal({ isOpen, onClose }: AccountProfileModalProp
                   <h4 className="text-xs font-bold text-slate-800">Email Recovery Link</h4>
                 </div>
                 <p className="text-xs text-slate-500 leading-relaxed mb-3">
-                  Prefer to reset your password via your email inbox? We can dispatch a one-time cryptographic recovery link to <span className="font-semibold text-slate-700">{userEmail}</span>.
+                  Prefer to reset your password via your email inbox? We can dispatch a one-time
+                  cryptographic recovery link to{" "}
+                  <span className="font-semibold text-slate-700">{userEmail}</span>.
                 </p>
 
                 <button
@@ -610,7 +622,8 @@ export function AccountProfileModal({ isOpen, onClose }: AccountProfileModalProp
                         </span>
                       </div>
                       <p className="text-xs text-amber-800/80 leading-relaxed mt-1">
-                        You have verified administrative privileges. Manage orders Kanban board, product catalog, customer reviews, discount coupons, and store settings.
+                        You have verified administrative privileges. Manage orders Kanban board,
+                        product catalog, customer reviews, discount coupons, and store settings.
                       </p>
 
                       <div className="mt-3">

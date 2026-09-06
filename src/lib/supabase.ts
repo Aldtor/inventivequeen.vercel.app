@@ -1,15 +1,17 @@
 import { createClient } from "@supabase/supabase-js";
 
+const metaEnv = (import.meta as unknown as { env?: Record<string, string> }).env;
+
 const supabaseUrl =
   (typeof process !== "undefined" && process.env?.["VITE_SUPABASE_URL"]) ||
-  (import.meta as any).env?.["VITE_SUPABASE_URL"] ||
+  metaEnv?.["VITE_SUPABASE_URL"] ||
   "https://fsttdvcntqlhnjdhogic.supabase.co";
 
 const supabaseKey =
   (typeof process !== "undefined" &&
     (process.env?.["VITE_SUPABASE_PUBLISHABLE_KEY"] || process.env?.["VITE_SUPABASE_ANON_KEY"])) ||
-  (import.meta as any).env?.["VITE_SUPABASE_PUBLISHABLE_KEY"] ||
-  (import.meta as any).env?.["VITE_SUPABASE_ANON_KEY"] ||
+  metaEnv?.["VITE_SUPABASE_PUBLISHABLE_KEY"] ||
+  metaEnv?.["VITE_SUPABASE_ANON_KEY"] ||
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZzdHRkdmNudHFsaG5qZGhvZ2ljIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQyMzM3NDEsImV4cCI6MjA4OTgwOTc0MX0.x_TD4obU3gD4gpMUXhvYOxrbkUix_z5LVjt1vQq8tW4";
 
 export const isSupabaseConfigured = Boolean(supabaseUrl && supabaseKey);
@@ -22,12 +24,7 @@ export const supabase = createClient(supabaseUrl, supabaseKey || "missing-key", 
 });
 
 export type OrderStatus =
-  | "pending"
-  | "confirmed"
-  | "crafting"
-  | "shipped"
-  | "delivered"
-  | "cancelled";
+  "pending" | "confirmed" | "crafting" | "shipped" | "delivered" | "cancelled";
 
 export interface DbOrderItem {
   id: string;

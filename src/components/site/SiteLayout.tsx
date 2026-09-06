@@ -1,5 +1,16 @@
 import { Link, useNavigate } from "@tanstack/react-router";
-import { ChevronDown, Instagram, LogOut, Mail, Menu, Package, ShoppingBag, Sparkles, User as UserIcon, X } from "lucide-react";
+import {
+  ChevronDown,
+  Instagram,
+  LogOut,
+  Mail,
+  Menu,
+  Package,
+  ShoppingBag,
+  Sparkles,
+  User as UserIcon,
+  X,
+} from "lucide-react";
 import { useEffect, useState, type ReactNode } from "react";
 
 import {
@@ -93,13 +104,14 @@ function AnnouncementBar() {
       <div className="absolute inset-0 opacity-20 bg-gradient-to-r from-transparent via-white/10 to-transparent animate-pulse" />
       <div className="relative mx-auto flex max-w-6xl flex-wrap items-center justify-center gap-x-3 gap-y-1 px-4 py-2 text-center text-xs sm:text-sm">
         {settings.announcementBadge && (
-          <span className="skeu-badge">
-            {settings.announcementBadge}
-          </span>
+          <span className="skeu-badge">{settings.announcementBadge}</span>
         )}
         <span>{settings.announcementText}</span>
         {settings.announcementLink && (
-          <Link to={settings.announcementLink} className="font-semibold underline underline-offset-4 hover:text-white/90 transition-colors">
+          <Link
+            to={settings.announcementLink}
+            className="font-semibold underline underline-offset-4 hover:text-white/90 transition-colors"
+          >
             {settings.announcementLinkLabel || "Learn more →"}
           </Link>
         )}
@@ -224,7 +236,9 @@ function Header() {
         </div>
 
         {/* Mobile nav */}
-        <nav className={`flex items-center gap-1 overflow-x-auto border-t border-white/40 px-4 py-2 lg:hidden transition-all duration-300 ${mobileOpen ? 'max-h-48 opacity-100' : 'max-h-0 opacity-0 overflow-hidden border-t-0 py-0'}`}>
+        <nav
+          className={`flex items-center gap-1 overflow-x-auto border-t border-white/40 px-4 py-2 lg:hidden transition-all duration-300 ${mobileOpen ? "max-h-48 opacity-100" : "max-h-0 opacity-0 overflow-hidden border-t-0 py-0"}`}
+        >
           {MAIN_NAV.map((item) => (
             <Link
               key={item.to}
@@ -274,10 +288,7 @@ function Header() {
         </nav>
 
         {/* Royal Account Profile Dialog */}
-        <AccountProfileModal
-          isOpen={profileModalOpen}
-          onClose={() => setProfileModalOpen(false)}
-        />
+        <AccountProfileModal isOpen={profileModalOpen} onClose={() => setProfileModalOpen(false)} />
       </div>
     </header>
   );
@@ -427,8 +438,14 @@ export function PageHeader({
   return (
     <section className="aurora-rich sparkle-field relative overflow-hidden border-b border-white/50">
       <div className="dotted-bg absolute inset-0 opacity-40" />
-      <div className="blob pointer-events-none absolute -top-20 -left-20 size-72 bg-primary/40" aria-hidden />
-      <div className="blob pointer-events-none absolute top-10 -right-16 size-60 bg-lilac/50" aria-hidden />
+      <div
+        className="blob pointer-events-none absolute -top-20 -left-20 size-72 bg-primary/40"
+        aria-hidden
+      />
+      <div
+        className="blob pointer-events-none absolute top-10 -right-16 size-60 bg-lilac/50"
+        aria-hidden
+      />
       <div className="relative mx-auto max-w-3xl px-4 py-20 text-center">
         <span className="liquid-glass inline-flex items-center gap-2 rounded-full px-5 py-1.5 text-xs font-bold tracking-[0.18em] text-lilac-deep uppercase">
           <Sparkles className="size-3" /> {eyebrow}
@@ -485,11 +502,7 @@ export function PriceCard({
   return (
     <article className="clay-glow group overflow-hidden img-hover-zoom flex flex-col justify-between">
       <div className="relative z-10 p-2.5">
-        {badge && (
-          <span className="skeu-badge absolute top-5 right-5 z-20">
-            {badge}
-          </span>
-        )}
+        {badge && <span className="skeu-badge absolute top-5 right-5 z-20">{badge}</span>}
         <img
           src={image}
           alt={name}
@@ -519,7 +532,9 @@ export function PriceCard({
           <button
             onClick={handleAddToCart}
             className={`clay rounded-full py-2.5 px-3.5 text-xs sm:text-sm font-bold transition-all ${
-              added ? "bg-emerald-100 text-emerald-800 border-emerald-300" : "text-lilac-deep hover:bg-white/40"
+              added
+                ? "bg-emerald-100 text-emerald-800 border-emerald-300"
+                : "text-lilac-deep hover:bg-white/40"
             }`}
             title="Add to Basket"
           >

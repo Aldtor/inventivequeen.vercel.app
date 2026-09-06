@@ -114,7 +114,10 @@ function AboutPage() {
         </p>
         <div className="grid grid-cols-3 gap-4 sm:grid-cols-6">
           {SHOWCASE.map((item) => (
-            <div key={item.alt} className="clay-soft img-hover-zoom overflow-hidden rounded-2xl p-1">
+            <div
+              key={item.alt}
+              className="clay-soft img-hover-zoom overflow-hidden rounded-2xl p-1"
+            >
               <img
                 src={item.src}
                 alt={item.alt}

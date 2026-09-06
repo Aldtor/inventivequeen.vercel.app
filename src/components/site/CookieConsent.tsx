@@ -29,7 +29,7 @@ export function CookieConsent() {
           functional: true,
           analytics: true,
           timestamp: new Date().toISOString(),
-        })
+        }),
       );
     } catch (e) {
       console.warn("Could not save cookie preference:", e);
@@ -46,7 +46,7 @@ export function CookieConsent() {
           functional: false,
           analytics: false,
           timestamp: new Date().toISOString(),
-        })
+        }),
       );
     } catch (e) {
       console.warn("Could not save cookie preference:", e);

@@ -32,9 +32,11 @@ const KNOWN_ADMIN_EMAILS = [
 export function checkIsAdminEmail(email?: string | null): boolean {
   if (!email) return false;
   const cleanEmail = email.trim().toLowerCase();
+  const metaEnv = (import.meta as unknown as { env?: Record<string, string> }).env;
   const envAdmins = (
-    (typeof process !== "undefined" && (process.env?.["VITE_ADMIN_EMAILS"] || process.env?.["ADMIN_EMAILS"])) ||
-    (import.meta as any).env?.VITE_ADMIN_EMAILS ||
+    (typeof process !== "undefined" &&
+      (process.env?.["VITE_ADMIN_EMAILS"] || process.env?.["ADMIN_EMAILS"])) ||
+    metaEnv?.["VITE_ADMIN_EMAILS"] ||
     ""
   )
     .split(",")
@@ -61,38 +63,44 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     try {
       const [{ data: profileData }, { data: adminData }] = await Promise.all([
-        supabase.from("profiles").select("id,email,full_name,phone").eq("id", user.id).maybeSingle(),
+        supabase
+          .from("profiles")
+          .select("id,email,full_name,phone")
+          .eq("id", user.id)
+          .maybeSingle(),
         supabase.from("admin_users").select("user_id").eq("user_id", user.id).maybeSingle(),
       ]);
 
       setProfile(profileData ?? null);
 
       const userEmail = user.email?.toLowerCase();
+      const legacyConfirmedAt = (user as unknown as { confirmed_at?: string }).confirmed_at;
       const isEmailVerified = Boolean(
         user.email_confirmed_at ||
-        (user as any).confirmed_at ||
-        user.app_metadata?.['provider'] === "google"
+        legacyConfirmedAt ||
+        user.app_metadata?.["provider"] === "google",
       );
       const isEmailAdmin = isEmailVerified && checkIsAdminEmail(userEmail);
       const isMetadataAdmin =
-        user.app_metadata?.['role'] === "admin" ||
-        user.user_metadata?.['role'] === "admin" ||
-        user.user_metadata?.['is_admin'] === true;
+        user.app_metadata?.["role"] === "admin" ||
+        user.user_metadata?.["role"] === "admin" ||
+        user.user_metadata?.["is_admin"] === true;
 
       setIsAdmin(Boolean(adminData) || isEmailAdmin || isMetadataAdmin);
     } catch {
       // Fallback in case of network or RLS delay
       const userEmail = user.email?.toLowerCase();
+      const legacyConfirmedAt = (user as unknown as { confirmed_at?: string }).confirmed_at;
       const isEmailVerified = Boolean(
         user.email_confirmed_at ||
-        (user as any).confirmed_at ||
-        user.app_metadata?.['provider'] === "google"
+        legacyConfirmedAt ||
+        user.app_metadata?.["provider"] === "google",
       );
       const isEmailAdmin = isEmailVerified && checkIsAdminEmail(userEmail);
       const isMetadataAdmin =
-        user.app_metadata?.['role'] === "admin" ||
-        user.user_metadata?.['role'] === "admin" ||
-        user.user_metadata?.['is_admin'] === true;
+        user.app_metadata?.["role"] === "admin" ||
+        user.user_metadata?.["role"] === "admin" ||
+        user.user_metadata?.["is_admin"] === true;
       setIsAdmin(isEmailAdmin || isMetadataAdmin);
     }
   }, [user]);
@@ -143,7 +151,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       refreshUserData,
       signOut,
     }),
-    [session, user, profile, isAdmin, loading, refreshUserData, signOut]
+    [session, user, profile, isAdmin, loading, refreshUserData, signOut],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

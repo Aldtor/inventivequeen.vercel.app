@@ -19,7 +19,8 @@ export const Route = createFileRoute("/404")({
       { title: "Page Not Found — Inventive Queen" },
       {
         name: "description",
-        content: "Oops! This royal crochet page has unravelled. Explore our handmade collections instead.",
+        content:
+          "Oops! This royal crochet page has unravelled. Explore our handmade collections instead.",
       },
     ],
   }),
@@ -77,8 +78,8 @@ export function RoyalNotFoundContent() {
           Oops! Tangled in Yarn!
         </h1>
         <p className="relative mt-3 text-sm sm:text-base text-muted-foreground max-w-md mx-auto leading-relaxed">
-          The royal page you're searching for seems to have unravelled or rolled under the velvet couch.
-          Let's guide you back to our handmade realm.
+          The royal page you're searching for seems to have unravelled or rolled under the velvet
+          couch. Let's guide you back to our handmade realm.
         </p>
 
         {/* Primary Action Buttons */}

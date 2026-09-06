@@ -43,11 +43,13 @@ function applySecurityHeaders(res: Response): Response {
       "script-src 'self' 'unsafe-inline' https://checkout.razorpay.com https://api.razorpay.com",
       "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
       "font-src 'self' https://fonts.gstatic.com data:",
-      "img-src 'self' data: blob: https://fsttdvcntqlhnjdhogic.supabase.co https://*.supabase.co https://images.unsplash.com https://*.razorpay.com",
-      "connect-src 'self' https://fsttdvcntqlhnjdhogic.supabase.co https://*.supabase.co https://api.razorpay.com https://lumberjack.razorpay.com",
-      "frame-src 'self' https://api.razorpay.com",
+      "img-src 'self' data: blob: https://fsttdvcntqlhnjdhogic.supabase.co https://*.supabase.co https://images.unsplash.com https://*.razorpay.com https://*.googleusercontent.com https://*.gravatar.com",
+      "connect-src 'self' https://fsttdvcntqlhnjdhogic.supabase.co https://*.supabase.co wss://fsttdvcntqlhnjdhogic.supabase.co wss://*.supabase.co https://api.razorpay.com https://checkout.razorpay.com https://lumberjack.razorpay.com",
+      "frame-src 'self' https://api.razorpay.com https://checkout.razorpay.com",
+      "media-src 'self' data: blob:",
       "object-src 'none'",
       "base-uri 'self'",
+      "form-action 'self'",
     ].join("; ");
 
     headers.set("Content-Security-Policy", cspDirectives);
@@ -97,7 +99,9 @@ export default {
       const rateLimit = checkRateLimit(clientIp, 20, 60_000);
 
       if (!rateLimit.allowed) {
-        console.warn(`[SECURITY ALERT] Rate limit exceeded for IP: ${clientIp} on endpoint ${url.pathname}`);
+        console.warn(
+          `[SECURITY ALERT] Rate limit exceeded for IP: ${clientIp} on endpoint ${url.pathname}`,
+        );
         const rateLimitResponse = new Response(
           JSON.stringify({
             error: "Too many requests. For security reasons, please wait before trying again.",
@@ -111,13 +115,31 @@ export default {
               "X-RateLimit-Limit": String(rateLimit.limit),
               "X-RateLimit-Remaining": "0",
             },
-          }
+          },
         );
         return applySecurityHeaders(rateLimitResponse);
       }
 
       // B. CSRF & Same-Origin Verification for state-changing requests
-      if (request.method === "POST") {
+      const isMutationMethod = ["POST", "PUT", "PATCH", "DELETE"].includes(request.method);
+      if (isMutationMethod) {
+        // Check 1: Modern browser Sec-Fetch-Site check
+        const secFetchSite = request.headers.get("sec-fetch-site");
+        if (secFetchSite === "cross-site") {
+          console.warn(
+            `[SECURITY ALERT] Blocked cross-site fetch attempt from Sec-Fetch-Site: cross-site`,
+          );
+          const forbiddenResponse = new Response(
+            JSON.stringify({ error: "Access Denied: Cross-Origin request blocked." }),
+            {
+              status: 403,
+              headers: { "Content-Type": "application/json" },
+            },
+          );
+          return applySecurityHeaders(forbiddenResponse);
+        }
+
+        // Check 2: Origin header validation
         const origin = request.headers.get("origin");
         if (origin) {
           try {
@@ -134,12 +156,47 @@ export default {
                 {
                   status: 403,
                   headers: { "Content-Type": "application/json" },
-                }
+                },
               );
               return applySecurityHeaders(forbiddenResponse);
             }
           } catch {
-            // Malformed origin URL
+            // Malformed origin URL is untrusted and rejected
+            console.warn(`[SECURITY ALERT] Malformed origin header rejected: ${origin}`);
+            const forbiddenResponse = new Response(
+              JSON.stringify({ error: "Access Denied: Malformed origin." }),
+              {
+                status: 403,
+                headers: { "Content-Type": "application/json" },
+              },
+            );
+            return applySecurityHeaders(forbiddenResponse);
+          }
+        } else {
+          // Check 3: If Origin is absent, check Referer header
+          const referer = request.headers.get("referer");
+          if (referer) {
+            try {
+              const refererHost = new URL(referer).host;
+              const requestHost = url.host;
+              if (
+                refererHost !== requestHost &&
+                !refererHost.includes("localhost") &&
+                !refererHost.includes("127.0.0.1")
+              ) {
+                console.warn(`[SECURITY ALERT] Cross-origin Referer request blocked: ${referer}`);
+                const forbiddenResponse = new Response(
+                  JSON.stringify({ error: "Access Denied: Cross-Origin request blocked." }),
+                  {
+                    status: 403,
+                    headers: { "Content-Type": "application/json" },
+                  },
+                );
+                return applySecurityHeaders(forbiddenResponse);
+              }
+            } catch {
+              // Ignore malformed referer
+            }
           }
         }
       }

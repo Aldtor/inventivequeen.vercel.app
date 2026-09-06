@@ -123,7 +123,10 @@ function CharactersPage() {
           </p>
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
             {GALLERY.map((item) => (
-              <div key={item.alt} className="liquid-glass img-hover-zoom overflow-hidden p-1.5 hover-lift">
+              <div
+                key={item.alt}
+                className="liquid-glass img-hover-zoom overflow-hidden p-1.5 hover-lift"
+              >
                 <img
                   src={item.src}
                   alt={item.alt}

@@ -60,7 +60,10 @@ export function saveStoreSettings(settings: StoreSettings): void {
             console.warn("Could not sync settings to Supabase site_settings table:", error.message);
           }
         })
-        .then(() => {}, () => {});
+        .then(
+          () => {},
+          () => {},
+        );
     }
   } catch (err) {
     console.error("Failed to save store settings:", err);
@@ -105,7 +108,10 @@ export function useStoreSettings(): {
             localStorage.setItem(STORAGE_KEY, JSON.stringify(merged));
           }
         })
-        .then(() => {}, () => {});
+        .then(
+          () => {},
+          () => {},
+        );
     }
 
     return () => {

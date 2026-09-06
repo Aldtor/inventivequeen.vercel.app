@@ -88,7 +88,9 @@ export function GiftNotePrintModal({ order, onClose }: GiftNotePrintModalProps) 
           <div className="pt-2 flex flex-col items-center justify-center">
             <div className="size-14 rounded-full bg-gradient-to-br from-[#881337] via-[#9F1239] to-[#4C0519] text-amber-200 flex flex-col items-center justify-center shadow-lg border-2 border-rose-950/40 transform rotate-[-6deg]">
               <span className="text-base leading-none">👑</span>
-              <span className="text-[7px] font-black uppercase tracking-tighter mt-0.5">IQ SEAL</span>
+              <span className="text-[7px] font-black uppercase tracking-tighter mt-0.5">
+                IQ SEAL
+              </span>
             </div>
             <p className="text-[9px] text-amber-900/60 uppercase tracking-wider font-semibold mt-2">
               Order #{order.order_number} · Artisanal Amigurumi

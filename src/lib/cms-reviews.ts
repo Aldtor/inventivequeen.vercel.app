@@ -138,7 +138,10 @@ export function saveReviews(reviews: ReviewItem[]): void {
       supabase
         .from("site_settings")
         .upsert({ id: "reviews_cms", settings: reviews, updated_at: new Date().toISOString() })
-        .then(() => {}, () => {});
+        .then(
+          () => {},
+          () => {},
+        );
     }
   } catch (err) {
     console.error("Failed to save reviews to storage:", err);
@@ -182,7 +185,10 @@ export function useReviews(): {
             localStorage.setItem(STORAGE_KEY, JSON.stringify(data.settings));
           }
         })
-        .then(() => {}, () => {});
+        .then(
+          () => {},
+          () => {},
+        );
     }
 
     return () => {

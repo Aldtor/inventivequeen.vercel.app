@@ -47,7 +47,7 @@ import catPlush from "@/assets/products/categories/cat-plush.jpg";
 import videoBookmark from "@/assets/videos/video-bookmark.mp4";
 import videoTeddy from "@/assets/videos/video-teddy-1.mp4";
 
-export const Route = createFileRoute("/")(  {
+export const Route = createFileRoute("/")({
   component: Home,
   head: () => ({
     meta: [
@@ -60,7 +60,8 @@ export const Route = createFileRoute("/")(  {
       { property: "og:title", content: "Inventive Queen — Handmade Crochet Dolls & Flowers" },
       {
         property: "og:description",
-        content: "Custom amigurumi dolls, plushies and everlasting crochet bouquets, made to order.",
+        content:
+          "Custom amigurumi dolls, plushies and everlasting crochet bouquets, made to order.",
       },
       { property: "og:type", content: "website" },
       { property: "og:url", content: "/" },
@@ -191,9 +192,18 @@ function Home() {
     <SiteLayout>
       {/* ═══════ HERO ═══════ */}
       <section className="aurora-rich sparkle-field dotted-bg relative overflow-hidden">
-        <div className="blob pointer-events-none absolute -top-24 -left-24 size-80 bg-primary" aria-hidden />
-        <div className="blob pointer-events-none absolute top-40 -right-20 size-96 bg-lilac" aria-hidden />
-        <div className="blob pointer-events-none absolute bottom-10 left-1/3 size-60 bg-peach/40" aria-hidden />
+        <div
+          className="blob pointer-events-none absolute -top-24 -left-24 size-80 bg-primary"
+          aria-hidden
+        />
+        <div
+          className="blob pointer-events-none absolute top-40 -right-20 size-96 bg-lilac"
+          aria-hidden
+        />
+        <div
+          className="blob pointer-events-none absolute bottom-10 left-1/3 size-60 bg-peach/40"
+          aria-hidden
+        />
         <div className="relative mx-auto grid max-w-6xl items-center gap-12 px-4 py-20 lg:grid-cols-2 lg:py-28">
           <div>
             <span className="liquid-glass inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-xs font-bold tracking-[0.18em] text-lilac-deep uppercase">
@@ -214,10 +224,7 @@ function Home() {
               >
                 How to order →
               </Link>
-              <Link
-                to="/dolls"
-                className="clay rounded-full px-8 py-4 font-bold text-lilac-deep"
-              >
+              <Link to="/dolls" className="clay rounded-full px-8 py-4 font-bold text-lilac-deep">
                 See pricelist
               </Link>
             </div>
@@ -234,7 +241,10 @@ function Home() {
           </div>
 
           <div className="relative">
-            <div className="lilac-gradient absolute -inset-4 rounded-[3rem] opacity-40 blur-2xl" aria-hidden />
+            <div
+              className="lilac-gradient absolute -inset-4 rounded-[3rem] opacity-40 blur-2xl"
+              aria-hidden
+            />
             <div className="liquid-glass float-slow relative rounded-4xl p-3">
               <img
                 src={logo}
@@ -250,12 +260,18 @@ function Home() {
                 <span className="font-display text-xs sm:text-sm font-bold tracking-wide text-foreground">
                   Made just for you
                 </span>
-                <span className="size-2 rounded-full bg-emerald-500 animate-pulse" title="Custom orders open" />
+                <span
+                  className="size-2 rounded-full bg-emerald-500 animate-pulse"
+                  title="Custom orders open"
+                />
               </div>
             </div>
             <div className="float-slower relative mt-8 grid grid-cols-4 gap-3">
               {HERO_THUMBNAILS.map((item) => (
-                <div key={item.alt} className="clay-soft img-hover-zoom overflow-hidden rounded-2xl p-1">
+                <div
+                  key={item.alt}
+                  className="clay-soft img-hover-zoom overflow-hidden rounded-2xl p-1"
+                >
                   <img
                     src={item.src}
                     alt={item.alt}
@@ -296,11 +312,7 @@ function Home() {
         </p>
         <div className="mt-12 grid gap-6 md:grid-cols-3">
           {CATEGORIES.map((cat) => (
-            <Link
-              key={cat.to}
-              to={cat.to}
-              className="skeu-card group overflow-hidden"
-            >
+            <Link key={cat.to} to={cat.to} className="skeu-card group overflow-hidden">
               <div className="relative z-10 overflow-hidden p-2.5">
                 <img
                   src={cat.image}
@@ -336,10 +348,7 @@ function Home() {
           </h2>
           <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
             {WHY.map((item) => (
-              <div
-                key={item.title}
-                className="liquid-glass p-6 hover-lift"
-              >
+              <div key={item.title} className="liquid-glass p-6 hover-lift">
                 <span className="clay-primary relative z-10 inline-flex size-12 items-center justify-center rounded-2xl text-primary-foreground">
                   <item.icon className="size-5" />
                 </span>
@@ -364,10 +373,7 @@ function Home() {
         </p>
         <div className="mt-12 grid gap-5 grid-cols-2 sm:grid-cols-3 lg:grid-cols-4">
           {CATALOGUE.map((item) => (
-            <figure
-              key={item.name}
-              className="clay-glow group overflow-hidden p-2 img-hover-zoom"
-            >
+            <figure key={item.name} className="clay-glow group overflow-hidden p-2 img-hover-zoom">
               <img
                 src={item.image}
                 alt={item.name}
@@ -406,13 +412,7 @@ function Home() {
           </p>
           <div className="mt-12 grid gap-6 md:grid-cols-2">
             <div className="video-frame liquid-glass p-2">
-              <video
-                autoPlay
-                loop
-                muted
-                playsInline
-                className="aspect-video rounded-[1.5rem]"
-              >
+              <video autoPlay loop muted playsInline className="aspect-video rounded-[1.5rem]">
                 <source src={videoBookmark} type="video/mp4" />
               </video>
               <p className="relative z-10 mt-3 px-4 pb-3 text-center text-sm font-bold text-lilac-deep">
@@ -420,13 +420,7 @@ function Home() {
               </p>
             </div>
             <div className="video-frame liquid-glass p-2">
-              <video
-                autoPlay
-                loop
-                muted
-                playsInline
-                className="aspect-video rounded-[1.5rem]"
-              >
+              <video autoPlay loop muted playsInline className="aspect-video rounded-[1.5rem]">
                 <source src={videoTeddy} type="video/mp4" />
               </video>
               <p className="relative z-10 mt-3 px-4 pb-3 text-center text-sm font-bold text-lilac-deep">
@@ -479,10 +473,7 @@ function Home() {
           </h2>
           <div className="mt-12 grid gap-6 md:grid-cols-3">
             {LOVE.map((item) => (
-              <figure
-                key={item.name}
-                className="liquid-glass hover-lift p-7"
-              >
+              <figure key={item.name} className="liquid-glass hover-lift p-7">
                 <div className="relative z-10 flex items-start gap-4">
                   <img
                     src={item.product}
@@ -511,16 +502,30 @@ function Home() {
       {/* ═══════ CTA ═══════ */}
       <section className="mx-auto max-w-6xl px-4 py-20">
         <div className="lilac-gradient soft-glow sparkle-field relative overflow-hidden rounded-4xl px-6 py-16 text-center">
-          <div className="blob pointer-events-none absolute -top-16 left-1/4 size-56 bg-card" aria-hidden />
+          <div
+            className="blob pointer-events-none absolute -top-16 left-1/4 size-56 bg-card"
+            aria-hidden
+          />
           {/* Floating product decorations */}
-          <img src={bouquetMixed1} alt="" aria-hidden className="pointer-events-none absolute -top-6 -right-4 size-32 rounded-2xl object-cover opacity-15 rotate-[10deg] blur-[1px]" />
-          <img src={dinoKeychain} alt="" aria-hidden className="pointer-events-none absolute -bottom-6 -left-4 size-28 rounded-2xl object-cover opacity-15 rotate-[-8deg] blur-[1px]" />
+          <img
+            src={bouquetMixed1}
+            alt=""
+            aria-hidden
+            className="pointer-events-none absolute -top-6 -right-4 size-32 rounded-2xl object-cover opacity-15 rotate-[10deg] blur-[1px]"
+          />
+          <img
+            src={dinoKeychain}
+            alt=""
+            aria-hidden
+            className="pointer-events-none absolute -bottom-6 -left-4 size-28 rounded-2xl object-cover opacity-15 rotate-[-8deg] blur-[1px]"
+          />
           <div className="relative z-10">
             <h2 className="text-4xl font-extrabold text-primary-foreground sm:text-5xl">
               Ready for your one-of-a-kind piece?
             </h2>
             <p className="mx-auto mt-4 max-w-xl text-primary-foreground/90">
-              Send a reference photo and I&apos;ll stitch it into something you&apos;ll keep forever.
+              Send a reference photo and I&apos;ll stitch it into something you&apos;ll keep
+              forever.
             </p>
             <div className="mt-8 flex flex-wrap justify-center gap-3">
               <Link

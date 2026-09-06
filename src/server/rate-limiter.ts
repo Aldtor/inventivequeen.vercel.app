@@ -42,7 +42,7 @@ export interface RateLimitResult {
 export function checkRateLimit(
   identifier: string,
   limit: number = 15,
-  windowMs: number = 60_000
+  windowMs: number = 60_000,
 ): RateLimitResult {
   const now = Date.now();
   const windowStart = now - windowMs;

@@ -84,7 +84,7 @@ import { isSupabaseConfigured, supabase, type DbOrder, type OrderStatus } from "
 export const Route = createFileRoute("/admin")({
   component: AdminPage,
   validateSearch: (search: Record<string, unknown>) => ({
-    tab: ((search['tab'] as string) || "overview") as AdminTab,
+    tab: ((search["tab"] as string) || "overview") as AdminTab,
   }),
   head: () => ({
     meta: [
@@ -95,11 +95,35 @@ export const Route = createFileRoute("/admin")({
 });
 
 const ALL_STATUSES: { status: OrderStatus; label: string; color: string; nextAction?: string }[] = [
-  { status: "pending", label: "Pending", color: "bg-amber-100 text-amber-800 border-amber-300", nextAction: "Confirm Order" },
-  { status: "confirmed", label: "Confirmed", color: "bg-sky-100 text-sky-800 border-sky-300", nextAction: "Start Crafting" },
-  { status: "crafting", label: "Crafting", color: "bg-purple-100 text-purple-800 border-purple-300", nextAction: "Mark Shipped" },
-  { status: "shipped", label: "Shipped", color: "bg-blue-100 text-blue-800 border-blue-300", nextAction: "Mark Delivered" },
-  { status: "delivered", label: "Delivered", color: "bg-emerald-100 text-emerald-800 border-emerald-300" },
+  {
+    status: "pending",
+    label: "Pending",
+    color: "bg-amber-100 text-amber-800 border-amber-300",
+    nextAction: "Confirm Order",
+  },
+  {
+    status: "confirmed",
+    label: "Confirmed",
+    color: "bg-sky-100 text-sky-800 border-sky-300",
+    nextAction: "Start Crafting",
+  },
+  {
+    status: "crafting",
+    label: "Crafting",
+    color: "bg-purple-100 text-purple-800 border-purple-300",
+    nextAction: "Mark Shipped",
+  },
+  {
+    status: "shipped",
+    label: "Shipped",
+    color: "bg-blue-100 text-blue-800 border-blue-300",
+    nextAction: "Mark Delivered",
+  },
+  {
+    status: "delivered",
+    label: "Delivered",
+    color: "bg-emerald-100 text-emerald-800 border-emerald-300",
+  },
   { status: "cancelled", label: "Cancelled", color: "bg-rose-100 text-rose-800 border-rose-300" },
 ];
 
@@ -234,9 +258,10 @@ function AdminPage() {
 
       if (error) throw error;
       setOrders(data || []);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Failed to load orders for admin:", err);
-      setNotice(err?.message || "Failed to load orders");
+      const msg = err instanceof Error ? err.message : "Failed to load orders";
+      setNotice(msg);
     } finally {
       setOrdersLoading(false);
     }
@@ -254,7 +279,9 @@ function AdminPage() {
     const totalRevenue = paidOrders.reduce((sum, o) => sum + (o.amount_total || 0), 0);
     const today = new Date().toDateString();
     const todayOrders = orders.filter((o) => new Date(o.created_at).toDateString() === today);
-    const openOrders = orders.filter((o) => ["pending", "confirmed", "crafting"].includes(o.status));
+    const openOrders = orders.filter((o) =>
+      ["pending", "confirmed", "crafting"].includes(o.status),
+    );
 
     // Calculate top-ordered products
     const productCountMap: Record<string, { name: string; count: number; revenue: number }> = {};
@@ -294,12 +321,15 @@ function AdminPage() {
       if (error) throw error;
 
       setOrders((prev) =>
-        prev.map((ord) => (ord.id === orderId ? { ...ord, status: newStatus } : ord))
+        prev.map((ord) => (ord.id === orderId ? { ...ord, status: newStatus } : ord)),
       );
-      setNotice(`Order status changed to "${newStatus.toUpperCase()}". Customer tracking updated live!`);
+      setNotice(
+        `Order status changed to "${newStatus.toUpperCase()}". Customer tracking updated live!`,
+      );
       setTimeout(() => setNotice(null), 4000);
-    } catch (err: any) {
-      alert("Failed to update status: " + err.message);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "An error occurred";
+      alert("Failed to update status: " + msg);
     }
   };
 
@@ -314,12 +344,13 @@ function AdminPage() {
       if (error) throw error;
 
       setOrders((prev) =>
-        prev.map((ord) => (ord.id === orderId ? { ...ord, admin_notes: rawNotes } : ord))
+        prev.map((ord) => (ord.id === orderId ? { ...ord, admin_notes: rawNotes } : ord)),
       );
       setNotice("Courier & internal notes saved successfully.");
       setTimeout(() => setNotice(null), 3000);
-    } catch (err: any) {
-      alert("Failed to save notes: " + err.message);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "An error occurred";
+      alert("Failed to save notes: " + msg);
     }
   };
 
@@ -330,7 +361,9 @@ function AdminPage() {
         <div className="size-12 rounded-2xl bg-lilac-deep/10 text-lilac-deep flex items-center justify-center mb-4 animate-spin text-xl">
           👑
         </div>
-        <h2 className="font-display font-bold text-lg text-slate-800">Verifying Royal Credentials...</h2>
+        <h2 className="font-display font-bold text-lg text-slate-800">
+          Verifying Royal Credentials...
+        </h2>
         <p className="text-xs text-slate-500 mt-1">Checking atelier administrative access levels</p>
       </div>
     );
@@ -343,9 +376,12 @@ function AdminPage() {
           <div className="mx-auto mb-4 flex size-14 items-center justify-center rounded-2xl bg-lilac-deep/10 text-2xl text-lilac-deep">
             👑
           </div>
-          <h2 className="font-display text-xl font-black text-slate-800">Atelier Administration Gate</h2>
+          <h2 className="font-display text-xl font-black text-slate-800">
+            Atelier Administration Gate
+          </h2>
           <p className="mt-2 text-sm text-slate-500 leading-relaxed">
-            This portal is strictly reserved for Inventive Queen artisans and store administrators. Please authenticate with your executive credentials.
+            This portal is strictly reserved for Inventive Queen artisans and store administrators.
+            Please authenticate with your executive credentials.
           </p>
           <div className="mt-6 flex flex-col gap-3">
             <Link
@@ -378,9 +414,12 @@ function AdminPage() {
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-rose-100 text-rose-700 text-xs font-bold mb-2">
             403 Forbidden Access
           </div>
-          <h2 className="font-display text-xl font-black text-slate-800">Restricted Atelier Access</h2>
+          <h2 className="font-display text-xl font-black text-slate-800">
+            Restricted Atelier Access
+          </h2>
           <p className="mt-2 text-sm text-slate-500 leading-relaxed">
-            Account <span className="font-semibold text-slate-700">{user.email}</span> is authenticated as a customer but lacks Executive Atelier privileges.
+            Account <span className="font-semibold text-slate-700">{user.email}</span> is
+            authenticated as a customer but lacks Executive Atelier privileges.
           </p>
           <div className="mt-6 flex flex-col gap-3">
             <Link
@@ -444,7 +483,10 @@ function AdminPage() {
         {notice && (
           <div className="mx-6 mt-4 rounded-2xl bg-emerald-50 border border-emerald-200 p-3.5 text-xs text-emerald-800 font-semibold flex items-center justify-between shadow-sm">
             <span>👑 {notice}</span>
-            <button onClick={() => setNotice(null)} className="text-emerald-700 hover:text-emerald-900">
+            <button
+              onClick={() => setNotice(null)}
+              className="text-emerald-700 hover:text-emerald-900"
+            >
               <X className="size-4" />
             </button>
           </div>
@@ -456,16 +498,21 @@ function AdminPage() {
           {authLoading ? (
             <div className="py-24 text-center">
               <RefreshCw className="size-8 animate-spin mx-auto text-lilac-deep mb-3" />
-              <p className="text-sm font-semibold text-muted-foreground">Verifying royal permissions...</p>
+              <p className="text-sm font-semibold text-muted-foreground">
+                Verifying royal permissions...
+              </p>
             </div>
           ) : !user ? (
             <div className="liquid-glass mx-auto max-w-md rounded-3xl p-8 text-center my-12 shadow-xl border border-white/60">
               <div className="size-14 mx-auto rounded-2xl bg-amber-100 text-amber-700 flex items-center justify-center mb-4">
                 <Lock className="size-7" />
               </div>
-              <h2 className="font-display text-xl font-bold text-lilac-deep">Admin Sign In Required</h2>
+              <h2 className="font-display text-xl font-bold text-lilac-deep">
+                Admin Sign In Required
+              </h2>
               <p className="mt-2 text-xs text-muted-foreground leading-relaxed">
-                You must be signed in with an authorized account to access the Inventive Queen CMS and manage orders &amp; products.
+                You must be signed in with an authorized account to access the Inventive Queen CMS
+                and manage orders &amp; products.
               </p>
               <div className="mt-6">
                 <Link
@@ -536,7 +583,9 @@ function AdminPage() {
                           </h3>
                         </div>
                         <p className="text-xs text-muted-foreground leading-relaxed">
-                          Process incoming customer requests, update pricing &amp; seasonal creations, or announce special limited slots directly on the live storefront.
+                          Process incoming customer requests, update pricing &amp; seasonal
+                          creations, or announce special limited slots directly on the live
+                          storefront.
                         </p>
                       </div>
 
@@ -616,17 +665,23 @@ function AdminPage() {
 
                       {stats.topProducts.length === 0 ? (
                         <p className="text-xs text-muted-foreground py-6 text-center">
-                          Placed customer orders will dynamically generate your top performers leaderboard here!
+                          Placed customer orders will dynamically generate your top performers
+                          leaderboard here!
                         </p>
                       ) : (
                         <div className="divide-y divide-white/40">
                           {stats.topProducts.map((p, idx) => (
-                            <div key={idx} className="py-2.5 flex items-center justify-between text-xs">
+                            <div
+                              key={idx}
+                              className="py-2.5 flex items-center justify-between text-xs"
+                            >
                               <div className="flex items-center gap-2.5 min-w-0">
                                 <span className="size-5 rounded-full bg-lilac/30 text-lilac-deep font-bold flex items-center justify-center text-[10px] flex-shrink-0">
                                   #{idx + 1}
                                 </span>
-                                <span className="truncate font-semibold text-foreground">{p.name}</span>
+                                <span className="truncate font-semibold text-foreground">
+                                  {p.name}
+                                </span>
                               </div>
                               <div className="text-right flex-shrink-0">
                                 <span className="font-extrabold text-foreground">
@@ -658,13 +713,20 @@ function AdminPage() {
                     </div>
 
                     {orders.length === 0 ? (
-                      <p className="text-xs text-muted-foreground text-center py-6">No orders yet.</p>
+                      <p className="text-xs text-muted-foreground text-center py-6">
+                        No orders yet.
+                      </p>
                     ) : (
                       <div className="divide-y divide-white/40">
                         {orders.slice(0, 5).map((order) => (
-                          <div key={order.id} className="py-3 flex items-center justify-between gap-4 text-xs">
+                          <div
+                            key={order.id}
+                            className="py-3 flex items-center justify-between gap-4 text-xs"
+                          >
                             <div>
-                              <span className="font-mono font-bold text-lilac-deep">{order.order_number}</span>
+                              <span className="font-mono font-bold text-lilac-deep">
+                                {order.order_number}
+                              </span>
                               <p className="text-muted-foreground mt-0.5">
                                 {order.customer_name} · +91 {order.phone}
                               </p>
@@ -675,7 +737,8 @@ function AdminPage() {
                               </span>
                               <span
                                 className={`px-2 py-0.5 rounded-full text-[11px] font-bold ${
-                                  ALL_STATUSES.find((s) => s.status === order.status)?.color || "bg-gray-100"
+                                  ALL_STATUSES.find((s) => s.status === order.status)?.color ||
+                                  "bg-gray-100"
                                 }`}
                               >
                                 {order.status}
@@ -744,7 +807,9 @@ function OrdersAdminSection({
   const [filter, setFilter] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [viewMode, setViewMode] = useState<"list" | "kanban">("list");
-  const [courierInputs, setCourierInputs] = useState<Record<string, { courier: string; tracking: string; notes: string }>>({});
+  const [courierInputs, setCourierInputs] = useState<
+    Record<string, { courier: string; tracking: string; notes: string }>
+  >({});
   const [selectedPackingOrder, setSelectedPackingOrder] = useState<DbOrder | null>(null);
   const [selectedGiftNoteOrder, setSelectedGiftNoteOrder] = useState<DbOrder | null>(null);
 
@@ -792,7 +857,8 @@ function OrdersAdminSection({
         <div>
           <h2 className="font-display text-xl font-bold text-lilac-deep">Orders Management</h2>
           <p className="text-xs text-muted-foreground">
-            Advance orders through hand-crafting stages, assign courier tracking IDs, print royal packing slips, and connect with customers on WhatsApp.
+            Advance orders through hand-crafting stages, assign courier tracking IDs, print royal
+            packing slips, and connect with customers on WhatsApp.
           </p>
         </div>
 
@@ -1000,16 +1066,25 @@ function OrdersAdminSection({
                     </p>
                     <div className="divide-y divide-white/40 max-h-36 overflow-y-auto pr-1">
                       {order.order_items?.map((item) => (
-                        <div key={item.id} className="py-1.5 flex items-center justify-between gap-2">
+                        <div
+                          key={item.id}
+                          className="py-1.5 flex items-center justify-between gap-2"
+                        >
                           <div className="flex items-center gap-2 min-w-0">
                             {item.image_url ? (
-                              <img src={item.image_url} alt="" className="size-8 rounded-md object-cover flex-shrink-0" />
+                              <img
+                                src={item.image_url}
+                                alt=""
+                                className="size-8 rounded-md object-cover flex-shrink-0"
+                              />
                             ) : (
                               <div className="size-8 rounded-md bg-lilac/30 flex items-center justify-center flex-shrink-0">
                                 <Package className="size-3.5 text-lilac-deep" />
                               </div>
                             )}
-                            <span className="truncate font-semibold text-foreground">{item.product_name}</span>
+                            <span className="truncate font-semibold text-foreground">
+                              {item.product_name}
+                            </span>
                           </div>
                           <span className="font-bold text-muted-foreground whitespace-nowrap">
                             {item.quantity} × ₹{item.unit_price}
@@ -1135,9 +1210,7 @@ function ProductsAdminSection() {
   };
 
   const toggleSelect = (id: string) => {
-    setSelectedIds((prev) =>
-      prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
-    );
+    setSelectedIds((prev) => (prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]));
   };
 
   const toggleSelectAll = () => {
@@ -1162,27 +1235,27 @@ function ProductsAdminSection() {
           price: formatPrice(newSell),
           discountPercent: String(pct),
         };
-      })
+      }),
     );
-    setStatusMsg(`Applied ${pct}% festive discount to ${selectedIds.length} creations! Click 'Save All Selected' to commit.`);
+    setStatusMsg(
+      `Applied ${pct}% festive discount to ${selectedIds.length} creations! Click 'Save All Selected' to commit.`,
+    );
     setTimeout(() => setStatusMsg(null), 4000);
   };
 
   const handleBulkBadge = (badge: string) => {
     if (selectedIds.length === 0) return;
-    setDrafts((prev) =>
-      prev.map((d) => (selectedIds.includes(d.id) ? { ...d, badge } : d))
-    );
+    setDrafts((prev) => prev.map((d) => (selectedIds.includes(d.id) ? { ...d, badge } : d)));
     setStatusMsg(`Updated badge to "${badge || "None"}" for ${selectedIds.length} creations!`);
     setTimeout(() => setStatusMsg(null), 4000);
   };
 
   const handleBulkVisibility = (isActive: boolean) => {
     if (selectedIds.length === 0) return;
-    setDrafts((prev) =>
-      prev.map((d) => (selectedIds.includes(d.id) ? { ...d, isActive } : d))
+    setDrafts((prev) => prev.map((d) => (selectedIds.includes(d.id) ? { ...d, isActive } : d)));
+    setStatusMsg(
+      `Marked ${selectedIds.length} creations as ${isActive ? "Active (Storefront Visible)" : "Hidden"}!`,
     );
-    setStatusMsg(`Marked ${selectedIds.length} creations as ${isActive ? "Active (Storefront Visible)" : "Hidden"}!`);
     setTimeout(() => setStatusMsg(null), 4000);
   };
 
@@ -1198,8 +1271,9 @@ function ProductsAdminSection() {
       setStatusMsg(`Successfully saved all ${toSave.length} creations to CMS!`);
       setSelectedIds([]);
       setTimeout(() => setStatusMsg(null), 4000);
-    } catch (err: any) {
-      alert("Bulk save failed: " + err.message);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "An error occurred";
+      alert("Bulk save failed: " + msg);
     } finally {
       setSavingId("");
     }
@@ -1208,7 +1282,7 @@ function ProductsAdminSection() {
   const handlePricingChange = (
     id: string,
     field: "originalPrice" | "sellingPrice" | "discountPercent",
-    val: string
+    val: string,
   ) => {
     setDrafts((prev) =>
       prev.map((d) => {
@@ -1230,7 +1304,7 @@ function ProductsAdminSection() {
 
         next.price = next.sellingPrice || (sell > 0 ? formatPrice(sell) : d.price);
         return next;
-      })
+      }),
     );
   };
 
@@ -1261,8 +1335,9 @@ function ProductsAdminSection() {
       };
       setDrafts((prev) => [newDraft, ...prev]);
       setStatusMsg("New draft created! Fill in the details and click Save.");
-    } catch (err: any) {
-      alert("Error generating ID: " + err.message);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "An error occurred";
+      alert("Error generating ID: " + msg);
     } finally {
       setSavingId("");
     }
@@ -1285,8 +1360,9 @@ function ProductsAdminSection() {
       setDrafts((prev) => [clonedDraft, ...prev]);
       setStatusMsg(`Duplicated "${original.name}" as "${clonedDraft.name}" with ID: ${newId}`);
       setTimeout(() => setStatusMsg(null), 4000);
-    } catch (err: any) {
-      alert("Failed to duplicate: " + err.message);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "An error occurred";
+      alert("Failed to duplicate: " + msg);
     } finally {
       setSavingId("");
     }
@@ -1304,8 +1380,9 @@ function ProductsAdminSection() {
       await saveProduct(product);
       setStatusMsg(`Successfully saved "${product.name}" to CMS!`);
       setTimeout(() => setStatusMsg(null), 3000);
-    } catch (err: any) {
-      alert("Save failed: " + err.message);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "An error occurred";
+      alert("Save failed: " + msg);
     } finally {
       setSavingId("");
     }
@@ -1317,7 +1394,9 @@ function ProductsAdminSection() {
       return;
     }
 
-    if (!confirm(`Are you sure you want to delete or revert CMS customizations for "${draft.name}"?`)) {
+    if (
+      !confirm(`Are you sure you want to delete or revert CMS customizations for "${draft.name}"?`)
+    ) {
       return;
     }
 
@@ -1326,8 +1405,9 @@ function ProductsAdminSection() {
       await deleteProduct(draft.id);
       setStatusMsg(`Removed CMS entry for ${draft.name}.`);
       setTimeout(() => setStatusMsg(null), 3000);
-    } catch (err: any) {
-      alert("Delete failed: " + err.message);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "An error occurred";
+      alert("Delete failed: " + msg);
     } finally {
       setSavingId("");
     }
@@ -1348,8 +1428,9 @@ function ProductsAdminSection() {
       });
       setStatusMsg("Images uploaded! Click 'Save Product' to commit changes.");
       setTimeout(() => setStatusMsg(null), 3000);
-    } catch (err: any) {
-      alert("Image upload failed: " + err.message);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "An error occurred";
+      alert("Image upload failed: " + msg);
     } finally {
       setSavingId("");
     }
@@ -1373,7 +1454,8 @@ function ProductsAdminSection() {
         <div>
           <h2 className="font-display text-xl font-bold text-lilac-deep">Products CMS</h2>
           <p className="text-xs text-muted-foreground">
-            Edit product names, pricing, discounts, descriptions, photos, duplicate variants, or publish new creations.
+            Edit product names, pricing, discounts, descriptions, photos, duplicate variants, or
+            publish new creations.
           </p>
         </div>
 
@@ -1509,7 +1591,11 @@ function ProductsAdminSection() {
                         : "bg-slate-200 text-slate-700 hover:bg-slate-300"
                     }`}
                   >
-                    {draft.isActive ? <Eye className="size-3.5" /> : <EyeOff className="size-3.5" />}
+                    {draft.isActive ? (
+                      <Eye className="size-3.5" />
+                    ) : (
+                      <EyeOff className="size-3.5" />
+                    )}
                     {draft.isActive ? "Active" : "Hidden"}
                   </button>
 
@@ -1542,7 +1628,9 @@ function ProductsAdminSection() {
                   <div className="grid gap-3 sm:grid-cols-12">
                     {/* Product Name */}
                     <div className="sm:col-span-8">
-                      <label className="block font-bold text-foreground mb-1">Product Title *</label>
+                      <label className="block font-bold text-foreground mb-1">
+                        Product Title *
+                      </label>
                       <input
                         type="text"
                         value={draft.name}
@@ -1556,7 +1644,9 @@ function ProductsAdminSection() {
                       <label className="block font-bold text-foreground mb-1">Category</label>
                       <select
                         value={draft.type}
-                        onChange={(e) => updateDraft(draft.id, { type: e.target.value as ProductType })}
+                        onChange={(e) =>
+                          updateDraft(draft.id, { type: e.target.value as ProductType })
+                        }
                         className="w-full rounded-xl border border-white/80 bg-white/90 px-3 py-2 text-xs font-bold text-lilac-deep outline-none focus:border-lilac-deep"
                       >
                         <option value="doll">Doll</option>
@@ -1569,7 +1659,9 @@ function ProductsAdminSection() {
 
                     {/* Size */}
                     <div className="sm:col-span-6">
-                      <label className="block font-bold text-foreground mb-1">Size / Dimensions</label>
+                      <label className="block font-bold text-foreground mb-1">
+                        Size / Dimensions
+                      </label>
                       <input
                         type="text"
                         placeholder="e.g. 5 inches · 12.7 cm"
@@ -1593,23 +1685,31 @@ function ProductsAdminSection() {
 
                     {/* Pricing Grid */}
                     <div className="sm:col-span-4">
-                      <label className="block font-bold text-foreground mb-1">Original Price (Strike)</label>
+                      <label className="block font-bold text-foreground mb-1">
+                        Original Price (Strike)
+                      </label>
                       <input
                         type="text"
                         placeholder="e.g. ₹1,800"
                         value={draft.originalPrice}
-                        onChange={(e) => handlePricingChange(draft.id, "originalPrice", e.target.value)}
+                        onChange={(e) =>
+                          handlePricingChange(draft.id, "originalPrice", e.target.value)
+                        }
                         className="w-full rounded-xl border border-white/80 bg-white/90 px-3 py-2 text-xs outline-none focus:border-lilac-deep"
                       />
                     </div>
 
                     <div className="sm:col-span-4">
-                      <label className="block font-bold text-foreground mb-1">Selling Price *</label>
+                      <label className="block font-bold text-foreground mb-1">
+                        Selling Price *
+                      </label>
                       <input
                         type="text"
                         placeholder="e.g. ₹1,499"
                         value={draft.sellingPrice}
-                        onChange={(e) => handlePricingChange(draft.id, "sellingPrice", e.target.value)}
+                        onChange={(e) =>
+                          handlePricingChange(draft.id, "sellingPrice", e.target.value)
+                        }
                         className="w-full rounded-xl border border-white/80 bg-white/90 px-3 py-2 text-xs font-bold text-emerald-700 outline-none focus:border-lilac-deep"
                       />
                     </div>
@@ -1620,7 +1720,9 @@ function ProductsAdminSection() {
                         type="text"
                         placeholder="e.g. 15"
                         value={draft.discountPercent}
-                        onChange={(e) => handlePricingChange(draft.id, "discountPercent", e.target.value)}
+                        onChange={(e) =>
+                          handlePricingChange(draft.id, "discountPercent", e.target.value)
+                        }
                         className="w-full rounded-xl border border-white/80 bg-white/90 px-3 py-2 text-xs font-bold text-purple-700 outline-none focus:border-lilac-deep"
                       />
                     </div>
@@ -1628,8 +1730,13 @@ function ProductsAdminSection() {
                     {/* Discount & Savings Info */}
                     {savings > 0 && (
                       <div className="sm:col-span-12 rounded-xl bg-purple-50/70 border border-purple-200/70 px-3 py-1.5 text-[11px] text-purple-800 font-semibold flex items-center justify-between">
-                        <span>✨ Customer saves ₹{savings.toLocaleString("en-IN")} ({draft.discountPercent}% OFF)</span>
-                        <span className="font-normal text-muted-foreground">Original ₹{orig} → Selling ₹{sell}</span>
+                        <span>
+                          ✨ Customer saves ₹{savings.toLocaleString("en-IN")} (
+                          {draft.discountPercent}% OFF)
+                        </span>
+                        <span className="font-normal text-muted-foreground">
+                          Original ₹{orig} → Selling ₹{sell}
+                        </span>
                       </div>
                     )}
 
@@ -1663,7 +1770,9 @@ function ProductsAdminSection() {
 
                     {/* Description */}
                     <div className="sm:col-span-12">
-                      <label className="block font-bold text-foreground mb-1">Product Description</label>
+                      <label className="block font-bold text-foreground mb-1">
+                        Product Description
+                      </label>
                       <textarea
                         rows={3}
                         value={draft.description}
@@ -1853,14 +1962,8 @@ function ProductsAdminSection() {
    YARN & CRAFT SUPPLIES INVENTORY CMS COMPONENT
    ───────────────────────────────────────────────────────────── */
 function InventoryAdminSection() {
-  const {
-    inventory,
-    lowStockItems,
-    totalValue,
-    adjustQuantity,
-    addItem,
-    deleteItem,
-  } = useInventory();
+  const { inventory, lowStockItems, totalValue, adjustQuantity, addItem, deleteItem } =
+    useInventory();
 
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState("");
@@ -1949,9 +2052,12 @@ function InventoryAdminSection() {
       {/* Top Banner & Control Bar */}
       <div className="liquid-glass rounded-3xl p-5 border border-white/60 flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h2 className="font-display text-xl font-bold text-lilac-deep">Yarn &amp; Craft Supplies CMS</h2>
+          <h2 className="font-display text-xl font-bold text-lilac-deep">
+            Yarn &amp; Craft Supplies CMS
+          </h2>
           <p className="text-xs text-muted-foreground">
-            Track crochet milk cotton yarn spools, safety eyes, gold clasps, royal wax beads, and packaging materials.
+            Track crochet milk cotton yarn spools, safety eyes, gold clasps, royal wax beads, and
+            packaging materials.
           </p>
         </div>
 
@@ -2003,17 +2109,23 @@ function InventoryAdminSection() {
             Supply Catalog Items
           </span>
           <div className="mt-1 flex items-baseline gap-2">
-            <span className="text-2xl font-black text-lilac-deep font-mono">{inventory.length}</span>
+            <span className="text-2xl font-black text-lilac-deep font-mono">
+              {inventory.length}
+            </span>
             <span className="text-xs text-muted-foreground">different materials</span>
           </div>
         </div>
 
-        <div className={`liquid-glass rounded-3xl p-4 border ${lowStockItems.length > 0 ? "border-amber-300 bg-amber-50/40" : "border-white/60"}`}>
+        <div
+          className={`liquid-glass rounded-3xl p-4 border ${lowStockItems.length > 0 ? "border-amber-300 bg-amber-50/40" : "border-white/60"}`}
+        >
           <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider block">
             Low Stock Alerts
           </span>
           <div className="mt-1 flex items-baseline gap-2">
-            <span className={`text-2xl font-black font-mono ${lowStockItems.length > 0 ? "text-amber-600" : "text-emerald-600"}`}>
+            <span
+              className={`text-2xl font-black font-mono ${lowStockItems.length > 0 ? "text-amber-600" : "text-emerald-600"}`}
+            >
               {lowStockItems.length}
             </span>
             <span className="text-xs text-muted-foreground">items below threshold</span>
@@ -2025,7 +2137,9 @@ function InventoryAdminSection() {
             Material Inventory Value
           </span>
           <div className="mt-1 flex items-baseline gap-2">
-            <span className="text-2xl font-black text-foreground font-mono">₹{totalValue.toLocaleString("en-IN")}</span>
+            <span className="text-2xl font-black text-foreground font-mono">
+              ₹{totalValue.toLocaleString("en-IN")}
+            </span>
             <span className="text-xs text-muted-foreground">estimated stock worth</span>
           </div>
         </div>
@@ -2036,7 +2150,9 @@ function InventoryAdminSection() {
         <div className="rounded-3xl bg-amber-50 border border-amber-300 p-4 text-xs space-y-2">
           <div className="flex items-center gap-2 font-bold text-amber-900">
             <AlertTriangle className="size-4 text-amber-600 flex-shrink-0" />
-            <span>Low Stock Warning — {lowStockItems.length} craft materials need reordering soon!</span>
+            <span>
+              Low Stock Warning — {lowStockItems.length} craft materials need reordering soon!
+            </span>
           </div>
           <div className="flex flex-wrap gap-2 pt-1">
             {lowStockItems.map((item) => (
@@ -2045,9 +2161,13 @@ function InventoryAdminSection() {
                 className="bg-white/80 border border-amber-200 text-amber-900 px-2.5 py-1 rounded-full text-[11px] font-medium inline-flex items-center gap-1.5"
               >
                 {item.colorHex && (
-                  <span className="size-2 rounded-full ring-1 ring-black/10" style={{ backgroundColor: item.colorHex }} />
+                  <span
+                    className="size-2 rounded-full ring-1 ring-black/10"
+                    style={{ backgroundColor: item.colorHex }}
+                  />
                 )}
-                <strong>{item.name}</strong>: only {item.quantity} {item.unit} left (min: {item.minThreshold})
+                <strong>{item.name}</strong>: only {item.quantity} {item.unit} left (min:{" "}
+                {item.minThreshold})
               </span>
             ))}
           </div>
@@ -2061,7 +2181,9 @@ function InventoryAdminSection() {
           className="liquid-glass rounded-3xl p-6 border border-white/80 shadow-md space-y-4 animate-in fade-in duration-200"
         >
           <div className="flex items-center justify-between pb-3 border-b border-white/60">
-            <h3 className="font-display font-bold text-lilac-deep text-sm">Add Material to Workshop Supplies</h3>
+            <h3 className="font-display font-bold text-lilac-deep text-sm">
+              Add Material to Workshop Supplies
+            </h3>
             <button
               type="button"
               onClick={() => setShowAddForm(false)}
@@ -2088,7 +2210,12 @@ function InventoryAdminSection() {
               <label className="block font-bold text-foreground mb-1">Category</label>
               <select
                 value={newItem.category}
-                onChange={(e) => setNewItem({ ...newItem, category: e.target.value as any })}
+                onChange={(e) =>
+                  setNewItem({
+                    ...newItem,
+                    category: e.target.value as InventoryItem["category"],
+                  })
+                }
                 className="w-full rounded-xl border border-white/80 bg-white/90 px-3 py-2 text-xs font-bold text-lilac-deep outline-none focus:border-lilac-deep"
               >
                 <option value="yarn">Yarn Spool</option>
@@ -2126,7 +2253,9 @@ function InventoryAdminSection() {
                 type="number"
                 min="1"
                 value={newItem.minThreshold}
-                onChange={(e) => setNewItem({ ...newItem, minThreshold: Number(e.target.value) || 1 })}
+                onChange={(e) =>
+                  setNewItem({ ...newItem, minThreshold: Number(e.target.value) || 1 })
+                }
                 className="w-full rounded-xl border border-white/80 bg-white/90 px-3 py-2 text-xs outline-none focus:border-lilac-deep"
               />
             </div>
@@ -2137,7 +2266,9 @@ function InventoryAdminSection() {
                 type="number"
                 min="0"
                 value={newItem.costPerUnit}
-                onChange={(e) => setNewItem({ ...newItem, costPerUnit: Number(e.target.value) || 0 })}
+                onChange={(e) =>
+                  setNewItem({ ...newItem, costPerUnit: Number(e.target.value) || 0 })
+                }
                 className="w-full rounded-xl border border-white/80 bg-white/90 px-3 py-2 text-xs outline-none focus:border-lilac-deep"
               />
             </div>
@@ -2216,7 +2347,10 @@ function InventoryAdminSection() {
                     </div>
                   )}
                   <div className="min-w-0">
-                    <h4 className="font-display font-bold text-foreground text-xs truncate" title={item.name}>
+                    <h4
+                      className="font-display font-bold text-foreground text-xs truncate"
+                      title={item.name}
+                    >
                       {item.name}
                     </h4>
                     <span className="text-[10px] text-muted-foreground">
@@ -2243,7 +2377,9 @@ function InventoryAdminSection() {
               <div className="rounded-2xl bg-white/70 p-3 border border-white/80 flex items-center justify-between">
                 <div>
                   <div className="flex items-baseline gap-1.5">
-                    <span className={`font-mono text-xl font-black ${isLow ? "text-amber-600" : "text-lilac-deep"}`}>
+                    <span
+                      className={`font-mono text-xl font-black ${isLow ? "text-amber-600" : "text-lilac-deep"}`}
+                    >
                       {item.quantity}
                     </span>
                     <span className="text-xs font-semibold text-muted-foreground">{item.unit}</span>
@@ -2296,7 +2432,8 @@ function InventoryAdminSection() {
               <div className="flex items-center justify-between text-[11px] text-muted-foreground pt-1 border-t border-white/50">
                 <span>{item.supplier || "In-house Supply"}</span>
                 <span className="font-semibold text-foreground">
-                  ₹{item.costPerUnit}/{item.unit.replace(/s$/, "")} · Total ₹{(item.quantity * item.costPerUnit).toLocaleString("en-IN")}
+                  ₹{item.costPerUnit}/{item.unit.replace(/s$/, "")} · Total ₹
+                  {(item.quantity * item.costPerUnit).toLocaleString("en-IN")}
                 </span>
               </div>
             </div>
@@ -2321,7 +2458,7 @@ function ReviewsAdminSection() {
     handle: "",
     location: "",
     item: "",
-    category: "doll" as const,
+    category: "doll" as ReviewItem["category"],
     rating: 5,
     tag: "Verified Order",
     text: "",
@@ -2356,7 +2493,9 @@ function ReviewsAdminSection() {
     }
 
     addReview({
-      handle: newReview.handle.startsWith("@") ? newReview.handle.trim() : `@${newReview.handle.trim()}`,
+      handle: newReview.handle.startsWith("@")
+        ? newReview.handle.trim()
+        : `@${newReview.handle.trim()}`,
       location: newReview.location.trim() || "India",
       item: newReview.item.trim() || "Handcrafted Crochet",
       category: newReview.category,
@@ -2393,7 +2532,8 @@ function ReviewsAdminSection() {
             Customer Reviews &amp; Stories CMS
           </h2>
           <p className="text-xs text-muted-foreground">
-            Manage customer unboxing stories, feedback, and star testimonials displayed on the public Reviews page.
+            Manage customer unboxing stories, feedback, and star testimonials displayed on the
+            public Reviews page.
           </p>
         </div>
 
@@ -2489,7 +2629,9 @@ function ReviewsAdminSection() {
 
           <div className="grid gap-4 sm:grid-cols-12">
             <div className="sm:col-span-4">
-              <label className="block font-bold text-foreground mb-1">Customer Handle / Name *</label>
+              <label className="block font-bold text-foreground mb-1">
+                Customer Handle / Name *
+              </label>
               <input
                 type="text"
                 required
@@ -2526,7 +2668,12 @@ function ReviewsAdminSection() {
               <label className="block font-bold text-foreground mb-1">Category</label>
               <select
                 value={newReview.category}
-                onChange={(e) => setNewReview({ ...newReview, category: e.target.value as any })}
+                onChange={(e) =>
+                  setNewReview({
+                    ...newReview,
+                    category: e.target.value as ReviewItem["category"],
+                  })
+                }
                 className="w-full rounded-xl border border-white/80 bg-white/90 px-3 py-2 text-lilac-deep font-bold outline-none focus:border-lilac-deep"
               >
                 <option value="doll">Doll</option>
@@ -2571,7 +2718,9 @@ function ReviewsAdminSection() {
             </div>
 
             <div className="sm:col-span-12">
-              <label className="block font-bold text-foreground mb-1">Review Experience &amp; Feedback *</label>
+              <label className="block font-bold text-foreground mb-1">
+                Review Experience &amp; Feedback *
+              </label>
               <textarea
                 rows={3}
                 required
@@ -2629,9 +2778,7 @@ function ReviewsAdminSection() {
                 <span className="font-bold text-[11px] text-lilac-deep block mb-1">
                   Ordered: {rev.item}
                 </span>
-                <p className="text-xs text-foreground/90 italic leading-relaxed">
-                  "{rev.text}"
-                </p>
+                <p className="text-xs text-foreground/90 italic leading-relaxed">"{rev.text}"</p>
               </div>
             </div>
 
@@ -2719,7 +2866,9 @@ function CouponsAdminSection() {
     setCode("");
     setDescription("");
     setShowAddForm(false);
-    setNotice(`Coupon code "${cleanCode}" created! Customers can apply it at checkout immediately.`);
+    setNotice(
+      `Coupon code "${cleanCode}" created! Customers can apply it at checkout immediately.`,
+    );
     setTimeout(() => setNotice(null), 3500);
   };
 
@@ -2738,7 +2887,8 @@ function CouponsAdminSection() {
             Promotional Coupons &amp; Discounts CMS
           </h2>
           <p className="text-xs text-muted-foreground">
-            Create discount codes, set percentage or flat rupee discounts, and define minimum order values for online checkout.
+            Create discount codes, set percentage or flat rupee discounts, and define minimum order
+            values for online checkout.
           </p>
         </div>
 
@@ -2790,7 +2940,7 @@ function CouponsAdminSection() {
               <label className="block font-bold text-foreground mb-1">Discount Type</label>
               <select
                 value={discountType}
-                onChange={(e) => setDiscountType(e.target.value as any)}
+                onChange={(e) => setDiscountType(e.target.value as Coupon["discountType"])}
                 className="w-full rounded-xl border border-white/80 bg-white/90 px-3 py-2 font-bold text-lilac-deep outline-none focus:border-lilac-deep"
               >
                 <option value="percentage">Percentage Discount (%)</option>
@@ -2814,9 +2964,7 @@ function CouponsAdminSection() {
             </div>
 
             <div className="sm:col-span-4">
-              <label className="block font-bold text-foreground mb-1">
-                Minimum Cart Value (₹)
-              </label>
+              <label className="block font-bold text-foreground mb-1">Minimum Cart Value (₹)</label>
               <input
                 type="number"
                 min={0}
@@ -2864,7 +3012,9 @@ function CouponsAdminSection() {
           <div
             key={c.code}
             className={`liquid-glass rounded-3xl p-5 border relative overflow-hidden transition-all flex flex-col justify-between space-y-4 ${
-              c.isActive ? "border-white/70 shadow-sm" : "border-slate-300 opacity-60 bg-slate-50/50"
+              c.isActive
+                ? "border-white/70 shadow-sm"
+                : "border-slate-300 opacity-60 bg-slate-50/50"
             }`}
           >
             {/* Ticket Notch Aesthetic */}
@@ -2890,9 +3040,7 @@ function CouponsAdminSection() {
                   type="button"
                   onClick={() => updateCoupon(c.code, { isActive: !c.isActive })}
                   className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
-                    c.isActive
-                      ? "bg-emerald-100 text-emerald-800"
-                      : "bg-slate-200 text-slate-700"
+                    c.isActive ? "bg-emerald-100 text-emerald-800" : "bg-slate-200 text-slate-700"
                   }`}
                 >
                   {c.isActive ? "Active" : "Disabled"}
@@ -2901,7 +3049,9 @@ function CouponsAdminSection() {
 
               <div>
                 <span className="font-extrabold text-sm text-foreground block">
-                  {c.discountType === "percentage" ? `${c.discountValue}% OFF` : `₹${c.discountValue} FLAT OFF`}
+                  {c.discountType === "percentage"
+                    ? `${c.discountValue}% OFF`
+                    : `₹${c.discountValue} FLAT OFF`}
                 </span>
                 <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">
                   {c.description}
@@ -3003,7 +3153,7 @@ function CustomersAdminSection({ orders }: { orders: DbOrder[] }) {
         p.name.toLowerCase().includes(s) ||
         p.phone.includes(s) ||
         p.address.toLowerCase().includes(s) ||
-        p.pincode.includes(s)
+        p.pincode.includes(s),
     );
   }, [patrons, search]);
 
@@ -3020,7 +3170,8 @@ function CustomersAdminSection({ orders }: { orders: DbOrder[] }) {
             Patrons &amp; Customer CRM
           </h2>
           <p className="text-xs text-muted-foreground">
-            Customer profiles aggregated across all workshop orders, with lifetime value and 1-click VIP WhatsApp messaging.
+            Customer profiles aggregated across all workshop orders, with lifetime value and 1-click
+            VIP WhatsApp messaging.
           </p>
         </div>
 
@@ -3049,7 +3200,8 @@ function CustomersAdminSection({ orders }: { orders: DbOrder[] }) {
             {repeatPatrons.length}
           </span>
           <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mt-0.5">
-            Repeat Patrons ({patrons.length > 0 ? Math.round((repeatPatrons.length / patrons.length) * 100) : 0}%)
+            Repeat Patrons (
+            {patrons.length > 0 ? Math.round((repeatPatrons.length / patrons.length) * 100) : 0}%)
           </p>
         </div>
         <div className="liquid-glass rounded-2xl p-4 border border-white/60 text-center">
@@ -3062,7 +3214,9 @@ function CustomersAdminSection({ orders }: { orders: DbOrder[] }) {
         </div>
         <div className="liquid-glass rounded-2xl p-4 border border-white/60 text-center">
           <span className="font-display text-2xl font-black text-amber-500">
-            {patrons.length > 0 && patrons[0] ? `₹${patrons[0].totalSpent.toLocaleString("en-IN")}` : "₹0"}
+            {patrons.length > 0 && patrons[0]
+              ? `₹${patrons[0].totalSpent.toLocaleString("en-IN")}`
+              : "₹0"}
           </span>
           <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mt-0.5">
             Top Patron Spend
@@ -3082,7 +3236,7 @@ function CustomersAdminSection({ orders }: { orders: DbOrder[] }) {
             if (phoneClean.length === 10) phoneClean = `91${phoneClean}`;
 
             const vipMsg = encodeURIComponent(
-              `Hello ${patron.name}! 👑\nThis is Inventive Queen atelier. Thank you for being one of our cherished patrons (${patron.totalOrders} royal orders)! We are handcrafting new seasonal designs and wanted to offer you an exclusive preview.`
+              `Hello ${patron.name}! 👑\nThis is Inventive Queen atelier. Thank you for being one of our cherished patrons (${patron.totalOrders} royal orders)! We are handcrafting new seasonal designs and wanted to offer you an exclusive preview.`,
             );
             const waUrl = `https://wa.me/${phoneClean}?text=${vipMsg}`;
 
@@ -3141,7 +3295,11 @@ function CustomersAdminSection({ orders }: { orders: DbOrder[] }) {
 
                 <div className="pt-3 border-t border-white/40 flex items-center justify-between">
                   <span className="text-[10px] text-muted-foreground">
-                    Last: {new Date(patron.lastOrderDate).toLocaleDateString("en-IN", { month: "short", day: "numeric" })}
+                    Last:{" "}
+                    {new Date(patron.lastOrderDate).toLocaleDateString("en-IN", {
+                      month: "short",
+                      day: "numeric",
+                    })}
                   </span>
 
                   <a
@@ -3188,7 +3346,8 @@ function StoreSettingsAdminSection() {
             Store &amp; Announcement CMS
           </h2>
           <p className="text-xs text-muted-foreground">
-            Manage the global website announcement banner, store order acceptance, and customer service details live.
+            Manage the global website announcement banner, store order acceptance, and customer
+            service details live.
           </p>
         </div>
 
@@ -3211,7 +3370,8 @@ function StoreSettingsAdminSection() {
       {savedMsg && (
         <div className="rounded-2xl bg-emerald-50 border border-emerald-200 p-3 text-xs text-emerald-800 font-semibold flex items-center gap-2">
           <CheckCircle2 className="size-4 text-emerald-600" />
-          Store settings updated live! Customers immediately see the updated announcement banner across the site.
+          Store settings updated live! Customers immediately see the updated announcement banner
+          across the site.
         </div>
       )}
 
@@ -3223,9 +3383,7 @@ function StoreSettingsAdminSection() {
         <div className="relative overflow-hidden bg-lilac-deep text-white rounded-2xl p-3 text-center text-xs shadow-md">
           <div className="flex flex-wrap items-center justify-center gap-2">
             {draft.announcementBadge && (
-              <span className="skeu-badge text-[10px]">
-                {draft.announcementBadge}
-              </span>
+              <span className="skeu-badge text-[10px]">{draft.announcementBadge}</span>
             )}
             <span className="font-medium">{draft.announcementText}</span>
             {draft.announcementLink && (
@@ -3291,7 +3449,8 @@ function StoreSettingsAdminSection() {
           <div>
             <h4 className="font-bold text-foreground text-sm">Store Checkout Acceptance Status</h4>
             <p className="text-muted-foreground text-xs mt-0.5">
-              Toggle whether the website is currently accepting new orders or in temporary holiday craft pause.
+              Toggle whether the website is currently accepting new orders or in temporary holiday
+              craft pause.
             </p>
           </div>
           <button
@@ -3315,7 +3474,9 @@ function StoreSettingsAdminSection() {
           <input
             type="number"
             value={draft.freeShippingThreshold}
-            onChange={(e) => setDraft({ ...draft, freeShippingThreshold: Number(e.target.value) || 0 })}
+            onChange={(e) =>
+              setDraft({ ...draft, freeShippingThreshold: Number(e.target.value) || 0 })
+            }
             className="w-full rounded-xl border border-white/80 bg-white/90 px-3 py-2 text-xs outline-none focus:border-lilac-deep"
           />
         </div>
@@ -3345,7 +3506,9 @@ function SettingsAdminSection({ userEmail }: { userEmail?: string | null }) {
   return (
     <div className="liquid-glass rounded-3xl p-6 border border-white/60 space-y-6">
       <div>
-        <h2 className="font-display text-xl font-bold text-lilac-deep">Admin Settings &amp; Security</h2>
+        <h2 className="font-display text-xl font-bold text-lilac-deep">
+          Admin Settings &amp; Security
+        </h2>
         <p className="text-xs text-muted-foreground">
           Configuration, access control, and diagnostic indicators for the Inventive Queen realm.
         </p>
@@ -3374,7 +3537,8 @@ function SettingsAdminSection({ userEmail }: { userEmail?: string | null }) {
           Razorpay Gateway Status
         </h3>
         <p className="text-muted-foreground leading-relaxed">
-          Customer checkout uses the official Razorpay Checkout SDK with real-time payment capture and order tracking.
+          Customer checkout uses the official Razorpay Checkout SDK with real-time payment capture
+          and order tracking.
         </p>
         <div className="pt-2 flex items-center gap-2">
           <span className="size-2 rounded-full bg-emerald-500 animate-pulse" />

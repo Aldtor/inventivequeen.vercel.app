@@ -16,7 +16,7 @@ export function useReveal<T extends HTMLElement = HTMLDivElement>(threshold = 0.
           io.unobserve(el);
         }
       },
-      { threshold }
+      { threshold },
     );
 
     io.observe(el);

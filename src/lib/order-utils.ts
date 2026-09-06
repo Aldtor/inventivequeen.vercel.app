@@ -85,7 +85,10 @@ export function createWhatsAppChatUrl(order: DbOrder, customMessage?: string): s
 /**
  * Export orders array to a downloadable CSV file
  */
-export function exportOrdersToCsv(orders: DbOrder[], filename = "inventive_queen_orders.csv"): void {
+export function exportOrdersToCsv(
+  orders: DbOrder[],
+  filename = "inventive_queen_orders.csv",
+): void {
   const headers = [
     "Order Number",
     "Date",

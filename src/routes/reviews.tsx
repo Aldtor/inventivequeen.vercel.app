@@ -9,7 +9,11 @@ export const Route = createFileRoute("/reviews")({
   head: () => ({
     meta: [
       { title: "Customer Reviews & Stories — Inventive Queen" },
-      { name: "description", content: "Read real customer reviews and unboxing experiences for custom handmade crochet dolls and flowers." },
+      {
+        name: "description",
+        content:
+          "Read real customer reviews and unboxing experiences for custom handmade crochet dolls and flowers.",
+      },
     ],
   }),
 });
@@ -91,9 +95,8 @@ function ReviewsPage() {
   const [filter, setFilter] = useState<string>("all");
   const { approvedReviews } = useReviews();
 
-  const filtered = filter === "all"
-    ? approvedReviews
-    : approvedReviews.filter((t) => t.category === filter);
+  const filtered =
+    filter === "all" ? approvedReviews : approvedReviews.filter((t) => t.category === filter);
 
   return (
     <SiteLayout>
@@ -181,15 +184,15 @@ function ReviewsPage() {
                   </span>
                 </div>
 
-                <p className="text-sm text-foreground leading-relaxed italic">
-                  "{t.text}"
-                </p>
+                <p className="text-sm text-foreground leading-relaxed italic">"{t.text}"</p>
               </div>
 
               <div className="mt-6 pt-4 border-t border-white/50 flex items-center justify-between text-xs">
                 <div>
                   <span className="font-bold text-lilac-deep">{t.handle}</span>
-                  <p className="text-[11px] text-muted-foreground">{t.location} · {t.item}</p>
+                  <p className="text-[11px] text-muted-foreground">
+                    {t.location} · {t.item}
+                  </p>
                 </div>
                 <span className="text-[10px] text-muted-foreground">{t.date}</span>
               </div>
@@ -204,7 +207,8 @@ function ReviewsPage() {
               Want your own bespoke creation?
             </h3>
             <p className="mt-2 text-xs sm:text-sm text-muted-foreground">
-              Add your favorite amigurumi or everlasting bouquet to your basket and experience royal craftsmanship.
+              Add your favorite amigurumi or everlasting bouquet to your basket and experience royal
+              craftsmanship.
             </p>
             <div className="mt-6 flex flex-wrap justify-center gap-3">
               <Link

@@ -186,16 +186,12 @@ export function ProductPreviewCard({
               </h4>
 
               {tagline ? (
-                <p className="text-[10px] text-muted-foreground line-clamp-1 italic">
-                  {tagline}
-                </p>
+                <p className="text-[10px] text-muted-foreground line-clamp-1 italic">{tagline}</p>
               ) : null}
 
               {/* Pricing */}
               <div className="flex items-baseline gap-2 pt-1">
-                <span className="text-sm font-black text-foreground">
-                  {displaySellPrice}
-                </span>
+                <span className="text-sm font-black text-foreground">{displaySellPrice}</span>
                 {displayOrigPrice ? (
                   <span className="text-[11px] text-muted-foreground line-through">
                     {displayOrigPrice}
@@ -264,7 +260,9 @@ export function ProductPreviewCard({
                       type="button"
                       onClick={() => setSelectedImageIndex(idx)}
                       className={`size-7 rounded-md overflow-hidden border ${
-                        selectedImageIndex === idx ? "border-lilac-deep" : "border-slate-200 opacity-60"
+                        selectedImageIndex === idx
+                          ? "border-lilac-deep"
+                          : "border-slate-200 opacity-60"
                       }`}
                     >
                       <img src={img} alt="" className="size-full object-cover" />
@@ -366,17 +364,13 @@ export function ProductPreviewCard({
                 {name || "Bespoke Creation"}
               </h3>
               {tagline && (
-                <p className="text-[9px] text-white/80 italic line-clamp-1">
-                  "{tagline}"
-                </p>
+                <p className="text-[9px] text-white/80 italic line-clamp-1">"{tagline}"</p>
               )}
 
               <div className="flex items-center justify-center gap-2 pt-1">
                 <span className="text-base font-black text-amber-300">{displaySellPrice}</span>
                 {displayOrigPrice && (
-                  <span className="text-[11px] text-white/50 line-through">
-                    {displayOrigPrice}
-                  </span>
+                  <span className="text-[11px] text-white/50 line-through">{displayOrigPrice}</span>
                 )}
               </div>
             </div>

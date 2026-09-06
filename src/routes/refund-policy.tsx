@@ -14,7 +14,8 @@ export const Route = createFileRoute("/refund-policy")({
       { property: "og:title", content: "Refund & Cancellation Policy — Inventive Queen" },
       {
         property: "og:description",
-        content: "Transparent refund, return, and cancellation policies for Inventive Queen handmade products.",
+        content:
+          "Transparent refund, return, and cancellation policies for Inventive Queen handmade products.",
       },
       { property: "og:type", content: "article" },
       { property: "og:url", content: "/refund-policy" },
@@ -77,8 +78,8 @@ function RefundPolicyPage() {
               7. Need to Request a Cancellation or Refund?
             </h2>
             <p className="relative z-10 mt-3 text-muted-foreground leading-relaxed">
-              To request a cancellation or report an issue with your received parcel, please reach out
-              promptly via{" "}
+              To request a cancellation or report an issue with your received parcel, please reach
+              out promptly via{" "}
               <Link
                 to="/contact"
                 className="font-semibold text-primary underline hover:text-lilac-deep transition-colors"

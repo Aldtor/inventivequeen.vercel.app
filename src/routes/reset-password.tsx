@@ -105,11 +105,12 @@ function ResetPasswordPage() {
 
       if (error) throw error;
       setSuccess(true);
-    } catch (err: any) {
-      setErrorMessage(
-        err.message ||
-          "Failed to update password. Your reset link may have expired. Please request a fresh one."
-      );
+    } catch (err: unknown) {
+      const msg =
+        err instanceof Error
+          ? err.message
+          : "Failed to update password. Your reset link may have expired. Please request a fresh one.";
+      setErrorMessage(msg);
     } finally {
       setLoading(false);
     }
@@ -257,7 +258,8 @@ function ResetPasswordPage() {
 
           <div className="relative mt-6 text-center">
             <span className="inline-flex items-center gap-1.5 text-[11px] text-muted-foreground">
-              <Sparkles className="size-3 text-amber-500" /> Crown security protected by Supabase Auth
+              <Sparkles className="size-3 text-amber-500" /> Crown security protected by Supabase
+              Auth
             </span>
           </div>
         </div>

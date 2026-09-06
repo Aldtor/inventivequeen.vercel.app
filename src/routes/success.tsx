@@ -1,22 +1,14 @@
 import { createFileRoute, Link, useSearch } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import {
-  CheckCircle,
-  Crown,
-  Heart,
-  Package,
-  Sparkles,
-  Truck,
-  ArrowRight,
-} from "lucide-react";
+import { CheckCircle, Crown, Heart, Package, Sparkles, Truck, ArrowRight } from "lucide-react";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { supabase, type DbOrder } from "@/lib/supabase";
 
 export const Route = createFileRoute("/success")({
   component: SuccessPage,
   validateSearch: (search: Record<string, unknown>) => ({
-    orderId: (search['orderId'] as string) || "",
-    orderNumber: (search['orderNumber'] as string) || "",
+    orderId: (search["orderId"] as string) || "",
+    orderNumber: (search["orderNumber"] as string) || "",
   }),
   head: () => ({
     meta: [
@@ -76,7 +68,8 @@ function SuccessPage() {
             Order Placed Successfully!
           </h1>
           <p className="relative mt-2 text-sm text-muted-foreground">
-            Thank you for shopping with Inventive Queen. Your order is confirmed and has entered our hand-crafting schedule.
+            Thank you for shopping with Inventive Queen. Your order is confirmed and has entered our
+            hand-crafting schedule.
           </p>
 
           {/* Order Reference Box */}
@@ -104,7 +97,9 @@ function SuccessPage() {
             {order?.address && (
               <div className="mt-3 pt-3 border-t border-white/60 text-xs">
                 <span className="text-muted-foreground">Delivering To:</span>
-                <p className="font-bold text-foreground mt-0.5">{order.customer_name} · {order.address}, {order.pincode}</p>
+                <p className="font-bold text-foreground mt-0.5">
+                  {order.customer_name} · {order.address}, {order.pincode}
+                </p>
               </div>
             )}
           </div>
@@ -143,7 +138,8 @@ function SuccessPage() {
               to="/orders"
               className="clay-primary liquid-btn inline-flex items-center gap-2 rounded-full px-7 py-3.5 text-sm font-bold shadow-xl hover:scale-102 transition-transform"
             >
-              <Truck className="size-4" /> Track Order in My Orders <ArrowRight className="size-3.5" />
+              <Truck className="size-4" /> Track Order in My Orders{" "}
+              <ArrowRight className="size-3.5" />
             </Link>
             <Link
               to="/dolls"

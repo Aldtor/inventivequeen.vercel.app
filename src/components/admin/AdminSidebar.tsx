@@ -9,6 +9,7 @@ import {
   Star,
   Tag,
   Users,
+  type LucideIcon,
 } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import logo from "@/assets/logo.png";
@@ -29,7 +30,7 @@ interface AdminSidebarProps {
   onSelectTab: (tab: AdminTab) => void;
 }
 
-const NAV_ITEMS: { id: AdminTab; title: string; icon: any }[] = [
+const NAV_ITEMS: { id: AdminTab; title: string; icon: LucideIcon }[] = [
   { id: "overview", title: "Overview", icon: LayoutDashboard },
   { id: "orders", title: "Orders CMS", icon: ShoppingBag },
   { id: "products", title: "Products CMS", icon: Package },
