@@ -8,8 +8,8 @@ export interface Coupon {
   minOrderValue: number;
   description: string;
   isActive: boolean;
-  expiryDate?: string;
-  createdAt?: string;
+  expiryDate?: string | undefined;
+  createdAt?: string | undefined;
 }
 
 export const DEFAULT_COUPONS: Coupon[] = [
@@ -65,9 +65,28 @@ export function saveCoupons(coupons: Coupon[]): void {
     window.dispatchEvent(new CustomEvent(COUPONS_EVENT, { detail: coupons }));
 
     if (isSupabaseConfigured) {
+      // Backup to site_settings
       supabase
         .from("site_settings")
         .upsert({ id: "coupons_cms", settings: coupons, updated_at: new Date().toISOString() })
+        .then(
+          () => {},
+          () => {},
+        );
+
+      // Upsert into dedicated coupons table
+      const rows = coupons.map((c) => ({
+        code: c.code.toUpperCase(),
+        discount_type: c.discountType,
+        discount_value: c.discountValue,
+        min_order_value: c.minOrderValue,
+        description: c.description,
+        is_active: c.isActive,
+        expires_at: c.expiryDate || null,
+      }));
+      supabase
+        .from("coupons")
+        .upsert(rows)
         .then(
           () => {},
           () => {},
@@ -164,15 +183,45 @@ export function useCoupons(): {
 
     if (isSupabaseConfigured) {
       supabase
-        .from("site_settings")
-        .select("settings")
-        .eq("id", "coupons_cms")
-        .single()
+        .from("coupons")
+        .select("*")
         .then(({ data, error }) => {
-          if (!error && Array.isArray(data?.settings) && data.settings.length > 0) {
-            setCoupons(data.settings);
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(data.settings));
+          if (!error && Array.isArray(data) && data.length > 0) {
+            const mapped: Coupon[] = data.map((row: Record<string, unknown>) => ({
+              code: String(row["code"] ?? "").toUpperCase(),
+              discountType: (row["discount_type"] as "percentage" | "flat") || "percentage",
+              discountValue: Number(row["discount_value"]) || 0,
+              minOrderValue: Number(row["min_order_value"]) || 0,
+              description: String(row["description"] ?? ""),
+              isActive: Boolean(row["is_active"]),
+              expiryDate: (row["expires_at"] as string) || undefined,
+              createdAt: (row["created_at"] as string) || undefined,
+            }));
+            setCoupons(mapped);
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(mapped));
+            return;
           }
+
+          // Fallback to site_settings
+          supabase
+            .from("site_settings")
+            .select("settings")
+            .eq("id", "coupons_cms")
+            .single()
+            .then(({ data: settingData, error: settingErr }) => {
+              if (
+                !settingErr &&
+                Array.isArray(settingData?.settings) &&
+                settingData.settings.length > 0
+              ) {
+                setCoupons(settingData.settings);
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(settingData.settings));
+              }
+            })
+            .then(
+              () => {},
+              () => {},
+            );
         })
         .then(
           () => {},

@@ -12,7 +12,7 @@ export interface ReviewItem {
   tag: string;
   date: string;
   isApproved: boolean;
-  isFeatured?: boolean;
+  isFeatured?: boolean | undefined;
 }
 
 export const INITIAL_REVIEWS: ReviewItem[] = [
@@ -135,9 +135,30 @@ export function saveReviews(reviews: ReviewItem[]): void {
     window.dispatchEvent(new CustomEvent(REVIEWS_EVENT, { detail: reviews }));
 
     if (isSupabaseConfigured) {
+      // Backup to site_settings
       supabase
         .from("site_settings")
         .upsert({ id: "reviews_cms", settings: reviews, updated_at: new Date().toISOString() })
+        .then(
+          () => {},
+          () => {},
+        );
+
+      // Upsert into dedicated reviews table
+      const rows = reviews.map((r) => ({
+        author_name: r.handle.replace(/^@/, ""),
+        author_handle: r.handle,
+        location: r.location,
+        rating: Math.max(1, Math.min(5, r.rating)),
+        item_name: r.item,
+        category: r.category,
+        review_text: r.text,
+        is_approved: r.isApproved,
+        is_featured: Boolean(r.isFeatured),
+      }));
+      supabase
+        .from("reviews")
+        .upsert(rows)
         .then(
           () => {},
           () => {},
@@ -175,15 +196,59 @@ export function useReviews(): {
 
     if (isSupabaseConfigured) {
       supabase
-        .from("site_settings")
-        .select("settings")
-        .eq("id", "reviews_cms")
-        .single()
+        .from("reviews")
+        .select("*")
+        .order("created_at", { ascending: false })
         .then(({ data, error }) => {
-          if (!error && Array.isArray(data?.settings) && data.settings.length > 0) {
-            setReviews(data.settings);
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(data.settings));
+          if (!error && Array.isArray(data) && data.length > 0) {
+            const mapped: ReviewItem[] = data.map((row: Record<string, unknown>, idx: number) => ({
+              id: (row["id"] as string) || `rev-${idx}`,
+              handle:
+                (row["author_handle"] as string) ||
+                `@${String(row["author_name"] ?? "patron")
+                  .toLowerCase()
+                  .replace(/\s+/g, "_")}`,
+              location: (row["location"] as string) || "India",
+              text: (row["review_text"] as string) || "",
+              rating: Number(row["rating"]) || 5,
+              item: (row["item_name"] as string) || "Custom Keepsake",
+              category:
+                (row["category"] as "doll" | "bouquet" | "plushie" | "keychain" | "misc") || "doll",
+              tag: "Verified Order",
+              date: row["created_at"]
+                ? new Date(row["created_at"] as string).toLocaleDateString("en-IN", {
+                    month: "short",
+                    year: "numeric",
+                  })
+                : "Recently",
+              isApproved: Boolean(row["is_approved"]),
+              isFeatured: Boolean(row["is_featured"]),
+            }));
+            setReviews(mapped);
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(mapped));
+            return;
           }
+
+          // Fallback to site_settings
+          supabase
+            .from("site_settings")
+            .select("settings")
+            .eq("id", "reviews_cms")
+            .single()
+            .then(({ data: settingData, error: settingErr }) => {
+              if (
+                !settingErr &&
+                Array.isArray(settingData?.settings) &&
+                settingData.settings.length > 0
+              ) {
+                setReviews(settingData.settings);
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(settingData.settings));
+              }
+            })
+            .then(
+              () => {},
+              () => {},
+            );
         })
         .then(
           () => {},

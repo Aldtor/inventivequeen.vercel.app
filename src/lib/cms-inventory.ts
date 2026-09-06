@@ -8,10 +8,10 @@ export interface InventoryItem {
   quantity: number;
   unit: string;
   minThreshold: number;
-  colorHex?: string;
+  colorHex?: string | undefined;
   costPerUnit: number;
-  supplier?: string;
-  updatedAt?: string;
+  supplier?: string | undefined;
+  updatedAt?: string | undefined;
 }
 
 export const INITIAL_INVENTORY: InventoryItem[] = [
@@ -137,9 +137,31 @@ export function saveInventory(items: InventoryItem[]): void {
     window.dispatchEvent(new CustomEvent(INVENTORY_EVENT, { detail: items }));
 
     if (isSupabaseConfigured) {
+      // Backup to site_settings
       supabase
         .from("site_settings")
         .upsert({ id: "inventory_cms", settings: items, updated_at: new Date().toISOString() })
+        .then(
+          () => {},
+          () => {},
+        );
+
+      // Upsert into dedicated inventory_items table
+      const rows = items.map((it) => ({
+        id: it.id,
+        name: it.name,
+        category: it.category,
+        quantity: it.quantity,
+        unit: it.unit,
+        min_threshold: it.minThreshold,
+        cost_per_unit: it.costPerUnit,
+        supplier: it.supplier || null,
+        color_hex: it.colorHex || null,
+        updated_at: new Date().toISOString(),
+      }));
+      supabase
+        .from("inventory_items")
+        .upsert(rows)
         .then(
           () => {},
           () => {},
@@ -179,15 +201,47 @@ export function useInventory(): {
 
     if (isSupabaseConfigured) {
       supabase
-        .from("site_settings")
-        .select("settings")
-        .eq("id", "inventory_cms")
-        .single()
+        .from("inventory_items")
+        .select("*")
         .then(({ data, error }) => {
-          if (!error && Array.isArray(data?.settings) && data.settings.length > 0) {
-            setInventory(data.settings);
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(data.settings));
+          if (!error && Array.isArray(data) && data.length > 0) {
+            const mapped: InventoryItem[] = data.map((row: Record<string, unknown>) => ({
+              id: String(row["id"]),
+              name: String(row["name"]),
+              category: (row["category"] as "yarn" | "hardware" | "packaging" | "acc") || "yarn",
+              quantity: Number(row["quantity"]) || 0,
+              unit: String(row["unit"] || "spools"),
+              minThreshold: Number(row["min_threshold"]) || 5,
+              costPerUnit: Number(row["cost_per_unit"]) || 0,
+              supplier: (row["supplier"] as string) || undefined,
+              colorHex: (row["color_hex"] as string) || undefined,
+              updatedAt: (row["updated_at"] as string) || undefined,
+            }));
+            setInventory(mapped);
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(mapped));
+            return;
           }
+
+          // Fallback to site_settings
+          supabase
+            .from("site_settings")
+            .select("settings")
+            .eq("id", "inventory_cms")
+            .single()
+            .then(({ data: settingData, error: settingErr }) => {
+              if (
+                !settingErr &&
+                Array.isArray(settingData?.settings) &&
+                settingData.settings.length > 0
+              ) {
+                setInventory(settingData.settings);
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(settingData.settings));
+              }
+            })
+            .then(
+              () => {},
+              () => {},
+            );
         })
         .then(
           () => {},
