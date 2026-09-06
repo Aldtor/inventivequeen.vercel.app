@@ -560,19 +560,6 @@ export function OrderCta({ title, text }: { title: string; text: string }) {
       <div className="liquid-glass sparkle-field relative overflow-hidden rounded-4xl px-6 py-14">
         <div className="blob absolute -top-16 -left-10 size-56 bg-lilac" />
         <div className="blob absolute -right-10 -bottom-16 size-56 bg-primary/60" />
-        {/* Floating decorative thumbnails */}
-        <img
-          src={bouquetRose}
-          alt=""
-          aria-hidden
-          className="pointer-events-none absolute -bottom-4 -left-6 size-28 rounded-2xl object-cover opacity-20 rotate-[-8deg] blur-[1px]"
-        />
-        <img
-          src={bearKeychain}
-          alt=""
-          aria-hidden
-          className="pointer-events-none absolute -top-4 -right-6 size-24 rounded-2xl object-cover opacity-20 rotate-[12deg] blur-[1px]"
-        />
         <div className="relative z-10">
           <h2 className="sheen-text text-3xl font-extrabold">{title}</h2>
           <p className="mt-3 text-muted-foreground">{text}</p>

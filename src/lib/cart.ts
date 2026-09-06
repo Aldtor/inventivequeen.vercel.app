@@ -5,7 +5,7 @@ export interface CartItem {
   numericPrice: number;
   image: string;
   quantity: number;
-  note?: string;
+  note?: string | undefined;
 }
 
 const CART_STORAGE_KEY = "inventive_queen_cart_v1";
