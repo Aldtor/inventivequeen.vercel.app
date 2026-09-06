@@ -308,6 +308,45 @@ $$;
 
 grant execute on function public.confirm_order_payment(uuid, text, uuid) to authenticated, anon;
 
+-- RPC Function: Atomically validate and redeem discount coupon
+create or replace function public.redeem_coupon(
+  p_coupon_code text,
+  p_order_id uuid,
+  p_discount_applied numeric
+)
+returns jsonb
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  v_coupon record;
+  v_user_id uuid := auth.uid();
+begin
+  select * into v_coupon from public.coupons where code = upper(p_coupon_code) and is_active = true;
+  if not found then
+    return jsonb_build_object('success', false, 'message', 'Coupon is invalid or inactive');
+  end if;
+
+  if v_coupon.usage_limit is not null and v_coupon.usage_count >= v_coupon.usage_limit then
+    return jsonb_build_object('success', false, 'message', 'Coupon usage limit has been reached');
+  end if;
+
+  -- Record redemption
+  insert into public.coupon_redemptions (coupon_code, order_id, user_id, discount_applied)
+  values (v_coupon.code, p_order_id, v_user_id, p_discount_applied);
+
+  -- Increment usage counter
+  update public.coupons
+  set usage_count = usage_count + 1
+  where code = v_coupon.code;
+
+  return jsonb_build_object('success', true, 'message', 'Coupon redeemed successfully');
+end;
+$$;
+
+grant execute on function public.redeem_coupon(text, uuid, numeric) to authenticated, anon;
+
 -- =============================================================================
 -- SECTION 4: ROW LEVEL SECURITY (RLS) POLICIES
 -- =============================================================================
@@ -351,7 +390,8 @@ alter table public.orders enable row level security;
 drop policy if exists "Users can view own orders" on public.orders;
 create policy "Users can view own orders" on public.orders for select using (auth.uid() = user_id or public.is_admin());
 drop policy if exists "Authenticated users can create orders" on public.orders;
-create policy "Authenticated users can create orders" on public.orders for insert with check (auth.uid() = user_id or public.is_admin());
+drop policy if exists "Anyone can create orders" on public.orders;
+create policy "Anyone can create orders" on public.orders for insert with check (user_id is null or auth.uid() = user_id or public.is_admin());
 drop policy if exists "Users can update own orders during payment" on public.orders;
 drop policy if exists "Admins can update orders" on public.orders;
 create policy "Admins can update orders" on public.orders for update using (public.is_admin()) with check (public.is_admin());
@@ -363,7 +403,8 @@ alter table public.order_items enable row level security;
 drop policy if exists "Users can view own order items" on public.order_items;
 create policy "Users can view own order items" on public.order_items for select using (exists (select 1 from public.orders where orders.id = order_items.order_id and (orders.user_id = auth.uid() or public.is_admin())));
 drop policy if exists "Users can insert own order items" on public.order_items;
-create policy "Users can insert own order items" on public.order_items for insert with check (exists (select 1 from public.orders where orders.id = order_items.order_id and (orders.user_id = auth.uid() or public.is_admin())));
+drop policy if exists "Anyone can insert order items" on public.order_items;
+create policy "Anyone can insert order items" on public.order_items for insert with check (exists (select 1 from public.orders where orders.id = order_items.order_id and (orders.user_id is null or orders.user_id = auth.uid() or public.is_admin())));
 drop policy if exists "Admins can manage order items" on public.order_items;
 create policy "Admins can manage order items" on public.order_items for all using (public.is_admin()) with check (public.is_admin());
 
@@ -816,5 +857,74 @@ drop policy if exists "Admins can view audit logs" on public.audit_logs;
 create policy "Admins can view audit logs" on public.audit_logs for select using (public.is_admin());
 drop policy if exists "Admins can create audit logs" on public.audit_logs;
 create policy "Admins can create audit logs" on public.audit_logs for insert with check (public.is_admin());
+
+-- =============================================================================
+-- SECTION 8: TRIGGERS, REALTIME PUBLICATION & ADMIN PROVISIONING
+-- =============================================================================
+
+-- Automatic updated_at triggers on expansion tables
+drop trigger if exists set_user_addresses_updated_at on public.user_addresses;
+create trigger set_user_addresses_updated_at
+  before update on public.user_addresses
+  for each row execute function public.set_updated_at();
+
+drop trigger if exists set_contact_inquiries_updated_at on public.contact_inquiries;
+create trigger set_contact_inquiries_updated_at
+  before update on public.contact_inquiries
+  for each row execute function public.set_updated_at();
+
+drop trigger if exists set_inventory_items_updated_at on public.inventory_items;
+create trigger set_inventory_items_updated_at
+  before update on public.inventory_items
+  for each row execute function public.set_updated_at();
+
+drop trigger if exists set_cart_items_updated_at on public.cart_items;
+create trigger set_cart_items_updated_at
+  before update on public.cart_items
+  for each row execute function public.set_updated_at();
+
+-- Add interactive tables to Supabase Realtime publication
+do $$
+begin
+  alter publication supabase_realtime add table public.orders;
+exception when others then null;
+end $$;
+
+do $$
+begin
+  alter publication supabase_realtime add table public.order_items;
+exception when others then null;
+end $$;
+
+do $$
+begin
+  alter publication supabase_realtime add table public.cms_products;
+exception when others then null;
+end $$;
+
+do $$
+begin
+  alter publication supabase_realtime add table public.order_status_history;
+exception when others then null;
+end $$;
+
+do $$
+begin
+  alter publication supabase_realtime add table public.contact_inquiries;
+exception when others then null;
+end $$;
+
+-- Automatically grant admin privileges to known executive accounts if already signed up
+insert into public.admin_users (user_id, role)
+select id, 'admin'
+from auth.users
+where lower(email) in (
+  'sk6945104@gmail.com',
+  'inventivequeen@gmail.com',
+  'hello@inventivequeen.com',
+  'admin@inventivequeen.com'
+)
+on conflict (user_id) do update set role = 'admin';
+
 
 
