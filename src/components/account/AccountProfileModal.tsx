@@ -58,8 +58,8 @@ export function AccountProfileModal({ isOpen, onClose }: AccountProfileModalProp
   // Sync inputs when user/profile changes or modal opens
   useEffect(() => {
     if (isOpen && user) {
-      setFullName(profile?.full_name || (user.user_metadata?.full_name as string) || "");
-      setPhone(profile?.phone || (user.user_metadata?.phone as string) || "");
+      setFullName(profile?.['full_name'] || (user.user_metadata?.['full_name'] as string) || "");
+      setPhone(profile?.['phone'] || (user.user_metadata?.['phone'] as string) || "");
       setNewPassword("");
       setConfirmPassword("");
       setFeedback(null);
@@ -616,6 +616,7 @@ export function AccountProfileModal({ isOpen, onClose }: AccountProfileModalProp
                       <div className="mt-3">
                         <Link
                           to="/admin"
+                          search={{ tab: "overview" }}
                           onClick={onClose}
                           className="inline-flex items-center gap-2 rounded-xl bg-amber-500 px-4 py-2 text-xs font-black text-white shadow-md hover:bg-amber-600 transition-all"
                         >

@@ -140,7 +140,7 @@ export function saveInventory(items: InventoryItem[]): void {
       supabase
         .from("site_settings")
         .upsert({ id: "inventory_cms", settings: items, updated_at: new Date().toISOString() })
-        .catch(() => {});
+        .then(() => {}, () => {});
     }
   } catch (err) {
     console.error("Failed to save inventory to storage:", err);
@@ -186,7 +186,7 @@ export function useInventory(): {
             localStorage.setItem(STORAGE_KEY, JSON.stringify(data.settings));
           }
         })
-        .catch(() => {});
+        .then(() => {}, () => {});
     }
 
     return () => {

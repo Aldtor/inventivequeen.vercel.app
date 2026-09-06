@@ -110,40 +110,27 @@ export async function verifyRazorpaySignature(
     return false;
   }
 
-  const data = `${orderId}|${paymentId}`;
-
-  // 1. Node.js crypto path
-  if (typeof process !== "undefined" && process.versions?.node) {
-    try {
-      const crypto = await import("node:crypto");
-      const expectedSignature = crypto
-        .createHmac("sha256", secret)
-        .update(data)
-        .digest("hex");
-
-      const sigBuf = Buffer.from(signature, "utf8");
-      const expBuf = Buffer.from(expectedSignature, "utf8");
-
-      if (sigBuf.length !== expBuf.length) {
-        return false;
-      }
-      return crypto.timingSafeEqual(sigBuf, expBuf);
-    } catch {
-      // Fallback to Web Crypto API
-    }
-  }
-
-  // 2. Web Crypto API fallback (browser / Cloudflare edge)
   try {
+    const data = `${orderId}|${paymentId}`;
     const encoder = new TextEncoder();
-    const key = await crypto.subtle.importKey(
+    const keyData = encoder.encode(secret);
+    const messageData = encoder.encode(data);
+
+    const subtle = globalThis.crypto?.subtle;
+    if (!subtle) {
+      console.error("Web Crypto API is not available in this environment.");
+      return false;
+    }
+
+    const cryptoKey = await subtle.importKey(
       "raw",
-      encoder.encode(secret),
+      keyData,
       { name: "HMAC", hash: "SHA-256" },
       false,
       ["sign"]
     );
-    const signatureBuffer = await crypto.subtle.sign("HMAC", key, encoder.encode(data));
+
+    const signatureBuffer = await subtle.sign("HMAC", cryptoKey, messageData);
     const hashArray = Array.from(new Uint8Array(signatureBuffer));
     const expectedSignature = hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
 

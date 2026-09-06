@@ -44,7 +44,7 @@ export function saveCart(items: CartItem[]): void {
 export function addToCart(item: Omit<CartItem, "quantity">, quantity: number = 1): void {
   const cart = getCart();
   const existingIndex = cart.findIndex((i) => i.id === item.id || i.name === item.name);
-  if (existingIndex > -1) {
+  if (existingIndex > -1 && cart[existingIndex]) {
     cart[existingIndex].quantity += quantity;
   } else {
     cart.push({ ...item, quantity });

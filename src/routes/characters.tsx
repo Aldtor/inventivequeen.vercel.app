@@ -95,7 +95,7 @@ function CharactersPage() {
           price: p.sellingPrice || p.price,
           note: p.tagline || p.description,
           image: p.images[0] || whiteBearPink,
-          badge: p.badge,
+          ...(p.badge ? { badge: p.badge } : {}),
         }))
       : ITEMS;
 

@@ -15,8 +15,8 @@ import { supabase, type DbOrder } from "@/lib/supabase";
 export const Route = createFileRoute("/success")({
   component: SuccessPage,
   validateSearch: (search: Record<string, unknown>) => ({
-    orderId: (search.orderId as string) || "",
-    orderNumber: (search.orderNumber as string) || "",
+    orderId: (search['orderId'] as string) || "",
+    orderNumber: (search['orderNumber'] as string) || "",
   }),
   head: () => ({
     meta: [

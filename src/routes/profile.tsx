@@ -65,8 +65,8 @@ function ProfilePage() {
 
   useEffect(() => {
     if (user) {
-      setFullName(profile?.full_name || (user.user_metadata?.full_name as string) || "");
-      setPhone(profile?.phone || (user.user_metadata?.phone as string) || "");
+      setFullName(profile?.['full_name'] || (user.user_metadata?.['full_name'] as string) || "");
+      setPhone(profile?.['phone'] || (user.user_metadata?.['phone'] as string) || "");
     }
   }, [user, profile]);
 
@@ -657,6 +657,7 @@ function ProfilePage() {
                           <div className="mt-4">
                             <Link
                               to="/admin"
+                              search={{ tab: "overview" }}
                               className="inline-flex items-center gap-2 rounded-xl bg-amber-500 px-5 py-2.5 text-xs font-black text-white shadow-md hover:bg-amber-600 transition-all"
                             >
                               <span>Open Admin Panel & CMS Portal</span>

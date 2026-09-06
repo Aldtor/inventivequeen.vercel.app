@@ -84,7 +84,7 @@ import { isSupabaseConfigured, supabase, type DbOrder, type OrderStatus } from "
 export const Route = createFileRoute("/admin")({
   component: AdminPage,
   validateSearch: (search: Record<string, unknown>) => ({
-    tab: ((search.tab as string) || "overview") as AdminTab,
+    tab: ((search['tab'] as string) || "overview") as AdminTab,
   }),
   head: () => ({
     meta: [
@@ -186,15 +186,15 @@ function draftToProduct(draft: ProductDraft): Product {
     id: draft.id.trim(),
     name: draft.name.trim(),
     price: sellingPrice,
-    originalPrice: originalPrice || undefined,
+    originalPrice: originalPrice || "",
     sellingPrice,
-    discountPercent: Number.isFinite(discountPercent) && discountPercent > 0 ? discountPercent : undefined,
+    discountPercent: Number.isFinite(discountPercent) && discountPercent > 0 ? discountPercent : 0,
     type: draft.type,
-    size: draft.size.trim() || undefined,
+    size: draft.size.trim() || "",
     tagline: draft.tagline.trim(),
     description: draft.description.trim(),
     images,
-    badge: draft.badge.trim() || undefined,
+    badge: draft.badge.trim() || "",
     isNewArrival: draft.isNewArrival,
     newArrivalDays: Number(draft.newArrivalDays) || 30,
     isActive: draft.isActive,
@@ -718,7 +718,7 @@ function AdminPage() {
               {activeTab === "store" && <StoreSettingsAdminSection />}
 
               {/* ─────── TAB 8: SETTINGS ─────── */}
-              {activeTab === "settings" && <SettingsAdminSection userEmail={user.email} />}
+              {activeTab === "settings" && <SettingsAdminSection userEmail={user.email ?? null} />}
             </>
           )}
         </main>
@@ -1910,9 +1910,9 @@ function InventoryAdminSection() {
       quantity: Number(newItem.quantity) || 0,
       unit: newItem.unit.trim() || "pcs",
       minThreshold: Number(newItem.minThreshold) || 3,
-      colorHex: newItem.category === "yarn" ? newItem.colorHex : undefined,
+      colorHex: newItem.category === "yarn" ? newItem.colorHex : "",
       costPerUnit: Number(newItem.costPerUnit) || 0,
-      supplier: newItem.supplier.trim() || undefined,
+      supplier: newItem.supplier.trim() || "",
     });
     setStatusMsg(`Added "${newItem.name}" to workshop inventory!`);
     setShowAddForm(false);
@@ -2975,18 +2975,19 @@ function CustomersAdminSection({ orders }: { orders: DbOrder[] }) {
         };
       }
 
-      patronMap[key].totalOrders += 1;
-      patronMap[key].totalSpent += ord.amount_total || 0;
+      patronMap[key]!.totalOrders += 1;
+      patronMap[key]!.totalSpent += ord.amount_total || 0;
 
-      if (new Date(ord.created_at) > new Date(patronMap[key].lastOrderDate)) {
-        patronMap[key].lastOrderDate = ord.created_at;
-        patronMap[key].address = ord.address;
-        patronMap[key].pincode = ord.pincode;
+      if (new Date(ord.created_at) > new Date(patronMap[key]!.lastOrderDate)) {
+        patronMap[key]!.lastOrderDate = ord.created_at;
+        patronMap[key]!.address = ord.address;
+        patronMap[key]!.pincode = ord.pincode;
       }
 
       (ord.order_items || []).forEach((item) => {
-        if (!patronMap[key].recentItems.includes(item.product_name)) {
-          patronMap[key].recentItems.push(item.product_name);
+        const patron = patronMap[key];
+        if (patron && !patron.recentItems.includes(item.product_name)) {
+          patron.recentItems.push(item.product_name);
         }
       });
     });
@@ -3061,7 +3062,7 @@ function CustomersAdminSection({ orders }: { orders: DbOrder[] }) {
         </div>
         <div className="liquid-glass rounded-2xl p-4 border border-white/60 text-center">
           <span className="font-display text-2xl font-black text-amber-500">
-            {patrons.length > 0 ? `₹${patrons[0].totalSpent.toLocaleString("en-IN")}` : "₹0"}
+            {patrons.length > 0 && patrons[0] ? `₹${patrons[0].totalSpent.toLocaleString("en-IN")}` : "₹0"}
           </span>
           <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mt-0.5">
             Top Patron Spend

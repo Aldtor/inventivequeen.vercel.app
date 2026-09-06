@@ -49,15 +49,16 @@ export function RevenueChart({ orders }: RevenueChartProps) {
       const orderDate = new Date(order.created_at);
       const key = orderDate.toISOString().slice(0, 10);
 
-      if (dateMap[key]) {
-        dateMap[key].revenue += order.amount_total || 0;
-        dateMap[key].ordersCount += 1;
+      const existing = dateMap[key];
+      if (existing) {
+        existing.revenue += order.amount_total || 0;
+        existing.ordersCount += 1;
       } else if (timeRange === "all" || orderDate >= cutoff) {
         const displayLabel = orderDate.toLocaleDateString("en-IN", { month: "short", day: "numeric" });
         dateMap[key] = {
           date: displayLabel,
-          revenue: (dateMap[key]?.revenue || 0) + (order.amount_total || 0),
-          ordersCount: (dateMap[key]?.ordersCount || 0) + 1,
+          revenue: order.amount_total || 0,
+          ordersCount: 1,
         };
       }
     });
@@ -147,13 +148,14 @@ export function RevenueChart({ orders }: RevenueChartProps) {
               />
               <Tooltip
                 content={({ active, payload, label }) => {
-                  if (active && payload && payload.length) {
+                  if (active && payload && payload.length && payload[0]) {
                     const item = payload[0].payload;
+                    if (!item) return null;
                     return (
                       <div className="rounded-xl bg-white/95 backdrop-blur-md p-3 border border-white shadow-lg text-xs space-y-1">
                         <p className="font-bold text-lilac-deep">{label}</p>
                         <p className="text-emerald-700 font-extrabold text-sm">
-                          ₹{(item.revenue || 0).toLocaleString("en-IN")}
+                          ₹{Number(item.revenue || 0).toLocaleString("en-IN")}
                         </p>
                         <p className="text-muted-foreground text-[10px]">
                           {item.ordersCount} {item.ordersCount === 1 ? "order" : "orders"} placed

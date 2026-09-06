@@ -93,7 +93,7 @@ function FlowersPage() {
           price: p.sellingPrice || p.price,
           note: p.tagline || p.description,
           image: p.images[0] || bouquetRose,
-          badge: p.badge,
+          ...(p.badge ? { badge: p.badge } : {}),
         }))
       : FLOWERS;
 

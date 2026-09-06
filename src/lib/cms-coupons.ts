@@ -68,7 +68,7 @@ export function saveCoupons(coupons: Coupon[]): void {
       supabase
         .from("site_settings")
         .upsert({ id: "coupons_cms", settings: coupons, updated_at: new Date().toISOString() })
-        .catch(() => {});
+        .then(() => {}, () => {});
     }
   } catch (err) {
     console.error("Failed to save coupons to storage:", err);
@@ -158,7 +158,7 @@ export function useCoupons(): {
             localStorage.setItem(STORAGE_KEY, JSON.stringify(data.settings));
           }
         })
-        .catch(() => {});
+        .then(() => {}, () => {});
     }
 
     return () => {

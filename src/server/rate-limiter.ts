@@ -57,7 +57,7 @@ export function checkRateLimit(
   record.timestamps = record.timestamps.filter((t) => t > windowStart);
 
   if (record.timestamps.length >= limit) {
-    const oldest = record.timestamps[0];
+    const oldest = record.timestamps[0]!;
     const retryAfterMs = Math.max(0, oldest + windowMs - now);
     const retryAfterSeconds = Math.ceil(retryAfterMs / 1000) || 1;
 

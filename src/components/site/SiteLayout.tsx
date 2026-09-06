@@ -178,6 +178,7 @@ function Header() {
                 {isAdmin && (
                   <Link
                     to="/admin"
+                    search={{ tab: "overview" }}
                     className="bg-amber-100/90 text-amber-900 border border-amber-300/80 hidden items-center gap-1 rounded-full px-3 py-1.5 text-xs font-black sm:inline-flex hover:bg-amber-200 transition-colors shadow-sm"
                   >
                     👑 CMS
@@ -239,6 +240,7 @@ function Header() {
           {isAdmin && (
             <Link
               to="/admin"
+              search={{ tab: "overview" }}
               className="rounded-full px-3 py-1.5 text-xs sm:text-sm font-black whitespace-nowrap text-amber-900 bg-amber-100"
               onClick={() => setMobileOpen(false)}
             >

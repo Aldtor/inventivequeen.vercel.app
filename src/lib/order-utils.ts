@@ -35,13 +35,13 @@ export function parseAdminNotes(raw?: string | null): ParsedAdminNotes {
   let internalNotes = raw;
 
   const courierMatch = raw.match(/Courier:\s*([^|\n]+)/i);
-  if (courierMatch) courier = courierMatch[1].trim();
+  if (courierMatch) courier = courierMatch[1]?.trim() ?? "";
 
   const trackingMatch = raw.match(/Tracking:\s*([^|\n]+)/i);
-  if (trackingMatch) trackingNumber = trackingMatch[1].trim();
+  if (trackingMatch) trackingNumber = trackingMatch[1]?.trim() ?? "";
 
   const notesMatch = raw.match(/Notes:\s*([\s\S]+)/i);
-  if (notesMatch) internalNotes = notesMatch[1].trim();
+  if (notesMatch) internalNotes = notesMatch[1]?.trim() ?? "";
   else if (courierMatch || trackingMatch) {
     // Remove the Courier: and Tracking: parts from internalNotes
     internalNotes = raw

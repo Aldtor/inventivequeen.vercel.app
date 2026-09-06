@@ -33,8 +33,9 @@ export function OrderStatusChart({ orders }: OrderStatusChartProps) {
     };
 
     orders.forEach((o) => {
-      if (counts[o.status] !== undefined) {
-        counts[o.status] += 1;
+      const current = counts[o.status];
+      if (current !== undefined) {
+        counts[o.status] = current + 1;
       }
     });
 
@@ -90,6 +91,7 @@ export function OrderStatusChart({ orders }: OrderStatusChartProps) {
                 content={({ active, payload }) => {
                   if (active && payload && payload.length) {
                     const item = payload[0];
+                    if (!item) return null;
                     const percent = totalOrders > 0 ? Math.round(((item.value as number) / totalOrders) * 100) : 0;
                     return (
                       <div className="rounded-xl bg-white/95 backdrop-blur-md p-2.5 border border-white shadow-lg text-xs space-y-0.5">

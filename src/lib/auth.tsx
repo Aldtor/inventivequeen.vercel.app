@@ -68,21 +68,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setProfile(profileData ?? null);
 
       const userEmail = user.email?.toLowerCase();
-      const isEmailAdmin = checkIsAdminEmail(userEmail);
+      const isEmailVerified = Boolean(
+        user.email_confirmed_at ||
+        (user as any).confirmed_at ||
+        user.app_metadata?.['provider'] === "google"
+      );
+      const isEmailAdmin = isEmailVerified && checkIsAdminEmail(userEmail);
       const isMetadataAdmin =
-        user.app_metadata?.role === "admin" ||
-        user.user_metadata?.role === "admin" ||
-        user.user_metadata?.is_admin === true;
+        user.app_metadata?.['role'] === "admin" ||
+        user.user_metadata?.['role'] === "admin" ||
+        user.user_metadata?.['is_admin'] === true;
 
       setIsAdmin(Boolean(adminData) || isEmailAdmin || isMetadataAdmin);
     } catch {
       // Fallback in case of network or RLS delay
       const userEmail = user.email?.toLowerCase();
-      const isEmailAdmin = checkIsAdminEmail(userEmail);
+      const isEmailVerified = Boolean(
+        user.email_confirmed_at ||
+        (user as any).confirmed_at ||
+        user.app_metadata?.['provider'] === "google"
+      );
+      const isEmailAdmin = isEmailVerified && checkIsAdminEmail(userEmail);
       const isMetadataAdmin =
-        user.app_metadata?.role === "admin" ||
-        user.user_metadata?.role === "admin" ||
-        user.user_metadata?.is_admin === true;
+        user.app_metadata?.['role'] === "admin" ||
+        user.user_metadata?.['role'] === "admin" ||
+        user.user_metadata?.['is_admin'] === true;
       setIsAdmin(isEmailAdmin || isMetadataAdmin);
     }
   }, [user]);

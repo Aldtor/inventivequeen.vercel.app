@@ -313,12 +313,14 @@ function CheckoutPage() {
         console.warn("Could not initialize server Razorpay order, proceeding with standard checkout:", createErr);
       }
 
-      // 4. Razorpay configuration (defaults to verified live key)
-      const LIVE_KEY_ID = "rzp_live_TYUEKLyErpyGRl";
+      // 4. Razorpay configuration (prefer env variable, fallback to hardcoded key)
       const razorpayKey =
         (import.meta as any).env?.VITE_RAZORPAY_KEY_ID ||
         (typeof process !== "undefined" && (process.env?.['VITE_RAZORPAY_KEY_ID'] || process.env?.['RAZORPAY_KEY_ID'])) ||
-        LIVE_KEY_ID;
+        "rzp_live_TYUEKLyErpyGRl";
+      if (razorpayKey === "rzp_live_TYUEKLyErpyGRl") {
+        console.warn("[Security] Using fallback Razorpay key. Set VITE_RAZORPAY_KEY_ID env variable for production.");
+      }
 
       const razorpayOptions = {
         key: razorpayKey,

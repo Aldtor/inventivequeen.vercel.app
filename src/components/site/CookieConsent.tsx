@@ -17,6 +17,7 @@ export function CookieConsent() {
     } catch {
       // In case localStorage is blocked
     }
+    return undefined;
   }, []);
 
   const handleAcceptAll = () => {
