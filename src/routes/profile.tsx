@@ -34,6 +34,7 @@ import {
   Palette,
   ChevronRight,
   ExternalLink,
+  Trash2,
 } from "lucide-react";
 import { toast } from "sonner";
 import { SiteLayout } from "@/components/site/SiteLayout";
@@ -1380,39 +1381,60 @@ function ProfilePage() {
                               </div>
                             </div>
 
-                            {/* Status Timeline Bar */}
-                            <div className="mb-4 bg-slate-50/80 rounded-2xl p-4 border border-slate-100">
-                              <div className="flex items-center justify-between text-xs font-bold text-slate-700 mb-2">
-                                <span
-                                  className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full border text-[11px] font-black ${statusConfig.color}`}
-                                >
-                                  <statusConfig.icon className="size-3" />
-                                  <span>{statusConfig.label}</span>
-                                </span>
-                                <span className="text-slate-400">Step {stepIndex} of 4</span>
-                              </div>
+                            {/* Status Timeline Bar (Only for paid orders) */}
+                            {order.payment_status === "paid" && order.status !== "cancelled" ? (
+                              <div className="mb-4 bg-slate-50/80 rounded-2xl p-4 border border-slate-100">
+                                <div className="flex items-center justify-between text-xs font-bold text-slate-700 mb-2">
+                                  <span
+                                    className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full border text-[11px] font-black ${statusConfig.color}`}
+                                  >
+                                    <statusConfig.icon className="size-3" />
+                                    <span>{statusConfig.label}</span>
+                                  </span>
+                                  <span className="text-slate-400">Step {stepIndex} of 4</span>
+                                </div>
 
-                              <div className="grid grid-cols-4 gap-2 mt-2">
-                                {["Placed", "Crafting", "Dispatched", "Delivered"].map(
-                                  (lbl, idx) => (
-                                    <div key={lbl} className="text-center">
-                                      <div
-                                        className={`h-2.5 rounded-full transition-all ${
-                                          idx < stepIndex
-                                            ? "bg-emerald-500"
-                                            : idx === stepIndex
-                                              ? `${statusConfig.stepColor} animate-pulse`
-                                              : "bg-slate-200"
-                                        }`}
-                                      />
-                                      <span className="text-[10px] font-bold text-slate-500 mt-1 block truncate">
-                                        {lbl}
-                                      </span>
-                                    </div>
-                                  ),
-                                )}
+                                <div className="grid grid-cols-4 gap-2 mt-2">
+                                  {["Placed", "Crafting", "Dispatched", "Delivered"].map(
+                                    (lbl, idx) => (
+                                      <div key={lbl} className="text-center">
+                                        <div
+                                          className={`h-2.5 rounded-full transition-all ${
+                                            idx < stepIndex
+                                              ? "bg-emerald-500"
+                                              : idx === stepIndex
+                                                ? `${statusConfig.stepColor} animate-pulse`
+                                                : "bg-slate-200"
+                                          }`}
+                                        />
+                                        <span className="text-[10px] font-bold text-slate-500 mt-1 block truncate">
+                                          {lbl}
+                                        </span>
+                                      </div>
+                                    ),
+                                  )}
+                                </div>
                               </div>
-                            </div>
+                            ) : (
+                              <div className="mb-4 bg-amber-50/80 rounded-2xl p-3.5 border border-amber-200/80 text-xs text-amber-900 flex items-center justify-between gap-3">
+                                <div className="flex items-center gap-2">
+                                  <AlertCircle className="size-4 text-amber-600 shrink-0" />
+                                  <span>Payment was cancelled or not completed.</span>
+                                </div>
+                                <button
+                                  onClick={async () => {
+                                    if (window.confirm("Remove this incomplete order from your history?")) {
+                                      await supabase.from("order_items").delete().eq("order_id", order.id);
+                                      await supabase.from("orders").delete().eq("id", order.id);
+                                      setOrders((prev) => prev.filter((o) => o.id !== order.id));
+                                    }
+                                  }}
+                                  className="text-[11px] font-bold text-rose-700 hover:text-rose-900 inline-flex items-center gap-1 bg-white px-2.5 py-1 rounded-lg border border-rose-200 shadow-xs transition-colors shrink-0"
+                                >
+                                  <Trash2 className="size-3" /> Remove
+                                </button>
+                              </div>
+                            )}
 
                             {/* Items List */}
                             {order.order_items && order.order_items.length > 0 && (

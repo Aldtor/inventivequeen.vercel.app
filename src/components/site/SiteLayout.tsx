@@ -465,6 +465,7 @@ export function PageHeader({
 }
 
 export function PriceCard({
+  id,
   name,
   size,
   price,
@@ -472,6 +473,7 @@ export function PriceCard({
   image,
   badge,
 }: {
+  id?: string;
   name: string;
   size: string;
   price: string;
@@ -482,10 +484,13 @@ export function PriceCard({
   const navigate = useNavigate();
   const [added, setAdded] = useState(false);
   const numPrice = parsePrice(price);
+  const productId = id || name.toLowerCase().replace(/[^\w\s-]/g, "").trim().replace(/\s+/g, "-");
 
-  const handleAddToCart = () => {
+  const handleAddToCart = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
     addToCart({
-      id: name.toLowerCase().replace(/\s+/g, "-"),
+      id: productId,
       name,
       price,
       numericPrice: numPrice || 999,
@@ -495,9 +500,11 @@ export function PriceCard({
     setTimeout(() => setAdded(false), 2000);
   };
 
-  const handleBuyNow = () => {
+  const handleBuyNow = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
     addToCart({
-      id: name.toLowerCase().replace(/\s+/g, "-"),
+      id: productId,
       name,
       price,
       numericPrice: numPrice || 999,
@@ -507,8 +514,12 @@ export function PriceCard({
   };
 
   return (
-    <article className="clay-glow group overflow-hidden img-hover-zoom flex flex-col justify-between">
-      <div className="relative z-10 p-2.5">
+    <article className="clay-glow group overflow-hidden img-hover-zoom flex flex-col justify-between transition-all duration-300 hover:shadow-xl relative">
+      <Link
+        to="/product/$productId"
+        params={{ productId }}
+        className="block relative z-10 p-2.5 cursor-pointer"
+      >
         {badge && (
           <span className="skeu-badge absolute top-5 right-5 z-20 inline-flex items-center gap-1 shadow-md">
             <Sparkles className="size-3 text-amber-500" />
@@ -521,29 +532,47 @@ export function PriceCard({
           width={900}
           height={900}
           loading="lazy"
-          className="aspect-square w-full rounded-[1.6rem] object-cover shadow-lg"
+          className="aspect-square w-full rounded-[1.6rem] object-cover shadow-lg group-hover:scale-[1.03] transition-transform duration-500"
         />
         {/* Hover shine overlay */}
         <div className="absolute inset-2.5 rounded-[1.6rem] bg-gradient-to-tr from-transparent via-white/20 to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100 pointer-events-none" />
-      </div>
+      </Link>
       <div className="relative z-10 space-y-2.5 px-6 pb-6 flex-1 flex flex-col justify-between">
         <div>
-          <h3 className="font-display text-xl font-bold text-lilac-deep">{name}</h3>
+          <Link
+            to="/product/$productId"
+            params={{ productId }}
+            className="block group/title cursor-pointer"
+          >
+            <h3 className="font-display text-xl font-bold text-lilac-deep group-hover/title:text-primary transition-colors">
+              {name}
+            </h3>
+          </Link>
           <p className="text-sm text-muted-foreground">{size}</p>
           <p className="text-lg font-extrabold text-foreground mt-1">{price}</p>
-          {note ? <p className="text-xs text-muted-foreground mt-1">{note}</p> : null}
+          {note ? <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{note}</p> : null}
+          <Link
+            to="/product/$productId"
+            params={{ productId }}
+            className="inline-flex items-center gap-1 text-xs font-bold text-primary hover:underline mt-2 pt-1"
+          >
+            <span>View details &amp; photos</span>
+            <span>→</span>
+          </Link>
         </div>
 
         <div className="pt-3 flex items-center gap-2">
           <button
+            type="button"
             onClick={handleBuyNow}
-            className="clay-primary liquid-btn flex-1 rounded-full py-2.5 px-4 text-xs sm:text-sm font-bold shadow-md hover:scale-102 active:scale-95 transition-all text-center"
+            className="clay-primary liquid-btn flex-1 rounded-full py-2.5 px-4 text-xs sm:text-sm font-bold shadow-md hover:scale-102 active:scale-95 transition-all text-center cursor-pointer"
           >
             Buy Now
           </button>
           <button
+            type="button"
             onClick={handleAddToCart}
-            className={`clay rounded-full py-2.5 px-3.5 text-xs sm:text-sm font-bold transition-all ${
+            className={`clay rounded-full py-2.5 px-3.5 text-xs sm:text-sm font-bold transition-all cursor-pointer ${
               added
                 ? "bg-emerald-100 text-emerald-800 border-emerald-300"
                 : "text-lilac-deep hover:bg-white/40"

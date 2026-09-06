@@ -412,8 +412,23 @@ function CheckoutPage() {
           color: "#7c3aed",
         },
         modal: {
-          ondismiss: () => {
+          ondismiss: async () => {
             setPaying(false);
+            setPaymentError(
+              "Payment checkout was closed or cancelled. Your cart items are still saved so you can retry whenever you are ready.",
+            );
+            try {
+              await supabase
+                .from("orders")
+                .update({
+                  status: "cancelled",
+                  payment_status: "failed",
+                  admin_notes: "Cancelled by customer before payment completion",
+                })
+                .eq("id", orderData.id);
+            } catch (dismissErr) {
+              console.warn("Could not mark order cancelled on dismiss:", dismissErr);
+            }
           },
         },
         handler: async (response: RazorpaySuccessResponse) => {
@@ -497,10 +512,24 @@ function CheckoutPage() {
       }
 
       const rzpInstance = new RazorpayClass(razorpayOptions);
-      rzpInstance.on("payment.failed", (failedRes: RazorpayFailedResponse) => {
+      rzpInstance.on("payment.failed", async (failedRes: RazorpayFailedResponse) => {
         setPaying(false);
         const reasonMsg = failedRes.error?.description || "Payment failed or was cancelled.";
         setPaymentError(reasonMsg);
+
+        try {
+          await supabase
+            .from("orders")
+            .update({
+              status: "cancelled",
+              payment_status: "failed",
+              admin_notes: `Payment failed: ${reasonMsg}`,
+            })
+            .eq("id", orderData.id);
+        } catch (failErr) {
+          console.warn("Could not mark order failed in DB:", failErr);
+        }
+
         navigate({
           to: "/payment-failed",
           search: {

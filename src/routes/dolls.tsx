@@ -35,6 +35,7 @@ export const Route = createFileRoute("/dolls")({
 
 const DOLLS = [
   {
+    id: "regular-doll",
     name: "Regular Doll",
     size: "Small 7in · Medium 9in · Large 11in",
     price: "₹2,400 – ₹3,600",
@@ -42,12 +43,14 @@ const DOLLS = [
     image: catKeepsakeDolls,
   },
   {
+    id: "mini-regular-doll",
     name: "Mini Regular Doll",
     size: "5 inches · 12.7 cm",
     price: "₹1,600 each",
     image: dollsImg,
   },
   {
+    id: "mini-doll",
     name: "Mini Doll",
     size: "3.5 – 4 inches (depends on design)",
     price: "₹1,600 each",
@@ -55,18 +58,21 @@ const DOLLS = [
     image: minisImg,
   },
   {
+    id: "seated-doll",
     name: "Seated Doll",
     size: "5 inches · approx. 16 cm",
     price: "₹1,600 each",
     image: whiteBearPink,
   },
   {
+    id: "bear-keychain",
     name: "Keychain Doll",
     size: "3 inches with clasp",
     price: "₹900 each",
     image: bearKeychain,
   },
   {
+    id: "chunky-doll",
     name: "Chunky Doll",
     size: "12 inches",
     price: "₹3,600",
@@ -85,6 +91,7 @@ function DollsPage() {
   const displayDolls =
     cmsDolls.length > 0
       ? cmsDolls.map((p) => ({
+          id: p.id,
           name: p.name,
           size: p.size || "Custom amigurumi",
           price: p.sellingPrice || p.price,

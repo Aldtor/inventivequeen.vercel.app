@@ -51,18 +51,19 @@ export const Route = createFileRoute("/flowers")({
 });
 
 const FLOWERS = [
-  { name: "Sunflower", size: "4×4 in · 6×6 in", price: "₹500 – ₹700", image: bouquetSunflower },
-  { name: "Tulip", size: "Single stem", price: "₹260 per piece", image: bouquetTulip },
+  { id: "sunflower-bouquet", name: "Sunflower", size: "4×4 in · 6×6 in", price: "₹500 – ₹700", image: bouquetSunflower },
+  { id: "tulip-stem", name: "Tulip", size: "Single stem", price: "₹260 per piece", image: bouquetTulip },
   {
+    id: "rose-stem",
     name: "Rose",
     size: "Single stem",
     price: "₹300 per piece",
     image: bouquetRose,
     badge: "Popular",
   },
-  { name: "Gradient Rose", size: "Single stem", price: "₹200 per piece", image: bouquetRose2 },
-  { name: "Daisy", size: "Single stem", price: "₹200 per piece", image: bouquetPastel },
-  { name: "Lavender", size: "Single stem", price: "₹100 per piece", image: catForeverFlowers },
+  { id: "mixed-rose-grand-bouquet", name: "Gradient Rose", size: "Single stem", price: "₹200 per piece", image: bouquetRose2 },
+  { id: "pastel-bouquet", name: "Daisy", size: "Single stem", price: "₹200 per piece", image: bouquetPastel },
+  { id: "lily-vase-bouquet", name: "Lavender", size: "Single stem", price: "₹100 per piece", image: catForeverFlowers },
 ];
 
 /* Bouquet Gallery */
@@ -94,6 +95,7 @@ function FlowersPage() {
   const displayFlowers =
     cmsFlowers.length > 0
       ? cmsFlowers.map((p) => ({
+          id: p.id,
           name: p.name,
           size: p.size || "Hand-tied stem / wrap",
           price: p.sellingPrice || p.price,

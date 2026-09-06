@@ -11,6 +11,7 @@ import {
   Package,
   Printer,
   Sparkles,
+  Trash2,
   Truck,
   type LucideIcon,
 } from "lucide-react";
@@ -23,6 +24,7 @@ interface OrderKanbanBoardProps {
   onStatusChange: (orderId: string, newStatus: OrderStatus) => void;
   onOpenPackingSlip: (order: DbOrder) => void;
   onOpenGiftNote?: (order: DbOrder) => void;
+  onDeleteOrder?: (orderId: string) => void;
 }
 
 interface ColumnConfig {
@@ -81,6 +83,7 @@ export function OrderKanbanBoard({
   onStatusChange,
   onOpenPackingSlip,
   onOpenGiftNote,
+  onDeleteOrder,
 }: OrderKanbanBoardProps) {
   const groupedOrders = useMemo(() => {
     const map: Record<OrderStatus, DbOrder[]> = {
@@ -249,6 +252,18 @@ export function OrderKanbanBoard({
                           >
                             <Printer className="size-3" />
                           </button>
+
+                          {/* Delete Order */}
+                          {onDeleteOrder && (
+                            <button
+                              type="button"
+                              onClick={() => onDeleteOrder(order.id)}
+                              className="clay rounded-lg p-1.5 text-rose-600 hover:bg-rose-50"
+                              title="Delete Order from Database"
+                            >
+                              <Trash2 className="size-3" />
+                            </button>
+                          )}
                         </div>
 
                         {/* Pipeline Stage Buttons */}

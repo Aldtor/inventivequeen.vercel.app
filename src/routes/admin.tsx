@@ -280,14 +280,14 @@ function AdminPage() {
     const paidOrders = orders.filter((o) => o.payment_status === "paid");
     const totalRevenue = paidOrders.reduce((sum, o) => sum + (o.amount_total || 0), 0);
     const today = new Date().toDateString();
-    const todayOrders = orders.filter((o) => new Date(o.created_at).toDateString() === today);
-    const openOrders = orders.filter((o) =>
-      ["pending", "confirmed", "crafting"].includes(o.status),
+    const todayOrders = paidOrders.filter((o) => new Date(o.created_at).toDateString() === today);
+    const openOrders = paidOrders.filter((o) =>
+      ["confirmed", "crafting"].includes(o.status),
     );
 
-    // Calculate top-ordered products
+    // Calculate top-ordered products (from verified paid orders only)
     const productCountMap: Record<string, { name: string; count: number; revenue: number }> = {};
-    orders.forEach((o) => {
+    paidOrders.forEach((o) => {
       (o.order_items || []).forEach((item) => {
         const key = item.product_id || item.product_name;
         if (!productCountMap[key]) {
@@ -353,6 +353,34 @@ function AdminPage() {
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "An error occurred";
       alert("Failed to save notes: " + msg);
+    }
+  };
+
+  // Permanent order deletion handler
+  const handleDeleteOrder = async (orderId: string) => {
+    const targetOrder = orders.find((o) => o.id === orderId);
+    const orderNum = targetOrder ? targetOrder.order_number : orderId;
+    if (
+      !window.confirm(
+        `Are you sure you want to permanently delete order ${orderNum} from the database? This action cannot be undone.`,
+      )
+    ) {
+      return;
+    }
+
+    try {
+      // 1. Delete associated order items
+      await supabase.from("order_items").delete().eq("order_id", orderId);
+      // 2. Delete order record
+      const { error } = await supabase.from("orders").delete().eq("id", orderId);
+      if (error) throw error;
+
+      setOrders((prev) => prev.filter((ord) => ord.id !== orderId));
+      setNotice(`Order ${orderNum} has been permanently deleted from database.`);
+      setTimeout(() => setNotice(null), 4000);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "An error occurred";
+      alert("Failed to delete order: " + msg);
     }
   };
 
@@ -736,10 +764,15 @@ function AdminPage() {
                                 {order.customer_name} · +91 {order.phone}
                               </p>
                             </div>
-                            <div className="flex items-center gap-3">
+                            <div className="flex items-center gap-2">
                               <span className="font-extrabold text-foreground">
                                 ₹{order.amount_total?.toLocaleString("en-IN")}
                               </span>
+                              {order.payment_status !== "paid" && (
+                                <span className="px-1.5 py-0.5 rounded-md text-[10px] font-bold bg-amber-100 text-amber-800">
+                                  Unpaid
+                                </span>
+                              )}
                               <span
                                 className={`px-2 py-0.5 rounded-full text-[11px] font-bold ${
                                   ALL_STATUSES.find((s) => s.status === order.status)?.color ||
@@ -748,6 +781,14 @@ function AdminPage() {
                               >
                                 {order.status}
                               </span>
+                              <button
+                                type="button"
+                                onClick={() => handleDeleteOrder(order.id)}
+                                className="p-1 rounded-md text-rose-500 hover:text-rose-700 hover:bg-rose-50 transition-colors"
+                                title="Delete Order"
+                              >
+                                <Trash2 className="size-3.5" />
+                              </button>
                             </div>
                           </div>
                         ))}
@@ -764,6 +805,7 @@ function AdminPage() {
                   loading={ordersLoading}
                   onStatusChange={handleOrderStatusChange}
                   onSaveNotes={handleOrderNotesSave}
+                  onDeleteOrder={handleDeleteOrder}
                 />
               )}
 
@@ -803,11 +845,13 @@ function OrdersAdminSection({
   loading,
   onStatusChange,
   onSaveNotes,
+  onDeleteOrder,
 }: {
   orders: DbOrder[];
   loading: boolean;
   onStatusChange: (orderId: string, status: OrderStatus) => void;
   onSaveNotes: (orderId: string, notes: string) => void;
+  onDeleteOrder: (orderId: string) => void;
 }) {
   const [filter, setFilter] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState("");
@@ -949,6 +993,7 @@ function OrdersAdminSection({
           onStatusChange={onStatusChange}
           onOpenPackingSlip={(order) => setSelectedPackingOrder(order)}
           onOpenGiftNote={(order) => setSelectedGiftNoteOrder(order)}
+          onDeleteOrder={onDeleteOrder}
         />
       ) : (
         <div className="space-y-4">
@@ -981,9 +1026,19 @@ function OrdersAdminSection({
                         minute: "2-digit",
                       })}
                     </span>
-                    <span className="bg-emerald-100 text-emerald-800 px-2.5 py-0.5 rounded-full text-[10px] font-bold">
-                      Paid · Razorpay ({order.payment_id || "Verified"})
-                    </span>
+                    {order.payment_status === "paid" ? (
+                      <span className="bg-emerald-100 text-emerald-800 px-2.5 py-0.5 rounded-full text-[10px] font-bold inline-flex items-center gap-1">
+                        <Check className="size-3" /> Paid · Razorpay ({order.payment_id || "Verified"})
+                      </span>
+                    ) : order.payment_status === "failed" || order.status === "cancelled" ? (
+                      <span className="bg-rose-100 text-rose-800 px-2.5 py-0.5 rounded-full text-[10px] font-bold inline-flex items-center gap-1">
+                        <AlertCircle className="size-3" /> Cancelled / Unpaid
+                      </span>
+                    ) : (
+                      <span className="bg-amber-100 text-amber-800 px-2.5 py-0.5 rounded-full text-[10px] font-bold inline-flex items-center gap-1">
+                        <Clock className="size-3" /> Payment Pending / Unconfirmed
+                      </span>
+                    )}
                   </div>
 
                   {/* One-Click Pipeline Stepper & Actions */}
@@ -1042,6 +1097,16 @@ function OrdersAdminSection({
                         <Gift className="size-3.5 text-amber-700" /> Gift Note
                       </button>
                     )}
+
+                    {/* Delete Order from Database */}
+                    <button
+                      type="button"
+                      onClick={() => onDeleteOrder(order.id)}
+                      className="clay rounded-full px-3 py-1 text-xs font-bold text-rose-700 bg-rose-50 hover:bg-rose-100 inline-flex items-center gap-1 border border-rose-200 transition-colors"
+                      title="Permanently remove this order and items from database"
+                    >
+                      <Trash2 className="size-3.5 text-rose-600" /> Delete
+                    </button>
                   </div>
                 </div>
 

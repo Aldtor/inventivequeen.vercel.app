@@ -1,5 +1,5 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { useCallback, useEffect, useState } from "react";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   AlertCircle,
   ArrowRight,
@@ -15,6 +15,7 @@ import {
   RefreshCw,
   ShoppingBag,
   Sparkles,
+  Trash2,
   Truck,
   User as UserIcon,
 } from "lucide-react";
@@ -22,6 +23,7 @@ import { SiteLayout } from "@/components/site/SiteLayout";
 import { useAuth } from "@/lib/auth";
 import { supabase, type DbOrder, type OrderStatus } from "@/lib/supabase";
 import { getOrderItemImageUrl } from "@/lib/order-utils";
+import { addToCart } from "@/lib/cart";
 import logo from "@/assets/logo.png";
 
 export const Route = createFileRoute("/orders")({
@@ -62,10 +64,13 @@ function getStepIndex(status: OrderStatus): number {
 }
 
 function OrdersPage() {
+  const navigate = useNavigate();
   const { user, loading: authLoading } = useAuth();
   const [orders, setOrders] = useState<DbOrder[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [filterTab, setFilterTab] = useState<"all" | "active" | "cancelled">("all");
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const fetchOrders = useCallback(async () => {
     if (!user) {
@@ -98,6 +103,58 @@ function OrdersPage() {
   const handleManualRefresh = () => {
     setRefreshing(true);
     fetchOrders();
+  };
+
+  const activeOrders = useMemo(
+    () => orders.filter((o) => o.payment_status === "paid" && o.status !== "cancelled"),
+    [orders],
+  );
+
+  const cancelledOrders = useMemo(
+    () => orders.filter((o) => o.payment_status !== "paid" || o.status === "cancelled"),
+    [orders],
+  );
+
+  const displayedOrders = useMemo(() => {
+    if (filterTab === "active") return activeOrders;
+    if (filterTab === "cancelled") return cancelledOrders;
+    return orders;
+  }, [filterTab, orders, activeOrders, cancelledOrders]);
+
+  const handleDeleteOrder = async (orderId: string) => {
+    if (!window.confirm("Remove this cancelled or incomplete order from your history?")) {
+      return;
+    }
+    setDeletingId(orderId);
+    try {
+      await supabase.from("order_items").delete().eq("order_id", orderId);
+      const { error } = await supabase.from("orders").delete().eq("id", orderId);
+      if (error) throw error;
+      setOrders((prev) => prev.filter((o) => o.id !== orderId));
+    } catch (err) {
+      console.error("Failed to remove order:", err);
+      alert("Could not remove order. Please try again.");
+    } finally {
+      setDeletingId(null);
+    }
+  };
+
+  const handleRetryOrder = (order: DbOrder) => {
+    if (order.order_items && order.order_items.length > 0) {
+      order.order_items.forEach((item) => {
+        addToCart(
+          {
+            id: item.product_id,
+            name: item.product_name,
+            price: item.price_text || `₹${item.unit_price}`,
+            numericPrice: item.unit_price,
+            image: item.image_url || logo,
+          },
+          item.quantity || 1,
+        );
+      });
+    }
+    navigate({ to: "/checkout" });
   };
 
   return (
@@ -187,16 +244,53 @@ function OrdersPage() {
           </div>
         )}
 
+        {/* Filter Tabs if multiple kinds of orders exist */}
+        {user && !loading && orders.length > 0 && cancelledOrders.length > 0 && (
+          <div className="flex flex-wrap items-center gap-2 mb-6 p-1.5 rounded-2xl bg-white/40 border border-white/60 w-fit">
+            <button
+              onClick={() => setFilterTab("all")}
+              className={`px-4 py-1.5 rounded-xl text-xs font-bold transition-all ${
+                filterTab === "all"
+                  ? "bg-lilac-deep text-white shadow-sm"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              All Orders ({orders.length})
+            </button>
+            <button
+              onClick={() => setFilterTab("active")}
+              className={`px-4 py-1.5 rounded-xl text-xs font-bold transition-all ${
+                filterTab === "active"
+                  ? "bg-lilac-deep text-white shadow-sm"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              Active ({activeOrders.length})
+            </button>
+            <button
+              onClick={() => setFilterTab("cancelled")}
+              className={`px-4 py-1.5 rounded-xl text-xs font-bold transition-all ${
+                filterTab === "cancelled"
+                  ? "bg-amber-600 text-white shadow-sm"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              Incomplete / Cancelled ({cancelledOrders.length})
+            </button>
+          </div>
+        )}
+
         {/* Orders List */}
-        {user && !loading && orders.length > 0 && (
+        {user && !loading && displayedOrders.length > 0 && (
           <div className="space-y-8">
-            {orders.map((order) => {
+            {displayedOrders.map((order) => {
               const activeIndex = getStepIndex(order.status);
               const formattedDate = new Date(order.created_at).toLocaleDateString("en-IN", {
                 day: "numeric",
                 month: "short",
                 year: "numeric",
               });
+              const isPaid = order.payment_status === "paid" && order.status !== "cancelled";
 
               return (
                 <article
@@ -230,54 +324,108 @@ function OrdersPage() {
                           ₹{order.amount_total?.toLocaleString("en-IN")}
                         </span>
                       </div>
-                      <span className="rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-bold text-emerald-700">
-                        Paid (Razorpay)
-                      </span>
+                      {isPaid ? (
+                        <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-bold text-emerald-700">
+                          <Check className="size-3" /> Paid (Razorpay)
+                        </span>
+                      ) : order.payment_status === "failed" || order.status === "cancelled" ? (
+                        <span className="inline-flex items-center gap-1 rounded-full bg-rose-100 px-2.5 py-1 text-xs font-bold text-rose-700">
+                          <AlertCircle className="size-3" /> Cancelled / Unpaid
+                        </span>
+                      ) : order.payment_status === "refunded" ? (
+                        <span className="inline-flex items-center gap-1 rounded-full bg-purple-100 px-2.5 py-1 text-xs font-bold text-purple-700">
+                          Refunded
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2.5 py-1 text-xs font-bold text-amber-700">
+                          <Clock className="size-3" /> Payment Incomplete
+                        </span>
+                      )}
                     </div>
                   </div>
 
-                  {/* 4-Step Tracking Stepper */}
-                  <div className="my-8">
-                    <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-                      {STATUS_STEPS.map((step, idx) => {
-                        const isDone = activeIndex >= idx + 1;
-                        const isCurrent = activeIndex === idx + 1;
+                  {/* Status Display: Stepper for Paid vs Action Box for Incomplete */}
+                  {isPaid ? (
+                    /* 4-Step Tracking Stepper */
+                    <div className="my-8">
+                      <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+                        {STATUS_STEPS.map((step, idx) => {
+                          const isDone = activeIndex >= idx + 1;
 
-                        return (
-                          <div
-                            key={step.status}
-                            className={`rounded-2xl p-3 border transition-all ${
-                              isDone
-                                ? "bg-white/80 border-emerald-300 shadow-sm"
-                                : "bg-white/40 border-white/50 opacity-60"
-                            }`}
-                          >
-                            <div className="flex items-center gap-2 mb-1.5">
-                              <span
-                                className={`flex size-6 items-center justify-center rounded-full text-xs font-black ${
-                                  isDone
-                                    ? "bg-emerald-500 text-white"
-                                    : "bg-muted text-muted-foreground"
-                                }`}
-                              >
-                                {isDone ? <Check className="size-3.5" /> : idx + 1}
-                              </span>
-                              <span
-                                className={`text-xs font-bold ${
-                                  isDone ? "text-emerald-800" : "text-muted-foreground"
-                                }`}
-                              >
-                                {step.label}
-                              </span>
+                          return (
+                            <div
+                              key={step.status}
+                              className={`rounded-2xl p-3 border transition-all ${
+                                isDone
+                                  ? "bg-white/80 border-emerald-300 shadow-sm"
+                                  : "bg-white/40 border-white/50 opacity-60"
+                              }`}
+                            >
+                              <div className="flex items-center gap-2 mb-1.5">
+                                <span
+                                  className={`flex size-6 items-center justify-center rounded-full text-xs font-black ${
+                                    isDone
+                                      ? "bg-emerald-500 text-white"
+                                      : "bg-muted text-muted-foreground"
+                                  }`}
+                                >
+                                  {isDone ? <Check className="size-3.5" /> : idx + 1}
+                                </span>
+                                <span
+                                  className={`text-xs font-bold ${
+                                    isDone ? "text-emerald-800" : "text-muted-foreground"
+                                  }`}
+                                >
+                                  {step.label}
+                                </span>
+                              </div>
+                              <p className="text-[11px] text-muted-foreground leading-tight">
+                                {step.desc}
+                              </p>
                             </div>
-                            <p className="text-[11px] text-muted-foreground leading-tight">
-                              {step.desc}
+                          );
+                        })}
+                      </div>
+                    </div>
+                  ) : (
+                    /* Incomplete / Cancelled Order Card with Actions */
+                    <div className="my-6 rounded-2xl bg-amber-50/70 border border-amber-200/80 p-4 sm:p-5">
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <div className="flex items-start gap-3">
+                          <div className="size-9 rounded-xl bg-amber-100 text-amber-800 flex items-center justify-center shrink-0 mt-0.5">
+                            <AlertCircle className="size-5" />
+                          </div>
+                          <div>
+                            <h4 className="font-bold text-sm text-amber-950">
+                              Payment Not Completed / Cancelled
+                            </h4>
+                            <p className="text-xs text-amber-800 mt-0.5 leading-relaxed">
+                              This checkout was closed or cancelled before payment was finalized.
+                              Hand-crafting only begins after payment is verified via Razorpay.
                             </p>
                           </div>
-                        );
-                      })}
+                        </div>
+
+                        <div className="flex items-center gap-2.5 shrink-0 self-end sm:self-center">
+                          <button
+                            onClick={() => handleRetryOrder(order)}
+                            className="clay-primary liquid-btn inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-xs font-bold text-white shadow-sm hover:scale-102 transition-transform"
+                          >
+                            <RefreshCw className="size-3.5" /> Re-order / Pay Now
+                          </button>
+                          <button
+                            onClick={() => handleDeleteOrder(order.id)}
+                            disabled={deletingId === order.id}
+                            className="clay inline-flex items-center gap-1.5 rounded-full px-3.5 py-2 text-xs font-bold text-rose-700 bg-rose-50 border border-rose-200 hover:bg-rose-100 active:scale-95 transition-all disabled:opacity-50"
+                            title="Remove this incomplete order from your list"
+                          >
+                            <Trash2 className="size-3.5" />
+                            {deletingId === order.id ? "Removing..." : "Remove"}
+                          </button>
+                        </div>
+                      </div>
                     </div>
-                  </div>
+                  )}
 
                   {/* Order Items & Shipping Details */}
                   <div className="grid gap-6 sm:grid-cols-12 border-t border-white/50 pt-5">
@@ -291,7 +439,17 @@ function OrdersPage() {
                           const itemImage = getOrderItemImageUrl(item);
                           return (
                             <div key={item.id} className="py-2.5 flex items-center gap-3">
-                              <div className="size-12 rounded-xl bg-white shadow-xs border border-purple-100/80 overflow-hidden shrink-0 flex items-center justify-center p-0.5">
+                              <Link
+                                to="/product/$productId"
+                                params={{
+                                  productId: item.product_name
+                                    .toLowerCase()
+                                    .replace(/[^\w\s-]/g, "")
+                                    .trim()
+                                    .replace(/\s+/g, "-"),
+                                }}
+                                className="size-12 rounded-xl bg-white shadow-xs border border-purple-100/80 overflow-hidden shrink-0 flex items-center justify-center p-0.5 hover:opacity-80 transition-opacity"
+                              >
                                 <img
                                   src={itemImage}
                                   alt={item.product_name}
@@ -300,11 +458,21 @@ function OrdersPage() {
                                     (e.target as HTMLImageElement).src = logo;
                                   }}
                                 />
-                              </div>
+                              </Link>
                               <div className="flex-1 min-w-0">
-                                <p className="font-display text-sm font-bold text-lilac-deep truncate">
+                                <Link
+                                  to="/product/$productId"
+                                  params={{
+                                    productId: item.product_name
+                                      .toLowerCase()
+                                      .replace(/[^\w\s-]/g, "")
+                                      .trim()
+                                      .replace(/\s+/g, "-"),
+                                  }}
+                                  className="font-display text-sm font-bold text-lilac-deep hover:text-primary transition-colors truncate block"
+                                >
                                   {item.product_name}
-                                </p>
+                                </Link>
                                 <p className="text-xs text-muted-foreground">
                                   Qty: {item.quantity} × ₹{item.unit_price?.toLocaleString("en-IN")}
                                 </p>

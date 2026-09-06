@@ -128,25 +128,25 @@ const WHY = [
 ];
 
 const HERO_THUMBNAILS = [
-  { src: bouquetRose, alt: "Rose bouquet" },
-  { src: bearKeychain, alt: "Bear keychain" },
-  { src: whiteBearPink, alt: "Bear plushie" },
-  { src: bouquetPastel, alt: "Pastel bouquet" },
+  { id: "rose-stem", src: bouquetRose, alt: "Rose bouquet" },
+  { id: "bear-keychain", src: bearKeychain, alt: "Bear keychain" },
+  { id: "white-bear-overalls", src: whiteBearPink, alt: "Bear plushie" },
+  { id: "pastel-bouquet", src: bouquetPastel, alt: "Pastel bouquet" },
 ];
 
 const CATALOGUE = [
-  { name: "Rose bouquet", image: bouquetRose },
-  { name: "Mixed bouquet", image: bouquetMixed1 },
-  { name: "Pastel bouquet", image: bouquetPastel },
-  { name: "Lily bouquet", image: bouquetLily },
-  { name: "Bear keychain", image: bearKeychain },
-  { name: "Bunny keychain", image: bunnyKeychain },
-  { name: "Dino keychain", image: dinoKeychain },
-  { name: "Owl keychain", image: owlKeychain },
-  { name: "Strawberry cow", image: strawberryCow },
-  { name: "Black bear keychain", image: blackBear },
-  { name: "White bear plushie", image: whiteBearPink },
-  { name: "Peacock bookmark", image: bookmark },
+  { id: "rose-stem", name: "Rose bouquet", image: bouquetRose },
+  { id: "mixed-rose-grand-bouquet", name: "Mixed bouquet", image: bouquetMixed1 },
+  { id: "pastel-bouquet", name: "Pastel bouquet", image: bouquetPastel },
+  { id: "lily-vase-bouquet", name: "Lily bouquet", image: bouquetLily },
+  { id: "bear-keychain", name: "Bear keychain", image: bearKeychain },
+  { id: "bunny-heart-keychain", name: "Bunny keychain", image: bunnyKeychain },
+  { id: "dino-keychain", name: "Dino keychain", image: dinoKeychain },
+  { id: "owl-keychain", name: "Owl keychain", image: owlKeychain },
+  { id: "strawberry-cow-keychain", name: "Strawberry cow", image: strawberryCow },
+  { id: "black-bear", name: "Black bear keychain", image: blackBear },
+  { id: "white-bear-overalls", name: "White bear plushie", image: whiteBearPink },
+  { id: "peacock-bookmark", name: "Peacock bookmark", image: bookmark },
 ];
 
 const INSTAGRAM_GALLERY = [
@@ -271,9 +271,12 @@ function Home() {
             </div>
             <div className="float-slower relative mt-8 grid grid-cols-4 gap-3">
               {HERO_THUMBNAILS.map((item) => (
-                <div
+                <Link
                   key={item.alt}
-                  className="clay-soft img-hover-zoom overflow-hidden rounded-2xl p-1"
+                  to="/product/$productId"
+                  params={{ productId: item.id }}
+                  className="clay-soft img-hover-zoom overflow-hidden rounded-2xl p-1 block cursor-pointer transition-transform hover:scale-105"
+                  title={`View ${item.alt}`}
                 >
                   <img
                     src={item.src}
@@ -283,7 +286,7 @@ function Home() {
                     loading="lazy"
                     className="aspect-square w-full rounded-xl object-cover"
                   />
-                </div>
+                </Link>
               ))}
             </div>
           </div>
@@ -377,19 +380,29 @@ function Home() {
         </p>
         <div className="mt-12 grid gap-5 grid-cols-2 sm:grid-cols-3 lg:grid-cols-4">
           {CATALOGUE.map((item) => (
-            <figure key={item.name} className="clay-glow group overflow-hidden p-2 img-hover-zoom">
-              <img
-                src={item.image}
-                alt={item.name}
-                width={900}
-                height={900}
-                loading="lazy"
-                className="relative z-10 aspect-square w-full rounded-[1.4rem] object-cover shadow-lg"
-              />
-              <figcaption className="relative z-10 p-3 text-center text-sm font-bold text-lilac-deep">
-                {item.name}
-              </figcaption>
-            </figure>
+            <Link
+              key={item.name}
+              to="/product/$productId"
+              params={{ productId: item.id }}
+              className="clay-glow group overflow-hidden p-2 img-hover-zoom block transition-all hover:scale-102 hover:shadow-xl cursor-pointer"
+            >
+              <figure className="relative">
+                <div className="overflow-hidden rounded-[1.4rem]">
+                  <img
+                    src={item.image}
+                    alt={item.name}
+                    width={900}
+                    height={900}
+                    loading="lazy"
+                    className="relative z-10 aspect-square w-full rounded-[1.4rem] object-cover shadow-lg group-hover:scale-105 transition-transform duration-500"
+                  />
+                </div>
+                <figcaption className="relative z-10 p-3 text-center text-sm font-bold text-lilac-deep group-hover:text-primary transition-colors flex items-center justify-center gap-1">
+                  <span>{item.name}</span>
+                  <span className="text-xs opacity-0 group-hover:opacity-100 transition-opacity">→</span>
+                </figcaption>
+              </figure>
+            </Link>
           ))}
         </div>
         <div className="mt-10 text-center">

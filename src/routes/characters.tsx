@@ -43,6 +43,7 @@ export const Route = createFileRoute("/characters")({
 
 const ITEMS = [
   {
+    id: "white-bear-overalls",
     name: "Animal Crochet",
     size: "3 inches up to any size",
     price: "₹340 per inch",
@@ -50,6 +51,7 @@ const ITEMS = [
     image: whiteBearPink,
   },
   {
+    id: "panda-plushie",
     name: "Plushie Crochet",
     size: "4 inches up to any size",
     price: "₹340 per inch",
@@ -57,6 +59,7 @@ const ITEMS = [
     image: panda,
   },
   {
+    id: "bear-keychain",
     name: "Charms & Keychains",
     size: "2 – 3 inches",
     price: "₹700 each",
@@ -90,6 +93,7 @@ function CharactersPage() {
   const displayItems =
     cmsCharacters.length > 0
       ? cmsCharacters.map((p) => ({
+          id: p.id,
           name: p.name,
           size: p.size || "Custom amigurumi",
           price: p.sellingPrice || p.price,

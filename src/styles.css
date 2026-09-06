@@ -116,7 +116,7 @@
     overflow-x: hidden;
     scroll-behavior: smooth;
     cursor:
-      url("/cursor.png") 0 0,
+      url("/cursor.png") 1 1,
       auto !important;
   }
 
@@ -126,11 +126,11 @@
     font-family: var(--font-sans);
     overflow-x: hidden;
     cursor:
-      url("/cursor.png") 0 0,
+      url("/cursor.png") 1 1,
       auto !important;
   }
 
-  /* Custom 3D pixel pointer on all interactive elements */
+  /* Custom crochet needle pointer on all interactive elements */
   a,
   button,
   [role="button"],
@@ -139,9 +139,11 @@
   select,
   summary,
   .clickable,
+  .cursor-pointer,
   [data-clickable="true"] {
     cursor:
-      url("/cursor.png") 0 0,
+      url("/cursor-pointer.png") 1 1,
+      url("/cursor.png") 1 1,
       pointer !important;
   }
 
