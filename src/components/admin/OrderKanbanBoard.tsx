@@ -11,7 +11,8 @@ import {
   Truck,
 } from "lucide-react";
 import type { DbOrder, OrderStatus } from "@/lib/supabase";
-import { createWhatsAppChatUrl, parseAdminNotes } from "@/lib/order-utils";
+import { createWhatsAppChatUrl, parseAdminNotes, getOrderItemImageUrl } from "@/lib/order-utils";
+import logo from "@/assets/logo.png";
 
 interface OrderKanbanBoardProps {
   orders: DbOrder[];
@@ -174,11 +175,14 @@ export function OrderKanbanBoard({
                             className="size-8 rounded-lg overflow-hidden border border-white shadow-xs flex-shrink-0 bg-lilac/20"
                             title={`${item.product_name} (x${item.quantity})`}
                           >
-                            {item.image_url ? (
-                              <img src={item.image_url} alt="" className="size-full object-cover" />
-                            ) : (
-                              <Package className="size-4 mx-auto mt-2 text-lilac-deep" />
-                            )}
+                            <img
+                              src={getOrderItemImageUrl(item)}
+                              alt={item.product_name}
+                              className="size-full object-cover"
+                              onError={(e) => {
+                                (e.target as HTMLImageElement).src = logo;
+                              }}
+                            />
                           </div>
                         ))}
                         <span className="text-[10px] text-muted-foreground font-semibold ml-1">

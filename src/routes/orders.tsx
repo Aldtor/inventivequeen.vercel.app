@@ -20,6 +20,8 @@ import {
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { useAuth } from "@/lib/auth";
 import { supabase, type DbOrder, type OrderStatus } from "@/lib/supabase";
+import { getOrderItemImageUrl } from "@/lib/order-utils";
+import logo from "@/assets/logo.png";
 
 export const Route = createFileRoute("/orders")({
   component: OrdersPage,
@@ -284,32 +286,34 @@ function OrdersPage() {
                         Handmade Items Ordered ({order.order_items?.length || 1})
                       </h4>
                       <div className="divide-y divide-white/40">
-                        {order.order_items?.map((item) => (
-                          <div key={item.id} className="py-2.5 flex items-center gap-3">
-                            {item.image_url ? (
-                              <img
-                                src={item.image_url}
-                                alt={item.product_name}
-                                className="size-12 rounded-lg object-cover shadow-sm flex-shrink-0"
-                              />
-                            ) : (
-                              <div className="size-12 rounded-lg bg-lilac/30 flex items-center justify-center text-lilac-deep">
-                                <Package className="size-5" />
+                        {order.order_items?.map((item) => {
+                          const itemImage = getOrderItemImageUrl(item);
+                          return (
+                            <div key={item.id} className="py-2.5 flex items-center gap-3">
+                              <div className="size-12 rounded-xl bg-white shadow-xs border border-purple-100/80 overflow-hidden shrink-0 flex items-center justify-center p-0.5">
+                                <img
+                                  src={itemImage}
+                                  alt={item.product_name}
+                                  className="size-full rounded-lg object-cover"
+                                  onError={(e) => {
+                                    (e.target as HTMLImageElement).src = logo;
+                                  }}
+                                />
                               </div>
-                            )}
-                            <div className="flex-1 min-w-0">
-                              <p className="font-display text-sm font-bold text-lilac-deep truncate">
-                                {item.product_name}
-                              </p>
-                              <p className="text-xs text-muted-foreground">
-                                Qty: {item.quantity} × ₹{item.unit_price?.toLocaleString("en-IN")}
-                              </p>
+                              <div className="flex-1 min-w-0">
+                                <p className="font-display text-sm font-bold text-lilac-deep truncate">
+                                  {item.product_name}
+                                </p>
+                                <p className="text-xs text-muted-foreground">
+                                  Qty: {item.quantity} × ₹{item.unit_price?.toLocaleString("en-IN")}
+                                </p>
+                              </div>
+                              <span className="text-xs font-black text-foreground">
+                                ₹{(item.unit_price * item.quantity).toLocaleString("en-IN")}
+                              </span>
                             </div>
-                            <span className="text-xs font-black text-foreground">
-                              ₹{(item.unit_price * item.quantity).toLocaleString("en-IN")}
-                            </span>
-                          </div>
-                        ))}
+                          );
+                        })}
                       </div>
                     </div>
 

@@ -1,7 +1,7 @@
 import { Printer, X } from "lucide-react";
 import logo from "@/assets/logo.png";
 import type { DbOrder } from "@/lib/supabase";
-import { parseAdminNotes } from "@/lib/order-utils";
+import { parseAdminNotes, getOrderItemImageUrl } from "@/lib/order-utils";
 
 interface PackingSlipModalProps {
   order: DbOrder | null;
@@ -145,13 +145,14 @@ export function PackingSlipModal({ order, onClose }: PackingSlipModalProps) {
                   <tr key={item.id} className="text-slate-800">
                     <td className="py-3 px-1">
                       <div className="flex items-center gap-2.5">
-                        {item.image_url ? (
-                          <img
-                            src={item.image_url}
-                            alt=""
-                            className="size-8 rounded-md object-cover border border-slate-200"
-                          />
-                        ) : null}
+                        <img
+                          src={getOrderItemImageUrl(item)}
+                          alt={item.product_name}
+                          className="size-8 rounded-md object-cover border border-slate-200 shrink-0"
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).src = logo;
+                          }}
+                        />
                         <span className="font-semibold text-slate-900">{item.product_name}</span>
                       </div>
                     </td>

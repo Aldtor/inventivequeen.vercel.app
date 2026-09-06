@@ -1,4 +1,6 @@
-import type { DbOrder, OrderStatus } from "./supabase";
+import type { DbOrder, DbOrderItem, OrderStatus } from "./supabase";
+import { products } from "./products";
+import defaultLogo from "@/assets/logo.png";
 
 export interface ParsedAdminNotes {
   courier: string;
@@ -158,4 +160,50 @@ export function getNextOrderStatus(current: OrderStatus): OrderStatus | null {
     default:
       return null;
   }
+}
+
+/**
+ * Resolves the display image URL for an ordered item.
+ * Prioritizes item.image_url, then matches by product_id or product_name
+ * against the atelier products catalogue, falling back to brand logo.
+ */
+export function getOrderItemImageUrl(item?: Partial<DbOrderItem> | null): string {
+  if (!item) return defaultLogo;
+
+  if (item.image_url && item.image_url.trim().length > 0) {
+    return item.image_url.trim();
+  }
+
+  if (item.product_id) {
+    const matchedById = products.find((p) => p.id === item.product_id);
+    if (matchedById && matchedById.images.length > 0 && matchedById.images[0]) {
+      return matchedById.images[0];
+    }
+  }
+
+  if (item.product_name) {
+    const rawName = item.product_name.toLowerCase().trim();
+    // 1. Exact name match
+    const matchedByName = products.find((p) => p.name.toLowerCase().trim() === rawName);
+    if (matchedByName && matchedByName.images.length > 0 && matchedByName.images[0]) {
+      return matchedByName.images[0];
+    }
+
+    // 2. Normalized slug match (e.g. "mini-doll" vs "Mini Doll")
+    const slug = rawName.replace(/\s+/g, "-");
+    const matchedBySlug = products.find((p) => p.id.toLowerCase() === slug);
+    if (matchedBySlug && matchedBySlug.images.length > 0 && matchedBySlug.images[0]) {
+      return matchedBySlug.images[0];
+    }
+
+    // 3. Substring / partial match
+    const partialMatch = products.find(
+      (p) => p.name.toLowerCase().includes(rawName) || rawName.includes(p.name.toLowerCase()),
+    );
+    if (partialMatch && partialMatch.images.length > 0 && partialMatch.images[0]) {
+      return partialMatch.images[0];
+    }
+  }
+
+  return defaultLogo;
 }

@@ -40,6 +40,7 @@ import { useAuth } from "@/lib/auth";
 import { supabase, type DbOrder, type OrderStatus } from "@/lib/supabase";
 import { sanitizeText, validatePasswordStrength, validatePhone } from "@/lib/security";
 import { DEFAULT_COUPONS, type Coupon } from "@/lib/cms-coupons";
+import { getOrderItemImageUrl } from "@/lib/order-utils";
 
 import logo from "@/assets/logo.png";
 import bouquetRose from "@/assets/products/bouquets/product-bouquet-rose.png";
@@ -537,8 +538,7 @@ function ProfilePage() {
     image: logo,
     tag: "Official Mascot",
   };
-  const activeAvatar: AvatarPreset =
-    AVATAR_PRESETS.find((a) => a.id === avatarId) ?? defaultAvatar;
+  const activeAvatar: AvatarPreset = AVATAR_PRESETS.find((a) => a.id === avatarId) ?? defaultAvatar;
 
   const joinedDate = user.created_at
     ? new Date(user.created_at).toLocaleDateString("en-IN", {
@@ -1334,30 +1334,44 @@ function ProfilePage() {
 
                             {/* Items List */}
                             {order.order_items && order.order_items.length > 0 && (
-                              <div className="space-y-2 mb-4">
-                                {order.order_items.map((item) => (
-                                  <div
-                                    key={item.id}
-                                    className="flex items-center justify-between text-xs text-slate-700 bg-purple-50/30 border border-purple-100/60 rounded-2xl p-2.5"
-                                  >
-                                    <div className="flex items-center gap-2.5">
-                                      <div className="size-8 rounded-xl bg-lilac/20 text-lilac-deep flex items-center justify-center font-black text-xs shrink-0">
-                                        🧶
-                                      </div>
-                                      <div>
-                                        <div className="font-bold text-slate-800">
-                                          {item.product_name}
+                              <div className="space-y-2.5 mb-4">
+                                {order.order_items.map((item) => {
+                                  const itemImage = getOrderItemImageUrl(item);
+                                  return (
+                                    <div
+                                      key={item.id}
+                                      className="flex items-center justify-between text-xs text-slate-700 bg-purple-50/40 hover:bg-purple-50/70 border border-purple-100/70 rounded-2xl p-2.5 transition-colors"
+                                    >
+                                      <div className="flex items-center gap-3 min-w-0">
+                                        <div className="size-12 rounded-xl bg-white shadow-xs border border-purple-100/80 overflow-hidden shrink-0 flex items-center justify-center p-0.5">
+                                          <img
+                                            src={itemImage}
+                                            alt={item.product_name}
+                                            className="size-full rounded-lg object-cover"
+                                            loading="lazy"
+                                            onError={(e) => {
+                                              (e.target as HTMLImageElement).src = logo;
+                                            }}
+                                          />
                                         </div>
-                                        <div className="text-[11px] text-slate-400">
-                                          Quantity: {item.quantity}
+                                        <div className="min-w-0">
+                                          <div className="font-bold text-slate-900 text-xs sm:text-sm truncate">
+                                            {item.product_name}
+                                          </div>
+                                          <div className="text-[11px] text-slate-500 font-medium">
+                                            Quantity:{" "}
+                                            <span className="font-bold text-slate-700">
+                                              {item.quantity}
+                                            </span>
+                                          </div>
                                         </div>
                                       </div>
+                                      <span className="font-extrabold text-lilac-deep text-xs sm:text-sm shrink-0 ml-2">
+                                        {item.price_text}
+                                      </span>
                                     </div>
-                                    <span className="font-bold text-lilac-deep">
-                                      {item.price_text}
-                                    </span>
-                                  </div>
-                                ))}
+                                  );
+                                })}
                               </div>
                             )}
 

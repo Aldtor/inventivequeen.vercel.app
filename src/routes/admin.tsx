@@ -77,7 +77,9 @@ import {
   getNextOrderStatus,
   parseAdminNotes,
   serializeAdminNotes,
+  getOrderItemImageUrl,
 } from "@/lib/order-utils";
+import logo from "@/assets/logo.png";
 import { useStoreSettings } from "@/lib/store-settings";
 import { isSupabaseConfigured, supabase, type DbOrder, type OrderStatus } from "@/lib/supabase";
 
@@ -1071,17 +1073,14 @@ function OrdersAdminSection({
                           className="py-1.5 flex items-center justify-between gap-2"
                         >
                           <div className="flex items-center gap-2 min-w-0">
-                            {item.image_url ? (
-                              <img
-                                src={item.image_url}
-                                alt=""
-                                className="size-8 rounded-md object-cover flex-shrink-0"
-                              />
-                            ) : (
-                              <div className="size-8 rounded-md bg-lilac/30 flex items-center justify-center flex-shrink-0">
-                                <Package className="size-3.5 text-lilac-deep" />
-                              </div>
-                            )}
+                            <img
+                              src={getOrderItemImageUrl(item)}
+                              alt={item.product_name}
+                              className="size-8 rounded-md object-cover flex-shrink-0"
+                              onError={(e) => {
+                                (e.target as HTMLImageElement).src = logo;
+                              }}
+                            />
                             <span className="truncate font-semibold text-foreground">
                               {item.product_name}
                             </span>
