@@ -1,6 +1,16 @@
 import { createFileRoute, Link, useNavigate, useSearch } from "@tanstack/react-router";
-import { useState } from "react";
-import { Crown, Heart, Lock, Mail, Phone, Sparkles, User as UserIcon } from "lucide-react";
+import { useEffect, useState } from "react";
+import {
+  AlertCircle,
+  CheckCircle2,
+  Crown,
+  Heart,
+  Lock,
+  Mail,
+  Phone,
+  Sparkles,
+  User as UserIcon,
+} from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/lib/auth";
 import { SiteLayout } from "@/components/site/SiteLayout";
@@ -13,9 +23,13 @@ import {
 
 export const Route = createFileRoute("/login")({
   component: LoginPage,
-  validateSearch: (search: Record<string, unknown>): { redirect?: string } => {
+  validateSearch: (search: Record<string, unknown>): { redirect?: string; verified?: string } => {
     const rawRedirect = search["redirect"];
-    return typeof rawRedirect === "string" ? { redirect: rawRedirect } : {};
+    const verified = search["verified"];
+    return {
+      ...(typeof rawRedirect === "string" ? { redirect: rawRedirect } : {}),
+      ...(typeof verified === "string" ? { verified } : {}),
+    };
   },
   head: () => ({
     meta: [
@@ -48,6 +62,23 @@ function LoginPage() {
     navigate({ href: redirectPath });
   }
 
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    if (search.verified === "true") {
+      setSuccessMsg("Email successfully verified! You can now sign in to your royal account.");
+    }
+
+    const hash = window.location.hash || "";
+    if (hash) {
+      const hashParams = new URLSearchParams(hash.replace(/^#/, ""));
+      const errorDesc = hashParams.get("error_description");
+      if (errorDesc) {
+        setErrorMsg(decodeURIComponent(errorDesc.replace(/\+/g, " ")));
+      }
+    }
+  }, [search.verified]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMsg(null);
@@ -79,6 +110,11 @@ function LoginPage() {
           throw new Error(passwordCheck.message || "Password does not meet security requirements.");
         }
 
+        const origin =
+          typeof window !== "undefined" && window.location.origin
+            ? window.location.origin
+            : "https://inventivequeen.vercel.app";
+
         const { data, error } = await supabase.auth.signUp({
           email: email.trim(),
           password,
@@ -87,6 +123,7 @@ function LoginPage() {
               full_name: cleanName,
               phone: cleanPhone,
             },
+            emailRedirectTo: `${origin}/login?verified=true`,
           },
         });
         if (error) throw error;
@@ -174,13 +211,15 @@ function LoginPage() {
 
           {/* Alerts */}
           {errorMsg && (
-            <div className="relative mt-4 rounded-xl bg-rose-50 border border-rose-200 p-3 text-xs text-rose-700">
-              {errorMsg}
+            <div className="relative mt-4 rounded-xl bg-rose-50 border border-rose-200 p-3.5 text-xs text-rose-700 flex items-start gap-2.5">
+              <AlertCircle className="size-4 shrink-0 mt-0.5 text-rose-600" />
+              <span className="leading-relaxed">{errorMsg}</span>
             </div>
           )}
           {successMsg && (
-            <div className="relative mt-4 rounded-xl bg-emerald-50 border border-emerald-200 p-3 text-xs text-emerald-700">
-              {successMsg}
+            <div className="relative mt-4 rounded-xl bg-emerald-50 border border-emerald-200 p-3.5 text-xs text-emerald-800 flex items-start gap-2.5">
+              <CheckCircle2 className="size-4 shrink-0 mt-0.5 text-emerald-600" />
+              <span className="leading-relaxed font-medium">{successMsg}</span>
             </div>
           )}
 

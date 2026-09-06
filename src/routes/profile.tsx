@@ -51,6 +51,10 @@ import bookmark from "@/assets/products/misc/product-peacock-bookmark-real.png";
 
 export const Route = createFileRoute("/profile")({
   component: ProfilePage,
+  validateSearch: (search: Record<string, unknown>): { verified?: string } => {
+    const verified = search["verified"];
+    return typeof verified === "string" ? { verified } : {};
+  },
   head: () => ({
     meta: [
       { title: "Royal Patron Lounge & Account — Inventive Queen" },
@@ -182,9 +186,21 @@ function ProfilePage() {
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
   const [copiedPatronId, setCopiedPatronId] = useState(false);
   const [copiedOrderNum, setCopiedOrderNum] = useState<string | null>(null);
+  const search = Route.useSearch();
+  const [resendingVerification, setResendingVerification] = useState(false);
   const [feedback, setFeedback] = useState<{ type: "success" | "error"; message: string } | null>(
     null,
   );
+
+  useEffect(() => {
+    if (search.verified === "true") {
+      toast.success("Email verified successfully!");
+      setFeedback({
+        type: "success",
+        message: "Your royal email address has been successfully verified and confirmed.",
+      });
+    }
+  }, [search.verified]);
 
   // Accessible IDs
   const fullNameId = useId();
@@ -438,7 +454,9 @@ function ProfilePage() {
 
     try {
       const origin =
-        typeof window !== "undefined" ? window.location.origin : "https://inventivequeen.com";
+        typeof window !== "undefined" && window.location.origin
+          ? window.location.origin
+          : "https://inventivequeen.vercel.app";
       const { error } = await supabase.auth.resetPasswordForEmail(user.email, {
         redirectTo: `${origin}/reset-password`,
       });
@@ -461,6 +479,38 @@ function ProfilePage() {
       toast.error("Could not send password reset link.");
     } finally {
       setSendingResetEmail(false);
+    }
+  };
+
+  // 3b. Resend Email Verification Link
+  const handleResendVerification = async () => {
+    if (!user?.email) return;
+    setResendingVerification(true);
+    setFeedback(null);
+    try {
+      const origin =
+        typeof window !== "undefined" && window.location.origin
+          ? window.location.origin
+          : "https://inventivequeen.vercel.app";
+      const { error } = await supabase.auth.resend({
+        type: "signup",
+        email: user.email,
+        options: {
+          emailRedirectTo: `${origin}/profile?verified=true`,
+        },
+      });
+      if (error) throw error;
+      setFeedback({
+        type: "success",
+        message: `A fresh verification link has been dispatched to ${user.email}. Please check your inbox.`,
+      });
+      toast.success("Verification email dispatched!");
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Failed to resend verification email.";
+      setFeedback({ type: "error", message: msg });
+      toast.error(msg);
+    } finally {
+      setResendingVerification(false);
     }
   };
 
@@ -716,10 +766,23 @@ function ProfilePage() {
                       </span>
                     )}
 
-                    {isEmailVerified && (
+                    {isEmailVerified ? (
                       <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 px-2 py-0.5 text-[10px] font-bold">
                         <CheckCircle2 className="size-3" /> Verified
                       </span>
+                    ) : (
+                      <div className="inline-flex items-center gap-1.5 rounded-full bg-amber-50 border border-amber-200 text-amber-800 px-2 py-0.5 text-[10px] font-bold">
+                        <AlertCircle className="size-3 text-amber-600" />
+                        <span>Unverified</span>
+                        <button
+                          type="button"
+                          onClick={handleResendVerification}
+                          disabled={resendingVerification}
+                          className="text-[10px] font-bold text-lilac-deep underline hover:text-lilac-deep/80 cursor-pointer disabled:opacity-50"
+                        >
+                          {resendingVerification ? "Sending..." : "Verify"}
+                        </button>
+                      </div>
                     )}
                   </div>
 
@@ -1588,6 +1651,52 @@ function ProfilePage() {
               {/* ============================================================ */}
               {activeTab === "security" && (
                 <div className="space-y-6">
+                  {/* Card 0: Email Verification Status if Unverified */}
+                  {!isEmailVerified && (
+                    <div className="rounded-3xl border border-amber-200 bg-amber-50/90 p-6 shadow-sm">
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <div className="flex items-start gap-3">
+                          <div className="size-10 rounded-2xl bg-amber-200 text-amber-900 flex items-center justify-center shrink-0">
+                            <Mail className="size-5" />
+                          </div>
+                          <div>
+                            <div className="flex items-center gap-2">
+                              <h4 className="font-display text-base font-bold text-amber-950">
+                                Email Address Unverified
+                              </h4>
+                              <span className="rounded-full bg-amber-200 text-amber-900 text-[10px] font-bold px-2 py-0.5">
+                                Pending
+                              </span>
+                            </div>
+                            <p className="text-xs text-amber-800/90 mt-1 leading-relaxed">
+                              Your account is active, but your email address ({userEmail}) has not
+                              yet been confirmed. Verifying your email secures your order receipts
+                              and password recovery.
+                            </p>
+                          </div>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={handleResendVerification}
+                          disabled={resendingVerification}
+                          className="shrink-0 rounded-xl bg-amber-700 hover:bg-amber-800 text-white font-bold text-xs px-4 py-2.5 shadow-sm transition-all cursor-pointer disabled:opacity-50 flex items-center justify-center gap-1.5"
+                        >
+                          {resendingVerification ? (
+                            <>
+                              <Loader2 className="size-3.5 animate-spin" />
+                              <span>Sending...</span>
+                            </>
+                          ) : (
+                            <>
+                              <Sparkles className="size-3.5" />
+                              <span>Resend Verification Email</span>
+                            </>
+                          )}
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
                   {/* Card 1: Change Password */}
                   <div className="rounded-3xl border border-white/80 bg-white/95 p-6 sm:p-8 shadow-xl">
                     <div className="flex items-center gap-3 mb-5 border-b border-slate-100 pb-4">

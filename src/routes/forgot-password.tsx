@@ -29,10 +29,12 @@ function ForgotPasswordPage() {
     setLoading(true);
 
     try {
-      const redirectUrl =
-        typeof window !== "undefined"
-          ? `${window.location.origin}/reset-password`
-          : "https://inventivequeen.com/reset-password";
+      const origin =
+        typeof window !== "undefined" && window.location.origin
+          ? window.location.origin
+          : "https://inventivequeen.vercel.app";
+
+      const redirectUrl = `${origin}/reset-password`;
 
       const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
         redirectTo: redirectUrl,

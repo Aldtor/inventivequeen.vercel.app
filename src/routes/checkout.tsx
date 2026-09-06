@@ -225,11 +225,17 @@ function CheckoutPage() {
           throw new Error("Please enter a valid 10-digit mobile number.");
         }
 
+        const origin =
+          typeof window !== "undefined" && window.location.origin
+            ? window.location.origin
+            : "https://inventivequeen.vercel.app";
+
         const { data, error } = await supabase.auth.signUp({
           email: authEmail,
           password: authPassword,
           options: {
             data: { full_name: authFullName, phone: authPhone },
+            emailRedirectTo: `${origin}/checkout?verified=true`,
           },
         });
         if (error) throw error;

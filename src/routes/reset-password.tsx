@@ -35,16 +35,59 @@ function ResetPasswordPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [checkingSession, setCheckingSession] = useState(true);
   const [isRecoveryFlow, setIsRecoveryFlow] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  const [countdown, setCountdown] = useState(4);
 
   useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    // Check URL hash and search params for Supabase errors (e.g. otp_expired)
+    const hash = window.location.hash || "";
+    const search = window.location.search || "";
+    const hashParams = new URLSearchParams(hash.replace(/^#/, ""));
+    const searchParams = new URLSearchParams(search);
+
+    const errorDesc =
+      hashParams.get("error_description") ||
+      searchParams.get("error_description") ||
+      hashParams.get("error");
+
+    if (errorDesc) {
+      setErrorMessage(
+        decodeURIComponent(errorDesc.replace(/\+/g, " ")) +
+          ". Password reset links are time-limited and single-use. Please request a fresh one.",
+      );
+      setCheckingSession(false);
+      return;
+    }
+
+    if (hash.includes("type=recovery") || hash.includes("access_token=")) {
+      setIsRecoveryFlow(true);
+    }
+
+    // Handle PKCE code exchange if present in query parameters
+    const code = searchParams.get("code");
+    if (code) {
+      supabase.auth.exchangeCodeForSession(code).then(({ data, error }) => {
+        if (error) {
+          setErrorMessage(
+            error.message + ". Your recovery link may have expired. Please request a fresh link.",
+          );
+        } else if (data.session) {
+          setIsRecoveryFlow(true);
+        }
+        setCheckingSession(false);
+      });
+    }
+
     // Check if recovery event or recovery session is active
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((event) => {
-      if (event === "PASSWORD_RECOVERY") {
+    } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === "PASSWORD_RECOVERY" || (event === "SIGNED_IN" && session)) {
         setIsRecoveryFlow(true);
       }
     });
@@ -53,17 +96,30 @@ function ResetPasswordPage() {
       if (session) {
         setIsRecoveryFlow(true);
       }
+      setCheckingSession(false);
     });
-
-    // Check hash for recovery tokens if redirected by Supabase
-    if (typeof window !== "undefined" && window.location.hash.includes("type=recovery")) {
-      setIsRecoveryFlow(true);
-    }
 
     return () => {
       subscription.unsubscribe();
     };
   }, []);
+
+  // Automatic redirect countdown once password has been successfully updated
+  useEffect(() => {
+    if (!success) return;
+    const timer = setInterval(() => {
+      setCountdown((prev) => {
+        if (prev <= 1) {
+          clearInterval(timer);
+          navigate({ href: "/login" });
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [success, navigate]);
 
   // Simple password strength calculation
   const getPasswordStrength = (pass: string) => {
@@ -146,24 +202,56 @@ function ResetPasswordPage() {
                 Password Successfully Updated!
               </h2>
               <p className="text-xs text-emerald-700 leading-relaxed">
-                Your new credentials are saved. You can now use your new password to sign into your
-                account.
+                Your new credentials are saved. Redirecting to sign in page in{" "}
+                <span className="font-bold">{countdown}s</span>...
               </p>
               <div className="pt-2">
                 <Link
                   to="/login"
                   className="clay-primary liquid-btn inline-flex items-center gap-2 rounded-full px-6 py-2.5 text-xs font-bold text-white shadow-md hover:scale-102 transition-transform"
                 >
-                  Proceed to Sign In <ArrowRight className="size-3.5" />
+                  Proceed to Sign In Now <ArrowRight className="size-3.5" />
+                </Link>
+              </div>
+            </div>
+          ) : !checkingSession && !isRecoveryFlow && !errorMessage ? (
+            /* Missing or Expired Session Warning */
+            <div className="relative mt-8 rounded-2xl bg-amber-50/90 border border-amber-200 p-6 text-center space-y-3">
+              <div className="mx-auto flex size-12 items-center justify-center rounded-full bg-amber-100 text-amber-700">
+                <ShieldAlert className="size-6" />
+              </div>
+              <h2 className="font-display text-base font-bold text-amber-900">
+                No Active Reset Session Detected
+              </h2>
+              <p className="text-xs text-amber-800 leading-relaxed">
+                Password reset links are time-sensitive and single-use for your security. Please
+                request a fresh password recovery link to proceed.
+              </p>
+              <div className="pt-2">
+                <Link
+                  to="/forgot-password"
+                  className="clay-primary liquid-btn inline-flex items-center gap-2 rounded-full px-6 py-2.5 text-xs font-bold text-white shadow-md hover:scale-102 transition-transform"
+                >
+                  Request Reset Link <ArrowRight className="size-3.5" />
                 </Link>
               </div>
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="relative mt-8 space-y-4">
               {errorMessage && (
-                <div className="rounded-xl bg-rose-50 border border-rose-200 p-3 text-xs text-rose-700 flex items-start gap-2">
-                  <ShieldAlert className="size-4 shrink-0 mt-0.5" />
-                  <span>{errorMessage}</span>
+                <div className="rounded-xl bg-rose-50 border border-rose-200 p-3.5 text-xs text-rose-700 space-y-2">
+                  <div className="flex items-start gap-2">
+                    <ShieldAlert className="size-4 shrink-0 mt-0.5 text-rose-600" />
+                    <span className="leading-relaxed font-medium">{errorMessage}</span>
+                  </div>
+                  <div className="pt-1">
+                    <Link
+                      to="/forgot-password"
+                      className="inline-flex items-center gap-1 font-bold text-rose-800 underline hover:text-rose-950"
+                    >
+                      Request a fresh password recovery email &rarr;
+                    </Link>
+                  </div>
                 </div>
               )}
 

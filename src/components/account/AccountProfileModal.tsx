@@ -51,6 +51,7 @@ export function AccountProfileModal({ isOpen, onClose }: AccountProfileModalProp
   const [savingPassword, setSavingPassword] = useState(false);
   const [sendingResetEmail, setSendingResetEmail] = useState(false);
   const [resetEmailSent, setResetEmailSent] = useState(false);
+  const [resendingVerification, setResendingVerification] = useState(false);
 
   // Feedback status
   const [feedback, setFeedback] = useState<{ type: "success" | "error"; message: string } | null>(
@@ -207,7 +208,9 @@ export function AccountProfileModal({ isOpen, onClose }: AccountProfileModalProp
 
     try {
       const origin =
-        typeof window !== "undefined" ? window.location.origin : "https://inventivequeen.com";
+        typeof window !== "undefined" && window.location.origin
+          ? window.location.origin
+          : "https://inventivequeen.vercel.app";
       const { error } = await supabase.auth.resetPasswordForEmail(userEmail, {
         redirectTo: `${origin}/reset-password`,
       });
@@ -230,6 +233,37 @@ export function AccountProfileModal({ isOpen, onClose }: AccountProfileModalProp
       toast.error("Could not send password reset link.");
     } finally {
       setSendingResetEmail(false);
+    }
+  };
+
+  const handleResendVerification = async () => {
+    if (!userEmail) return;
+    setResendingVerification(true);
+    setFeedback(null);
+    try {
+      const origin =
+        typeof window !== "undefined" && window.location.origin
+          ? window.location.origin
+          : "https://inventivequeen.vercel.app";
+      const { error } = await supabase.auth.resend({
+        type: "signup",
+        email: userEmail,
+        options: {
+          emailRedirectTo: `${origin}/login?verified=true`,
+        },
+      });
+      if (error) throw error;
+      setFeedback({
+        type: "success",
+        message: `Verification link dispatched to ${userEmail}. Please check your inbox.`,
+      });
+      toast.success("Verification link sent!");
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Failed to send verification email.";
+      setFeedback({ type: "error", message: msg });
+      toast.error(msg);
+    } finally {
+      setResendingVerification(false);
     }
   };
 
@@ -424,9 +458,30 @@ export function AccountProfileModal({ isOpen, onClose }: AccountProfileModalProp
               </div>
 
               <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5">
-                  Email Address
-                </label>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-500">
+                    Email Address
+                  </label>
+                  {isEmailVerified ? (
+                    <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 border border-emerald-200 px-2 py-0.5 text-[10px] font-bold text-emerald-700">
+                      <CheckCircle2 className="size-3 text-emerald-600" /> Verified
+                    </span>
+                  ) : (
+                    <div className="flex items-center gap-1.5">
+                      <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 border border-amber-200 px-2 py-0.5 text-[10px] font-bold text-amber-700">
+                        <AlertCircle className="size-3 text-amber-600" /> Unverified
+                      </span>
+                      <button
+                        type="button"
+                        onClick={handleResendVerification}
+                        disabled={resendingVerification}
+                        className="text-[10px] font-bold text-lilac-deep underline hover:text-lilac-deep/80 cursor-pointer disabled:opacity-50"
+                      >
+                        {resendingVerification ? "Sending..." : "Resend Link"}
+                      </button>
+                    </div>
+                  )}
+                </div>
                 <div className="relative">
                   <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-slate-400" />
                   <input

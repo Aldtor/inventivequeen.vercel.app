@@ -113,15 +113,32 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return;
     }
 
+    // Check if recovery hash landed on root or other pages
+    const currentHash = window.location.hash || "";
+    const currentPath = window.location.pathname;
+    if (currentHash.includes("type=recovery") && !currentPath.startsWith("/reset-password")) {
+      window.location.replace("/reset-password" + currentHash);
+      return;
+    }
+
     supabase.auth.getSession().then(({ data }) => {
       if (!mounted) return;
       setSession(data.session);
       setLoading(false);
     });
 
-    const { data: listener } = supabase.auth.onAuthStateChange((_event, nextSession) => {
+    const { data: listener } = supabase.auth.onAuthStateChange((event, nextSession) => {
       setSession(nextSession);
       setLoading(false);
+
+      if (event === "PASSWORD_RECOVERY") {
+        if (
+          typeof window !== "undefined" &&
+          !window.location.pathname.startsWith("/reset-password")
+        ) {
+          window.location.href = "/reset-password" + (window.location.hash || "");
+        }
+      }
     });
 
     return () => {

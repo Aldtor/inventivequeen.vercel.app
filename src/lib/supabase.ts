@@ -20,6 +20,7 @@ export const supabase = createClient(supabaseUrl, supabaseKey || "missing-key", 
   auth: {
     persistSession: true,
     autoRefreshToken: true,
+    detectSessionInUrl: true,
   },
 });
 
