@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { SiteLayout } from "@/components/site/SiteLayout";
+import { validatePasswordStrength } from "@/lib/security";
 
 export const Route = createFileRoute("/reset-password")({
   component: ResetPasswordPage,
@@ -84,8 +85,9 @@ function ResetPasswordPage() {
     e.preventDefault();
     setErrorMessage(null);
 
-    if (password.length < 6) {
-      setErrorMessage("Password must be at least 6 characters long.");
+    const passwordCheck = validatePasswordStrength(password);
+    if (!passwordCheck.isValid) {
+      setErrorMessage(passwordCheck.message || "Password does not meet security requirements.");
       return;
     }
 

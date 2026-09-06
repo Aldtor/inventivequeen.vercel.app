@@ -4,12 +4,14 @@ import { Crown, Heart, Lock, Mail, Phone, Sparkles, User as UserIcon } from "luc
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/lib/auth";
 import { SiteLayout } from "@/components/site/SiteLayout";
+import { getSafeRedirectUrl, sanitizeText, validatePasswordStrength, validatePhone } from "@/lib/security";
 
 export const Route = createFileRoute("/login")({
   component: LoginPage,
-  validateSearch: (search: Record<string, unknown>): { redirect?: string } => ({
-    redirect: (search['redirect'] as string) || undefined,
-  }),
+  validateSearch: (search: Record<string, unknown>): { redirect?: string } => {
+    const rawRedirect = search["redirect"];
+    return typeof rawRedirect === "string" ? { redirect: rawRedirect } : {};
+  },
   head: () => ({
     meta: [
       { title: "Royal Account — Inventive Queen" },
@@ -21,7 +23,7 @@ export const Route = createFileRoute("/login")({
 function LoginPage() {
   const navigate = useNavigate();
   const search = useSearch({ from: "/login" });
-  const redirectPath = search['redirect'] || "/checkout";
+  const redirectPath = getSafeRedirectUrl(search.redirect, "/checkout");
   const { user } = useAuth();
 
   const [mode, setMode] = useState<"signin" | "signup">("signin");
@@ -54,20 +56,28 @@ function LoginPage() {
 
         navigate({ to: redirectPath as any });
       } else {
-        if (!fullName.trim()) {
+        const cleanName = sanitizeText(fullName, 100);
+        const cleanPhone = phone.replace(/[^\d]/g, "");
+
+        if (!cleanName) {
           throw new Error("Please enter your full name.");
         }
-        if (!phone.trim() || phone.replace(/[^\d]/g, "").length < 10) {
+        if (!validatePhone(cleanPhone)) {
           throw new Error("Please enter a valid 10-digit mobile number.");
         }
 
+        const passwordCheck = validatePasswordStrength(password);
+        if (!passwordCheck.isValid) {
+          throw new Error(passwordCheck.message || "Password does not meet security requirements.");
+        }
+
         const { data, error } = await supabase.auth.signUp({
-          email,
+          email: email.trim(),
           password,
           options: {
             data: {
-              full_name: fullName,
-              phone: phone,
+              full_name: cleanName,
+              phone: cleanPhone,
             },
           },
         });
@@ -77,9 +87,9 @@ function LoginPage() {
         if (data.user) {
           await supabase.from("profiles").upsert({
             id: data.user.id,
-            email,
-            full_name: fullName,
-            phone,
+            email: email.trim(),
+            full_name: cleanName,
+            phone: cleanPhone,
           });
         }
 

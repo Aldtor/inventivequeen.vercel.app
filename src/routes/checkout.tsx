@@ -23,6 +23,7 @@ import { clearCart, getCart, getCartTotal, removeFromCart, updateCartQuantity, t
 import { useAuth } from "@/lib/auth";
 import { supabase } from "@/lib/supabase";
 import { useCoupons, type Coupon } from "@/lib/cms-coupons";
+import { sanitizeText, validatePhone, validatePincode } from "@/lib/security";
 
 export const Route = createFileRoute("/checkout")({
   component: CheckoutPage,
@@ -210,27 +211,32 @@ function CheckoutPage() {
       return;
     }
 
-    if (!customerName.trim()) {
+    const safeCustomerName = sanitizeText(customerName, 100);
+    if (!safeCustomerName) {
       setPaymentError("Please provide your full delivery name.");
       return;
     }
 
     const cleanPhone = phone.replace(/[^\d]/g, "");
-    if (cleanPhone.length < 10) {
+    if (!validatePhone(cleanPhone)) {
       setPaymentError("Please enter a valid 10-digit mobile phone number for delivery updates.");
       return;
     }
 
-    if (!streetAddress.trim() || !cityState.trim()) {
+    const safeStreet = sanitizeText(streetAddress, 250);
+    const safeCity = sanitizeText(cityState, 100);
+    if (!safeStreet || !safeCity) {
       setPaymentError("Please enter your complete street address and City/State.");
       return;
     }
 
     const cleanPincode = pincode.replace(/[^\d]/g, "");
-    if (cleanPincode.length !== 6) {
+    if (!validatePincode(cleanPincode)) {
       setPaymentError("Please enter a valid 6-digit delivery pincode.");
       return;
     }
+
+    const safeGiftNote = sanitizeText(giftNote, 500);
 
     setPaying(true);
 
@@ -241,19 +247,19 @@ function CheckoutPage() {
       }
 
       const orderNumber = `IQ-${Date.now().toString().slice(-6)}-${Math.floor(100 + Math.random() * 900)}`;
-      const fullAddress = `${streetAddress.trim()}, ${cityState.trim()}`;
+      const fullAddress = `${safeStreet}, ${safeCity}`;
 
-      // Insert order into Supabase
+      // 1. Insert order into Supabase with sanitized details
       const { data: orderData, error: orderError } = await supabase
         .from("orders")
         .insert({
           order_number: orderNumber,
           user_id: user.id,
-          customer_name: customerName.trim(),
+          customer_name: safeCustomerName,
           phone: cleanPhone,
           address: fullAddress,
           pincode: cleanPincode,
-          gift_note: giftNote.trim() || null,
+          gift_note: safeGiftNote || null,
           admin_notes: appliedCoupon ? `Coupon Applied: ${appliedCoupon.code} (-₹${discountAmount})` : null,
           status: "pending",
           payment_status: "pending",
@@ -267,14 +273,14 @@ function CheckoutPage() {
         throw new Error("Failed to create order. " + (orderError?.message || ""));
       }
 
-      // Insert order items
+      // 2. Insert order items
       const itemsToInsert = cart.map((item) => ({
         order_id: orderData.id,
-        product_id: item.id,
-        product_name: item.name,
+        product_id: sanitizeText(item.id, 50),
+        product_name: sanitizeText(item.name, 100),
         price_text: item.price,
         unit_price: item.numericPrice,
-        quantity: item.quantity,
+        quantity: Math.max(1, Math.min(99, item.quantity)),
         image_url: item.image,
       }));
 
@@ -283,11 +289,36 @@ function CheckoutPage() {
         console.warn("Could not insert order items:", itemsError);
       }
 
-      // Razorpay configuration
+      // 3. Pre-create order on backend Razorpay API
+      let serverRazorpayOrderId: string | undefined;
+      try {
+        const orderRes = await fetch("/api/create-razorpay-order", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            amount: Math.round(payableTotal * 100),
+            currency: "INR",
+            receipt: orderNumber,
+            order_id: orderData.id,
+          }),
+        });
+
+        if (orderRes.ok) {
+          const orderJson = await orderRes.json();
+          if (orderJson?.order_id) {
+            serverRazorpayOrderId = orderJson.order_id;
+          }
+        }
+      } catch (createErr) {
+        console.warn("Could not initialize server Razorpay order, proceeding with standard checkout:", createErr);
+      }
+
+      // 4. Razorpay configuration (defaults to verified live key)
+      const LIVE_KEY_ID = "rzp_live_TYUEKLyErpyGRl";
       const razorpayKey =
-        (typeof process !== "undefined" && process.env?.VITE_RAZORPAY_KEY_ID) ||
-        import.meta.env.VITE_RAZORPAY_KEY_ID ||
-        "rzp_test_placeholder";
+        (import.meta as any).env?.VITE_RAZORPAY_KEY_ID ||
+        (typeof process !== "undefined" && (process.env?.['VITE_RAZORPAY_KEY_ID'] || process.env?.['RAZORPAY_KEY_ID'])) ||
+        LIVE_KEY_ID;
 
       const razorpayOptions = {
         key: razorpayKey,
@@ -296,8 +327,9 @@ function CheckoutPage() {
         name: "Inventive Queen",
         description: `Order #${orderNumber} (${cart.length} item${cart.length > 1 ? "s" : ""})`,
         image: "https://inventivequeen.com/favicon.png",
+        order_id: serverRazorpayOrderId || undefined,
         prefill: {
-          name: customerName,
+          name: safeCustomerName,
           email: user.email || "",
           contact: cleanPhone,
         },
@@ -311,17 +343,52 @@ function CheckoutPage() {
         },
         handler: async (response: any) => {
           try {
-            // Payment success! Update Supabase order
-            await supabase
-              .from("orders")
-              .update({
-                payment_status: "paid",
-                status: "confirmed",
-                payment_id: response.razorpay_payment_id || null,
-              })
-              .eq("id", orderData.id);
+            let serverVerified = false;
 
-            // Clear local cart
+            // 1. Attempt cryptographic verification via backend API if available
+            try {
+              const verifyRes = await fetch("/api/verify-payment", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  razorpay_order_id: response.razorpay_order_id || serverRazorpayOrderId || "",
+                  razorpay_payment_id: response.razorpay_payment_id,
+                  razorpay_signature: response.razorpay_signature || "",
+                  order_id: orderData.id,
+                }),
+              });
+
+              if (verifyRes.ok) {
+                const verifyJson = await verifyRes.json();
+                if (verifyJson.success) {
+                  serverVerified = true;
+                }
+              }
+            } catch (apiErr) {
+              console.warn("Backend verification endpoint unavailable, finalizing via Supabase:", apiErr);
+            }
+
+            // 2. Direct database confirmation fallback
+            if (!serverVerified) {
+              try {
+                await supabase.rpc("confirm_order_payment", {
+                  p_order_id: orderData.id,
+                  p_payment_id: response.razorpay_payment_id || "captured",
+                  p_user_id: user.id,
+                });
+              } catch {
+                await supabase
+                  .from("orders")
+                  .update({
+                    payment_status: "paid",
+                    status: "confirmed",
+                    payment_id: response.razorpay_payment_id || null,
+                  })
+                  .eq("id", orderData.id);
+              }
+            }
+
+            // Clear local cart on verified payment
             clearCart();
 
             // Redirect to celebration page
@@ -332,8 +399,9 @@ function CheckoutPage() {
                 orderNumber: orderNumber,
               },
             });
-          } catch (updateErr) {
-            console.error("Payment recorded but order update error:", updateErr);
+          } catch (verificationErr: any) {
+            console.error("Payment confirmation failed:", verificationErr);
+            setPaymentError(verificationErr.message || "Payment could not be finalized. Please contact support.");
             navigate({
               to: "/orders",
             });

@@ -323,6 +323,85 @@ function AdminPage() {
     }
   };
 
+  // 🛡️ Security Gate: Verify authentication and administrative role
+  if (authLoading) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-slate-50 p-6 text-center">
+        <div className="size-12 rounded-2xl bg-lilac-deep/10 text-lilac-deep flex items-center justify-center mb-4 animate-spin text-xl">
+          👑
+        </div>
+        <h2 className="font-display font-bold text-lg text-slate-800">Verifying Royal Credentials...</h2>
+        <p className="text-xs text-slate-500 mt-1">Checking atelier administrative access levels</p>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-slate-50/70 p-6 text-center">
+        <div className="max-w-md w-full rounded-2xl border border-lilac-deep/20 bg-white p-8 shadow-xl">
+          <div className="mx-auto mb-4 flex size-14 items-center justify-center rounded-2xl bg-lilac-deep/10 text-2xl text-lilac-deep">
+            👑
+          </div>
+          <h2 className="font-display text-xl font-black text-slate-800">Atelier Administration Gate</h2>
+          <p className="mt-2 text-sm text-slate-500 leading-relaxed">
+            This portal is strictly reserved for Inventive Queen artisans and store administrators. Please authenticate with your executive credentials.
+          </p>
+          <div className="mt-6 flex flex-col gap-3">
+            <Link
+              to="/login"
+              search={{ redirect: "/admin" }}
+              className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-lilac-deep py-3 text-sm font-bold text-white shadow-md hover:bg-lilac-deep/90 transition-all"
+            >
+              <Lock className="size-4" />
+              Sign In to Admin Portal
+            </Link>
+            <Link
+              to="/"
+              className="text-xs text-slate-500 hover:text-lilac-deep transition-colors py-1"
+            >
+              ← Return to Atelier Storefront
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!isAdmin) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-slate-50/70 p-6 text-center">
+        <div className="max-w-md w-full rounded-2xl border border-rose-200 bg-white p-8 shadow-xl">
+          <div className="mx-auto mb-4 flex size-14 items-center justify-center rounded-2xl bg-rose-50 text-2xl text-rose-600">
+            <ShieldCheck className="size-8 text-rose-500" />
+          </div>
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-rose-100 text-rose-700 text-xs font-bold mb-2">
+            403 Forbidden Access
+          </div>
+          <h2 className="font-display text-xl font-black text-slate-800">Restricted Atelier Access</h2>
+          <p className="mt-2 text-sm text-slate-500 leading-relaxed">
+            Account <span className="font-semibold text-slate-700">{user.email}</span> is authenticated as a customer but lacks Executive Atelier privileges.
+          </p>
+          <div className="mt-6 flex flex-col gap-3">
+            <Link
+              to="/orders"
+              className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-lilac-deep py-3 text-sm font-bold text-white shadow-md hover:bg-lilac-deep/90 transition-all"
+            >
+              <ShoppingBag className="size-4" />
+              View My Personal Orders
+            </Link>
+            <Link
+              to="/"
+              className="text-xs text-slate-500 hover:text-lilac-deep transition-colors py-1"
+            >
+              ← Return to Atelier Storefront
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen flex bg-slate-50/70 text-foreground">
       {/* Sidebar */}

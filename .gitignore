@@ -18,6 +18,11 @@ dist-ssr
 .env
 .env.*
 !.env.example
+*.csv
+*.key
+*.pem
+*.secret
+rzp-key.csv
 
 # Wrangler / Cloudflare
 .wrangler/

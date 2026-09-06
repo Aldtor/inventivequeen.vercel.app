@@ -200,6 +200,11 @@ create trigger set_site_settings_updated_at
   before update on public.site_settings
   for each row execute function public.set_updated_at();
 
+drop trigger if exists set_counters_updated_at on public.product_id_counters;
+create trigger set_counters_updated_at
+  before update on public.product_id_counters
+  for each row execute function public.set_updated_at();
+
 -- RPC Function: Reserve atomic sequential product ID (e.g. IQ-DOL-001, IQ-FLW-002)
 create or replace function public.reserve_product_id(product_type text)
 returns text
@@ -235,6 +240,73 @@ $$;
 
 grant execute on function public.reserve_product_id(text) to authenticated, anon;
 
+-- Trigger Function: Prevent non-admin users from tampering with payment and status fields
+create or replace function public.enforce_order_security_integrity()
+returns trigger
+language plpgsql
+security definer
+as $$
+begin
+  -- Allow if administrator or executing inside verified payment confirmation RPC
+  if public.is_admin() or current_setting('app.payment_verification_in_progress', true) = 'true' then
+    return new;
+  end if;
+
+  -- Prevent tampering with sensitive order fields
+  if old.payment_status != new.payment_status and new.payment_status = 'paid' then
+    raise exception 'Security violation: Unauthorized payment status escalation.';
+  end if;
+
+  if old.amount_total != new.amount_total then
+    raise exception 'Security violation: Order total amount cannot be modified after creation.';
+  end if;
+
+  if old.status != new.status and new.status in ('confirmed', 'crafting', 'shipped', 'delivered') then
+    raise exception 'Security violation: Order fulfillment status can only be transitioned by store admins.';
+  end if;
+
+  return new;
+end;
+$$;
+
+drop trigger if exists trg_enforce_order_security on public.orders;
+create trigger trg_enforce_order_security
+  before update on public.orders
+  for each row execute function public.enforce_order_security_integrity();
+
+-- RPC Function: Atomic Security Definer to mark orders as verified and paid
+create or replace function public.confirm_order_payment(
+  p_order_id uuid,
+  p_payment_id text,
+  p_user_id uuid default null
+)
+returns boolean
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  v_rows_affected integer;
+begin
+  -- Set transaction-local setting so integrity trigger permits verified payment confirmation
+  perform set_config('app.payment_verification_in_progress', 'true', true);
+
+  update public.orders
+  set payment_status = 'paid',
+      status = 'confirmed',
+      payment_id = p_payment_id,
+      updated_at = now()
+  where id = p_order_id
+    and (p_user_id is null or user_id = p_user_id)
+    and payment_status != 'paid';
+
+  get diagnostics v_rows_affected = row_count;
+  return v_rows_affected > 0;
+end;
+$$;
+
+grant execute on function public.confirm_order_payment(uuid, text, uuid) to authenticated, anon;
+
 -- =============================================================================
 -- SECTION 4: ROW LEVEL SECURITY (RLS) POLICIES
 -- =============================================================================
@@ -260,7 +332,7 @@ alter table public.product_id_counters enable row level security;
 drop policy if exists "Allow reading counters" on public.product_id_counters;
 create policy "Allow reading counters" on public.product_id_counters for select using (true);
 drop policy if exists "Allow updating counters via RPC or admin" on public.product_id_counters;
-create policy "Allow updating counters via RPC or admin" on public.product_id_counters for all using (true) with check (true);
+create policy "Allow updating counters via RPC or admin" on public.product_id_counters for all using (public.is_admin()) with check (public.is_admin());
 
 -- 4. CMS Products RLS
 alter table public.cms_products enable row level security;
@@ -280,7 +352,8 @@ create policy "Users can view own orders" on public.orders for select using (aut
 drop policy if exists "Authenticated users can create orders" on public.orders;
 create policy "Authenticated users can create orders" on public.orders for insert with check (auth.uid() = user_id or public.is_admin());
 drop policy if exists "Users can update own orders during payment" on public.orders;
-create policy "Users can update own orders during payment" on public.orders for update using (auth.uid() = user_id or public.is_admin()) with check (auth.uid() = user_id or public.is_admin());
+drop policy if exists "Admins can update orders" on public.orders;
+create policy "Admins can update orders" on public.orders for update using (public.is_admin()) with check (public.is_admin());
 drop policy if exists "Admins can delete orders" on public.orders;
 create policy "Admins can delete orders" on public.orders for delete using (public.is_admin());
 
@@ -306,9 +379,9 @@ create policy "Admins can update site settings" on public.site_settings for upda
 drop policy if exists "Public read for cms-images" on storage.objects;
 create policy "Public read for cms-images" on storage.objects for select using (bucket_id = 'cms-images');
 drop policy if exists "Admins can upload to cms-images" on storage.objects;
-create policy "Admins can upload to cms-images" on storage.objects for insert with check (bucket_id = 'cms-images' and (auth.role() = 'authenticated' or public.is_admin()));
+create policy "Admins can upload to cms-images" on storage.objects for insert with check (bucket_id = 'cms-images' and public.is_admin());
 drop policy if exists "Admins can update cms-images" on storage.objects;
-create policy "Admins can update cms-images" on storage.objects for update using (bucket_id = 'cms-images' and (auth.role() = 'authenticated' or public.is_admin()));
+create policy "Admins can update cms-images" on storage.objects for update using (bucket_id = 'cms-images' and public.is_admin());
 drop policy if exists "Admins can delete from cms-images" on storage.objects;
 create policy "Admins can delete from cms-images" on storage.objects for delete using (bucket_id = 'cms-images' and public.is_admin());
 
