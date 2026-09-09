@@ -245,27 +245,35 @@ function ProductDetailsPage() {
     <SiteLayout>
       <div className="min-h-screen pb-28 lg:pb-16">
         {/* ── Breadcrumb & Top Bar ── */}
-        <div className="mx-auto max-w-7xl px-4 pt-6 sm:pt-8">
-          <div className="flex flex-wrap items-center justify-between gap-4">
-            <nav className="flex items-center gap-2 text-xs sm:text-sm text-muted-foreground">
-              <Link to="/" className="hover:text-primary transition-colors">
-                Home
-              </Link>
-              <span>/</span>
-              <Link to={catMeta.href} className="hover:text-primary transition-colors">
-                {catMeta.label}
-              </Link>
-              <span>/</span>
-              <span className="font-bold text-foreground truncate max-w-[180px] sm:max-w-xs">
-                {product.name}
-              </span>
-            </nav>
+        <div className="mx-auto max-w-7xl px-4 pt-4 sm:pt-8">
+          <div className="flex items-center justify-between gap-3">
+            <Link
+              to={catMeta.href}
+              className="liquid-glass inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-xs font-bold text-lilac-deep hover:text-primary hover:bg-white/70 transition-all shadow-xs"
+            >
+              <ArrowLeft className="size-3.5" />
+              <span>Back to {catMeta.label}</span>
+            </Link>
 
             <div className="flex items-center gap-2">
+              <nav className="hidden sm:flex items-center gap-2 text-xs sm:text-sm text-muted-foreground">
+                <Link to="/" className="hover:text-primary transition-colors">
+                  Home
+                </Link>
+                <span>/</span>
+                <Link to={catMeta.href} className="hover:text-primary transition-colors">
+                  {catMeta.label}
+                </Link>
+                <span>/</span>
+                <span className="font-bold text-foreground truncate max-w-[140px] sm:max-w-xs">
+                  {product.name}
+                </span>
+              </nav>
+
               <button
                 type="button"
                 onClick={handleShare}
-                className="liquid-glass inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-bold text-lilac-deep hover:bg-white/60 transition-all cursor-pointer"
+                className="liquid-glass inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-xs font-bold text-lilac-deep hover:bg-white/70 transition-all shadow-xs cursor-pointer"
                 title="Share product"
               >
                 {copiedLink ? (
@@ -276,17 +284,10 @@ function ProductDetailsPage() {
                 ) : (
                   <>
                     <Share2 className="size-3.5" />
-                    <span>Share</span>
+                    <span className="hidden xs:inline">Share</span>
                   </>
                 )}
               </button>
-              <Link
-                to={catMeta.href}
-                className="liquid-glass inline-flex items-center gap-1 rounded-full px-3 py-1.5 text-xs font-bold text-muted-foreground hover:text-foreground transition-all"
-              >
-                <ArrowLeft className="size-3.5" />
-                <span>Back to {catMeta.label}</span>
-              </Link>
             </div>
           </div>
         </div>
@@ -370,7 +371,7 @@ function ProductDetailsPage() {
 
               {/* Thumbnail Strip */}
               {images.length > 1 && (
-                <div className="flex items-center gap-3 overflow-x-auto pb-2 scrollbar-thin">
+                <div className="flex items-center gap-2.5 sm:gap-3 overflow-x-auto pb-2 no-scrollbar overscroll-x-contain">
                   {images.map((img, idx) => (
                     <button
                       key={idx}
@@ -850,7 +851,7 @@ function ProductDetailsPage() {
         )}
 
         {/* ── Sticky Mobile Bar ── */}
-        <div className="fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-xl border-t border-border/40 p-3 shadow-2xl lg:hidden">
+        <div className="fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-xl border-t border-border/40 p-3 pb-safe shadow-2xl lg:hidden">
           <div className="mx-auto flex max-w-md items-center justify-between gap-3">
             <div className="flex items-center gap-2.5 min-w-0">
               <img

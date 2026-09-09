@@ -96,6 +96,10 @@
   }
 }
 
+@utility pb-safe {
+  padding-bottom: max(1rem, env(safe-area-inset-bottom));
+}
+
 @layer base {
   /* Hide scrollbars globally across all browsers while keeping smooth scrolling */
   html,
@@ -115,9 +119,6 @@
   html {
     overflow-x: hidden;
     scroll-behavior: smooth;
-    cursor:
-      url("/cursor.png") 1 1,
-      auto !important;
   }
 
   body {
@@ -125,26 +126,32 @@
     color: var(--color-foreground);
     font-family: var(--font-sans);
     overflow-x: hidden;
-    cursor:
-      url("/cursor.png") 1 1,
-      auto !important;
   }
 
-  /* Custom crochet needle pointer on all interactive elements */
-  a,
-  button,
-  [role="button"],
-  input[type="submit"],
-  input[type="button"],
-  select,
-  summary,
-  .clickable,
-  .cursor-pointer,
-  [data-clickable="true"] {
-    cursor:
-      url("/cursor-pointer.png") 1 1,
-      url("/cursor.png") 1 1,
-      pointer !important;
+  /* Custom crochet needle pointer on devices with a mouse/trackpad pointer */
+  @media (hover: hover) and (pointer: fine) {
+    html,
+    body {
+      cursor:
+        url("/cursor.png") 1 1,
+        auto !important;
+    }
+
+    a,
+    button,
+    [role="button"],
+    input[type="submit"],
+    input[type="button"],
+    select,
+    summary,
+    .clickable,
+    .cursor-pointer,
+    [data-clickable="true"] {
+      cursor:
+        url("/cursor-pointer.png") 1 1,
+        url("/cursor.png") 1 1,
+        pointer !important;
+    }
   }
 
   h1,
