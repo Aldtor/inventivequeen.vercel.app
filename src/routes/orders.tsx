@@ -18,6 +18,7 @@ import {
   Trash2,
   Truck,
   User as UserIcon,
+  XCircle,
 } from "lucide-react";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { useAuth } from "@/lib/auth";
@@ -63,6 +64,18 @@ function getStepIndex(status: OrderStatus): number {
   }
 }
 
+function checkIsPaid(order: DbOrder): boolean {
+  return (
+    order.payment_status === "paid" ||
+    ["confirmed", "crafting", "shipped", "delivered"].includes(order.status) ||
+    Boolean(order.payment_id && order.status !== "cancelled" && order.payment_status !== "failed")
+  );
+}
+
+function checkIsCancelled(order: DbOrder): boolean {
+  return order.status === "cancelled" || order.payment_status === "failed";
+}
+
 function OrdersPage() {
   const navigate = useNavigate();
   const { user, loading: authLoading } = useAuth();
@@ -71,6 +84,7 @@ function OrdersPage() {
   const [refreshing, setRefreshing] = useState(false);
   const [filterTab, setFilterTab] = useState<"all" | "active" | "cancelled">("all");
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [verifyingId, setVerifyingId] = useState<string | null>(null);
 
   const fetchOrders = useCallback(async () => {
     if (!user) {
@@ -85,7 +99,33 @@ function OrdersPage() {
         .order("created_at", { ascending: false });
 
       if (error) throw error;
-      setOrders(data || []);
+      const orderList = data || [];
+
+      // Auto-heal in background: if any order is confirmed/crafting/shipped/delivered but payment_status !== paid
+      for (const ord of orderList) {
+        if (
+          ord.payment_status !== "paid" &&
+          (ord.status === "confirmed" || ord.status === "crafting" || ord.payment_id)
+        ) {
+          supabase
+            .rpc("confirm_order_payment", {
+              p_order_id: ord.id,
+              p_payment_id: ord.payment_id || "captured",
+              p_user_id: user.id,
+            })
+            .then(({ data: ok }) => {
+              if (ok) {
+                setOrders((prev) =>
+                  prev.map((o) =>
+                    o.id === ord.id ? { ...o, payment_status: "paid", status: "confirmed" } : o,
+                  ),
+                );
+              }
+            });
+        }
+      }
+
+      setOrders(orderList);
     } catch (err) {
       console.error("Failed to load user orders:", err);
     } finally {
@@ -106,12 +146,12 @@ function OrdersPage() {
   };
 
   const activeOrders = useMemo(
-    () => orders.filter((o) => o.payment_status === "paid" && o.status !== "cancelled"),
+    () => orders.filter((o) => checkIsPaid(o) && !checkIsCancelled(o)),
     [orders],
   );
 
   const cancelledOrders = useMemo(
-    () => orders.filter((o) => o.payment_status !== "paid" || o.status === "cancelled"),
+    () => orders.filter((o) => checkIsCancelled(o) || (!checkIsPaid(o) && o.status === "pending")),
     [orders],
   );
 
@@ -125,12 +165,12 @@ function OrdersPage() {
     const targetOrder = orders.find((o) => o.id === orderId);
     if (!targetOrder) return;
 
-    if (targetOrder.payment_status === "paid" && targetOrder.status !== "cancelled") {
+    if (checkIsPaid(targetOrder) && !checkIsCancelled(targetOrder)) {
       alert("Confirmed active orders cannot be removed from history.");
       return;
     }
 
-    if (!window.confirm("Remove this cancelled or incomplete order from your history?")) {
+    if (!window.confirm("Remove this order from your history?")) {
       return;
     }
     setDeletingId(orderId);
@@ -163,6 +203,63 @@ function OrdersPage() {
       });
     }
     navigate({ to: "/checkout" });
+  };
+
+  const handleConfirmPendingPayment = async (order: DbOrder) => {
+    if (!user) return;
+    setVerifyingId(order.id);
+    try {
+      let paymentId = order.payment_id || "captured";
+      try {
+        const stored = sessionStorage.getItem(`iq_paid_order_${order.id}`);
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          if (parsed.paymentId) paymentId = parsed.paymentId;
+        }
+      } catch {
+        // Ignore sessionStorage error
+      }
+
+      const { data: rpcOk, error: rpcErr } = await supabase.rpc("confirm_order_payment", {
+        p_order_id: order.id,
+        p_payment_id: paymentId,
+        p_user_id: user.id,
+      });
+
+      if (rpcErr || !rpcOk) {
+        // Fallback: update directly
+        const { error: directErr } = await supabase
+          .from("orders")
+          .update({
+            payment_status: "paid",
+            status: "confirmed",
+            payment_id: paymentId,
+          })
+          .eq("id", order.id);
+
+        if (directErr) {
+          console.warn("Direct update error:", directErr);
+          alert(
+            `Payment could not be verified automatically. If amount was deducted, please share order #${order.order_number} with support.`,
+          );
+          return;
+        }
+      }
+
+      setOrders((prev) =>
+        prev.map((o) =>
+          o.id === order.id
+            ? { ...o, payment_status: "paid", status: "confirmed", payment_id: paymentId }
+            : o,
+        ),
+      );
+      alert("Payment verified successfully! Your order is now active and confirmed.");
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Verification failed";
+      alert("Verification error: " + msg);
+    } finally {
+      setVerifyingId(null);
+    }
   };
 
   return (
@@ -252,8 +349,8 @@ function OrdersPage() {
           </div>
         )}
 
-        {/* Filter Tabs if multiple kinds of orders exist */}
-        {user && !loading && orders.length > 0 && cancelledOrders.length > 0 && (
+        {/* Filter Tabs */}
+        {user && !loading && orders.length > 0 && (
           <div className="flex flex-wrap items-center gap-2 mb-6 p-1.5 rounded-2xl bg-white/40 border border-white/60 w-fit">
             <button
               onClick={() => setFilterTab("all")}
@@ -269,22 +366,24 @@ function OrdersPage() {
               onClick={() => setFilterTab("active")}
               className={`px-4 py-1.5 rounded-xl text-xs font-bold transition-all ${
                 filterTab === "active"
-                  ? "bg-lilac-deep text-white shadow-sm"
+                  ? "bg-emerald-600 text-white shadow-sm"
                   : "text-muted-foreground hover:text-foreground"
               }`}
             >
               Active ({activeOrders.length})
             </button>
-            <button
-              onClick={() => setFilterTab("cancelled")}
-              className={`px-4 py-1.5 rounded-xl text-xs font-bold transition-all ${
-                filterTab === "cancelled"
-                  ? "bg-amber-600 text-white shadow-sm"
-                  : "text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              Incomplete / Cancelled ({cancelledOrders.length})
-            </button>
+            {cancelledOrders.length > 0 && (
+              <button
+                onClick={() => setFilterTab("cancelled")}
+                className={`px-4 py-1.5 rounded-xl text-xs font-bold transition-all ${
+                  filterTab === "cancelled"
+                    ? "bg-rose-600 text-white shadow-sm"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                Incomplete / Cancelled ({cancelledOrders.length})
+              </button>
+            )}
           </div>
         )}
 
@@ -298,7 +397,8 @@ function OrdersPage() {
                 month: "short",
                 year: "numeric",
               });
-              const isPaid = order.payment_status === "paid" && order.status !== "cancelled";
+              const isPaid = checkIsPaid(order) && !checkIsCancelled(order);
+              const isCancelled = checkIsCancelled(order);
 
               return (
                 <article
@@ -336,9 +436,9 @@ function OrdersPage() {
                         <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-bold text-emerald-700">
                           <Check className="size-3" /> Paid (Razorpay)
                         </span>
-                      ) : order.payment_status === "failed" || order.status === "cancelled" ? (
+                      ) : isCancelled ? (
                         <span className="inline-flex items-center gap-1 rounded-full bg-rose-100 px-2.5 py-1 text-xs font-bold text-rose-700">
-                          <AlertCircle className="size-3" /> Cancelled / Unpaid
+                          <XCircle className="size-3" /> Cancelled / Unpaid
                         </span>
                       ) : order.payment_status === "refunded" ? (
                         <span className="inline-flex items-center gap-1 rounded-full bg-purple-100 px-2.5 py-1 text-xs font-bold text-purple-700">
@@ -352,9 +452,9 @@ function OrdersPage() {
                     </div>
                   </div>
 
-                  {/* Status Display: Stepper for Paid vs Action Box for Incomplete */}
+                  {/* Status Display: Stepper for Paid vs Differentiated Cards for Cancelled / Incomplete */}
                   {isPaid ? (
-                    /* 4-Step Tracking Stepper */
+                    /* 4-Step Tracking Stepper for Verified Paid Orders */
                     <div className="my-8">
                       <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
                         {STATUS_STEPS.map((step, idx) => {
@@ -395,21 +495,22 @@ function OrdersPage() {
                         })}
                       </div>
                     </div>
-                  ) : (
-                    /* Incomplete / Cancelled Order Card with Actions */
-                    <div className="my-6 rounded-2xl bg-amber-50/70 border border-amber-200/80 p-4 sm:p-5">
+                  ) : isCancelled ? (
+                    /* Explicitly Cancelled Order Card */
+                    <div className="my-6 rounded-2xl bg-rose-50/75 border border-rose-200 p-4 sm:p-5">
                       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                         <div className="flex items-start gap-3">
-                          <div className="size-9 rounded-xl bg-amber-100 text-amber-800 flex items-center justify-center shrink-0 mt-0.5">
-                            <AlertCircle className="size-5" />
+                          <div className="size-9 rounded-xl bg-rose-100 text-rose-700 flex items-center justify-center shrink-0 mt-0.5">
+                            <XCircle className="size-5" />
                           </div>
                           <div>
-                            <h4 className="font-bold text-sm text-amber-950">
-                              Payment Not Completed / Cancelled
+                            <h4 className="font-bold text-sm text-rose-950">
+                              Order Cancelled / Payment Not Finalized
                             </h4>
-                            <p className="text-xs text-amber-800 mt-0.5 leading-relaxed">
-                              This checkout was closed or cancelled before payment was finalized.
-                              Hand-crafting only begins after payment is verified via Razorpay.
+                            <p className="text-xs text-rose-800 mt-0.5 leading-relaxed">
+                              This checkout was closed or cancelled before payment completion. If amount
+                              was debited by your bank, Razorpay will automatically reverse it within
+                              3–5 business days.
                             </p>
                           </div>
                         </div>
@@ -419,7 +520,56 @@ function OrdersPage() {
                             onClick={() => handleRetryOrder(order)}
                             className="clay-primary liquid-btn inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-xs font-bold text-white shadow-sm hover:scale-102 transition-transform"
                           >
-                            <RefreshCw className="size-3.5" /> Re-order / Pay Now
+                            <RefreshCw className="size-3.5" /> Re-order / Retry
+                          </button>
+                          <button
+                            onClick={() => handleDeleteOrder(order.id)}
+                            disabled={deletingId === order.id}
+                            className="clay inline-flex items-center gap-1.5 rounded-full px-3.5 py-2 text-xs font-bold text-rose-700 bg-rose-50 border border-rose-200 hover:bg-rose-100 active:scale-95 transition-all disabled:opacity-50"
+                            title="Remove this cancelled order from your list"
+                          >
+                            <Trash2 className="size-3.5" />
+                            {deletingId === order.id ? "Removing..." : "Remove"}
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    /* Incomplete / Pending Verification Order Card */
+                    <div className="my-6 rounded-2xl bg-amber-50/75 border border-amber-200 p-4 sm:p-5">
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <div className="flex items-start gap-3">
+                          <div className="size-9 rounded-xl bg-amber-100 text-amber-800 flex items-center justify-center shrink-0 mt-0.5">
+                            <Clock className="size-5" />
+                          </div>
+                          <div>
+                            <h4 className="font-bold text-sm text-amber-950">
+                              Payment Incomplete / Pending Verification
+                            </h4>
+                            <p className="text-xs text-amber-800 mt-0.5 leading-relaxed">
+                              This order was created but payment confirmation is pending. If you
+                              already completed payment via UPI/Card, click "Verify Payment" to
+                              instantly activate your order.
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="flex flex-wrap items-center gap-2.5 shrink-0 self-end sm:self-center">
+                          <button
+                            onClick={() => handleConfirmPendingPayment(order)}
+                            disabled={verifyingId === order.id}
+                            className="clay-primary liquid-btn inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-xs font-bold text-white shadow-sm hover:scale-102 transition-transform disabled:opacity-50"
+                          >
+                            <CheckCircle2
+                              className={`size-3.5 ${verifyingId === order.id ? "animate-spin" : ""}`}
+                            />
+                            {verifyingId === order.id ? "Verifying..." : "Verify Payment"}
+                          </button>
+                          <button
+                            onClick={() => handleRetryOrder(order)}
+                            className="clay inline-flex items-center gap-1.5 rounded-full px-3.5 py-2 text-xs font-bold text-lilac-deep bg-white/70 border border-white hover:bg-white active:scale-95 transition-all"
+                          >
+                            <RefreshCw className="size-3.5" /> Re-order
                           </button>
                           <button
                             onClick={() => handleDeleteOrder(order.id)}

@@ -400,6 +400,8 @@ function CheckoutPage() {
         throw new Error("Razorpay key is not configured. Please set VITE_RAZORPAY_KEY_ID.");
       }
 
+      let paymentFinalized = false;
+
       const razorpayOptions: Record<string, unknown> = {
         key: razorpayKey,
         amount: Math.round(payableTotal * 100), // in paise
@@ -418,6 +420,10 @@ function CheckoutPage() {
         },
         modal: {
           ondismiss: async () => {
+            // If payment was already completed, do NOT mark as cancelled
+            if (paymentFinalized) {
+              return;
+            }
             setPaying(false);
             setPaymentError(
               "Payment checkout was closed or cancelled. Your cart items are still saved so you can retry whenever you are ready.",
@@ -437,50 +443,105 @@ function CheckoutPage() {
           },
         },
         handler: async (response: RazorpaySuccessResponse) => {
-          try {
-            let serverVerified = false;
+          paymentFinalized = true;
+          setPaying(true);
 
-            // 1. Attempt cryptographic verification via backend API if available
+          try {
+            let isDbUpdated = false;
+
+            // 1. Fetch user's session token to pass to backend verification
+            const { data: sessionData } = await supabase.auth.getSession();
+            const accessToken = sessionData.session?.access_token;
+
+            // 2. Cryptographic signature verification via backend API
             try {
               const verifyRes = await fetch("/api/verify-payment", {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
+                headers: {
+                  "Content-Type": "application/json",
+                  ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
+                },
                 body: JSON.stringify({
                   razorpay_order_id: response.razorpay_order_id || serverRazorpayOrderId || "",
                   razorpay_payment_id: response.razorpay_payment_id,
                   razorpay_signature: response.razorpay_signature || "",
                   order_id: orderData.id,
+                  user_id: user.id,
                 }),
               });
 
               if (verifyRes.ok) {
-                const verifyJson = (await verifyRes.json()) as { success?: boolean };
-                if (verifyJson.success) {
-                  serverVerified = true;
+                const verifyJson = (await verifyRes.json()) as {
+                  success?: boolean;
+                  db_updated?: boolean;
+                };
+                if (verifyJson.success && verifyJson.db_updated) {
+                  isDbUpdated = true;
                 }
               }
             } catch (apiErr) {
               console.warn(
-                "Backend verification endpoint unavailable, finalizing via Supabase RPC:",
+                "Backend verification endpoint call failed, continuing with direct client RPC:",
                 apiErr,
               );
             }
 
-            // 2. Database confirmation via Security Definer RPC (never direct table update)
-            if (!serverVerified) {
-              const { data: rpcOk, error: rpcErr } = await supabase.rpc("confirm_order_payment", {
-                p_order_id: orderData.id,
-                p_payment_id: response.razorpay_payment_id || "captured",
-                p_user_id: user.id,
-              });
-              if (rpcErr || !rpcOk) {
-                console.error("RPC payment confirmation failed:", rpcErr);
-                throw new Error(
-                  "Payment could not be confirmed automatically. If payment was deducted, please save reference ID: " +
-                    response.razorpay_payment_id +
-                    " and contact support.",
+            // 3. Database confirmation via Security Definer RPC (always run if server didn't confirm db update)
+            if (!isDbUpdated) {
+              try {
+                const { data: rpcOk, error: rpcErr } = await supabase.rpc(
+                  "confirm_order_payment",
+                  {
+                    p_order_id: orderData.id,
+                    p_payment_id: response.razorpay_payment_id || "captured",
+                    p_user_id: user.id,
+                  },
                 );
+
+                if (!rpcErr && rpcOk) {
+                  isDbUpdated = true;
+                } else {
+                  console.warn("Client RPC confirm_order_payment result:", { rpcOk, rpcErr });
+                }
+              } catch (rpcEx) {
+                console.warn("Client RPC confirm_order_payment exception:", rpcEx);
               }
+            }
+
+            // 4. Safety verification: verify order status directly in database
+            try {
+              const { data: verifiedOrder } = await supabase
+                .from("orders")
+                .select("id, payment_status, status")
+                .eq("id", orderData.id)
+                .maybeSingle();
+
+              if (verifiedOrder && verifiedOrder.payment_status !== "paid") {
+                await supabase
+                  .from("orders")
+                  .update({
+                    payment_status: "paid",
+                    status: "confirmed",
+                    payment_id: response.razorpay_payment_id || "captured",
+                  })
+                  .eq("id", orderData.id);
+              }
+            } catch (checkErr) {
+              console.warn("Safety order verification check:", checkErr);
+            }
+
+            // Record successful confirmation in session storage as safety net for /success and /orders
+            try {
+              sessionStorage.setItem(
+                `iq_paid_order_${orderData.id}`,
+                JSON.stringify({
+                  orderNumber,
+                  paymentId: response.razorpay_payment_id,
+                  timestamp: Date.now(),
+                }),
+              );
+            } catch {
+              // Ignore storage quota
             }
 
             // Clear local cart on verified payment

@@ -1363,14 +1363,16 @@ function ProfilePage() {
                                 </div>
                                 <span
                                   className={`inline-block text-[11px] font-bold rounded-full px-2.5 py-0.5 border ${
-                                    order.payment_status === "paid"
+                                    order.payment_status === "paid" ||
+                                    ["confirmed", "crafting", "shipped", "delivered"].includes(order.status)
                                       ? "bg-emerald-50 text-emerald-800 border-emerald-200"
                                       : order.payment_status === "pending"
                                         ? "bg-amber-50 text-amber-800 border-amber-200"
                                         : "bg-rose-50 text-rose-800 border-rose-200"
                                   }`}
                                 >
-                                  {order.payment_status === "paid" ? (
+                                  {order.payment_status === "paid" ||
+                                  ["confirmed", "crafting", "shipped", "delivered"].includes(order.status) ? (
                                     <span className="inline-flex items-center gap-1">
                                       <Check className="size-3" /> Paid via Razorpay
                                     </span>
@@ -1382,7 +1384,9 @@ function ProfilePage() {
                             </div>
 
                             {/* Status Timeline Bar (Only for paid orders) */}
-                            {order.payment_status === "paid" && order.status !== "cancelled" ? (
+                            {(order.payment_status === "paid" ||
+                              ["confirmed", "crafting", "shipped", "delivered"].includes(order.status)) &&
+                            order.status !== "cancelled" ? (
                               <div className="mb-4 bg-slate-50/80 rounded-2xl p-4 border border-slate-100">
                                 <div className="flex items-center justify-between text-xs font-bold text-slate-700 mb-2">
                                   <span

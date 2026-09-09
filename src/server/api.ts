@@ -210,7 +210,7 @@ export async function handleVerifyPayment(request: Request, env?: unknown): Prom
     return jsonResponse({ error: "Invalid JSON payload" }, 400);
   }
 
-  const { razorpay_order_id, razorpay_payment_id, razorpay_signature, order_id } = body || {};
+  const { razorpay_order_id, razorpay_payment_id, razorpay_signature, order_id, user_id } = body || {};
 
   if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
     return jsonResponse({ error: "Missing required payment verification tokens." }, 400);
@@ -234,37 +234,53 @@ export async function handleVerifyPayment(request: Request, env?: unknown): Prom
     );
   }
 
+  let dbUpdated = false;
+
   // If order_id was provided, update Supabase order record via atomic confirm_order_payment RPC
   if (order_id) {
     const supabaseUrl = getEnv("VITE_SUPABASE_URL", env);
-    const supabaseKey =
-      getEnv("SUPABASE_SERVICE_ROLE_KEY", env) || getEnv("VITE_SUPABASE_ANON_KEY", env);
+    const serviceRoleKey = getEnv("SUPABASE_SERVICE_ROLE_KEY", env);
+    const anonKey = getEnv("VITE_SUPABASE_ANON_KEY", env);
+    const incomingAuth = request.headers.get("Authorization");
 
-    if (supabaseUrl && supabaseKey) {
+    // Prefer service role key, else forward caller's authenticated user bearer token
+    const authBearer = serviceRoleKey
+      ? `Bearer ${serviceRoleKey}`
+      : incomingAuth || (anonKey ? `Bearer ${anonKey}` : "");
+
+    const apiKey = anonKey || serviceRoleKey || "";
+
+    if (supabaseUrl && apiKey) {
       try {
         // Priority 1: Call confirm_order_payment RPC (SECURITY DEFINER with trigger override)
         const rpcRes = await fetch(`${supabaseUrl}/rest/v1/rpc/confirm_order_payment`, {
           method: "POST",
           headers: {
-            apikey: supabaseKey,
-            Authorization: `Bearer ${supabaseKey}`,
+            apikey: apiKey,
+            Authorization: authBearer,
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
             p_order_id: order_id,
             p_payment_id: String(razorpay_payment_id).trim(),
+            p_user_id: user_id || null,
           }),
         });
 
-        if (!rpcRes.ok) {
-          // Priority 2: Fallback to direct PATCH if service role key is active
+        if (rpcRes.ok) {
+          dbUpdated = true;
+        } else {
+          const rpcErr = await rpcRes.text();
+          console.warn("confirm_order_payment RPC returned non-200:", rpcRes.status, rpcErr);
+
+          // Priority 2: Fallback to direct PATCH if service role key or user auth is active
           const updateRes = await fetch(
             `${supabaseUrl}/rest/v1/orders?id=eq.${encodeURIComponent(order_id)}`,
             {
               method: "PATCH",
               headers: {
-                apikey: supabaseKey,
-                Authorization: `Bearer ${supabaseKey}`,
+                apikey: apiKey,
+                Authorization: authBearer,
                 "Content-Type": "application/json",
                 Prefer: "return=representation",
               },
@@ -276,9 +292,14 @@ export async function handleVerifyPayment(request: Request, env?: unknown): Prom
             },
           );
 
-          if (!updateRes.ok) {
+          if (updateRes.ok) {
+            const updatedRows = (await updateRes.json()) as unknown[];
+            if (Array.isArray(updatedRows) && updatedRows.length > 0) {
+              dbUpdated = true;
+            }
+          } else {
             const errText = await updateRes.text();
-            console.error("Failed to update order status in Supabase:", errText);
+            console.error("Failed to update order status in Supabase fallback:", errText);
           }
         }
       } catch (dbErr) {
@@ -289,7 +310,11 @@ export async function handleVerifyPayment(request: Request, env?: unknown): Prom
 
   return jsonResponse({
     success: true,
-    message: "Payment successfully verified and confirmed.",
+    verified: true,
+    db_updated: dbUpdated,
+    message: dbUpdated
+      ? "Payment successfully verified and confirmed in database."
+      : "Payment cryptographically verified. Client finalization required.",
     payment_id: razorpay_payment_id,
   });
 }

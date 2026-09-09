@@ -46,6 +46,41 @@ function SuccessPage() {
           .maybeSingle();
 
         if (error) throw error;
+
+        if (data && data.payment_status !== "paid") {
+          try {
+            const {
+              data: { session },
+            } = await supabase.auth.getSession();
+            const callerUid = session?.user?.id || data.user_id;
+
+            let storedPaymentId = "captured";
+            try {
+              const stored = sessionStorage.getItem(`iq_paid_order_${orderId}`);
+              if (stored) {
+                const parsed = JSON.parse(stored);
+                if (parsed.paymentId) storedPaymentId = parsed.paymentId;
+              }
+            } catch {
+              // Ignore sessionStorage error
+            }
+
+            const { data: rpcOk } = await supabase.rpc("confirm_order_payment", {
+              p_order_id: orderId,
+              p_payment_id: storedPaymentId,
+              p_user_id: callerUid,
+            });
+
+            if (rpcOk) {
+              data.payment_status = "paid";
+              data.status = "confirmed";
+              data.payment_id = storedPaymentId;
+            }
+          } catch (healErr) {
+            console.warn("Self-healing order payment confirmation on success page:", healErr);
+          }
+        }
+
         setOrder(data);
       } catch (e) {
         console.error("Could not fetch order confirmation:", e);

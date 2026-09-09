@@ -101,7 +101,7 @@ const ALL_STATUSES: { status: OrderStatus; label: string; color: string; nextAct
     status: "pending",
     label: "Pending",
     color: "bg-amber-100 text-amber-800 border-amber-300",
-    nextAction: "Confirm Order",
+    nextAction: "Confirm & Mark Paid",
   },
   {
     status: "confirmed",
@@ -277,7 +277,11 @@ function AdminPage() {
 
   // Statistics calculation
   const stats = useMemo(() => {
-    const paidOrders = orders.filter((o) => o.payment_status === "paid");
+    const paidOrders = orders.filter(
+      (o) =>
+        o.payment_status === "paid" ||
+        ["confirmed", "crafting", "shipped", "delivered"].includes(o.status),
+    );
     const totalRevenue = paidOrders.reduce((sum, o) => sum + (o.amount_total || 0), 0);
     const today = new Date().toDateString();
     const todayOrders = paidOrders.filter((o) => new Date(o.created_at).toDateString() === today);
@@ -312,21 +316,44 @@ function AdminPage() {
     };
   }, [orders]);
 
-  // Live order status update
+  // Live order status update with automatic payment status synchronization
   const handleOrderStatusChange = async (orderId: string, newStatus: OrderStatus) => {
     try {
+      const existing = orders.find((ord) => ord.id === orderId);
+      const isAdvancingToPaid = ["confirmed", "crafting", "shipped", "delivered"].includes(newStatus);
+      const isCancelling = newStatus === "cancelled";
+
+      const updates: {
+        status: OrderStatus;
+        payment_status?: "pending" | "paid" | "failed" | "refunded";
+        payment_id?: string;
+      } = {
+        status: newStatus,
+      };
+
+      if (isAdvancingToPaid && existing?.payment_status !== "paid") {
+        updates.payment_status = "paid";
+        if (!existing?.payment_id) {
+          updates.payment_id = "Admin Verified";
+        }
+      } else if (isCancelling) {
+        updates.payment_status = "failed";
+      }
+
       const { error } = await supabase
         .from("orders")
-        .update({ status: newStatus })
+        .update(updates)
         .eq("id", orderId);
 
       if (error) throw error;
 
       setOrders((prev) =>
-        prev.map((ord) => (ord.id === orderId ? { ...ord, status: newStatus } : ord)),
+        prev.map((ord) => (ord.id === orderId ? { ...ord, ...updates } : ord)),
       );
       setNotice(
-        `Order status changed to "${newStatus.toUpperCase()}". Customer tracking updated live!`,
+        `Order status changed to "${newStatus.toUpperCase()}". ${
+          updates.payment_status === "paid" ? "Payment verified & marked paid! " : ""
+        }Customer tracking updated live!`,
       );
       setTimeout(() => setNotice(null), 4000);
     } catch (err: unknown) {
@@ -1026,7 +1053,8 @@ function OrdersAdminSection({
                         minute: "2-digit",
                       })}
                     </span>
-                    {order.payment_status === "paid" ? (
+                    {order.payment_status === "paid" ||
+                    ["confirmed", "crafting", "shipped", "delivered"].includes(order.status) ? (
                       <span className="bg-emerald-100 text-emerald-800 px-2.5 py-0.5 rounded-full text-[10px] font-bold inline-flex items-center gap-1">
                         <Check className="size-3" /> Paid · Razorpay ({order.payment_id || "Verified"})
                       </span>
