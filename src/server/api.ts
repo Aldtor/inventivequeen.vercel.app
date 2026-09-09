@@ -39,6 +39,15 @@ interface DbOrderRow {
   payment_status: string;
 }
 
+const DEFAULT_SERVER_ENV_FALLBACKS: Record<string, string> = {
+  VITE_SUPABASE_URL: "https://fsttdvcntqlhnjdhogic.supabase.co",
+  VITE_SUPABASE_ANON_KEY:
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZzdHRkdmNudHFsaG5qZGhvZ2ljIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQyMzM3NDEsImV4cCI6MjA4OTgwOTc0MX0.x_TD4obU3gD4gpMUXhvYOxrbkUix_z5LVjt1vQq8tW4",
+  VITE_RAZORPAY_KEY_ID: "rzp_live_TYUEKLyErpyGRl",
+  RAZORPAY_KEY_ID: "rzp_live_TYUEKLyErpyGRl",
+  RAZORPAY_KEY_SECRET: "NM1DhHxwAPDodXV1wVQ6CRHW",
+};
+
 function getEnv(name: string, env?: unknown): string {
   if (env && typeof env === "object" && name in env) {
     const val = (env as Record<string, unknown>)[name];
@@ -47,7 +56,7 @@ function getEnv(name: string, env?: unknown): string {
   if (typeof process !== "undefined" && process.env && process.env[name]) {
     return process.env[name]!;
   }
-  return "";
+  return DEFAULT_SERVER_ENV_FALLBACKS[name] || "";
 }
 
 function jsonResponse(body: unknown, status = 200): Response {

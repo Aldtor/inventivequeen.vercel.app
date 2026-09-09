@@ -25,6 +25,7 @@ const AuthContext = createContext<AuthContextValue | null>(null);
 const KNOWN_ADMIN_EMAILS = [
   "sk6945104@gmail.com",
   "inventivequeen@gmail.com",
+  "inventivequeen.cs@gmail.com",
   "hello@inventivequeen.com",
   "admin@inventivequeen.com",
 ];

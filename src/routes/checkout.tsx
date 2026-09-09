@@ -395,10 +395,7 @@ function CheckoutPage() {
         metaEnv?.["VITE_RAZORPAY_KEY_ID"] ||
         (typeof process !== "undefined" &&
           (process.env?.["VITE_RAZORPAY_KEY_ID"] || process.env?.["RAZORPAY_KEY_ID"])) ||
-        "";
-      if (!razorpayKey) {
-        throw new Error("Razorpay key is not configured. Please set VITE_RAZORPAY_KEY_ID.");
-      }
+        "rzp_live_TYUEKLyErpyGRl";
 
       let paymentFinalized = false;
 
