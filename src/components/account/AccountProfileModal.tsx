@@ -704,7 +704,7 @@ export function AccountProfileModal({ isOpen, onClose }: AccountProfileModalProp
                   <ul className="text-xs text-slate-500 space-y-1.5 list-disc list-inside">
                     <li>Priority handcrafted crafting queue for custom requests</li>
                     <li>Complimentary hand-calligraphed luxury gift cards</li>
-                    <li>Real-time SMS & WhatsApp dispatch notifications</li>
+                    <li>Real-time SMS & courier dispatch notifications</li>
                   </ul>
                 </div>
               )}

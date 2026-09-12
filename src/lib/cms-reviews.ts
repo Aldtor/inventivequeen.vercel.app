@@ -271,6 +271,29 @@ export function useReviews(): {
     const next = [item, ...reviews];
     setReviews(next);
     saveReviews(next);
+
+    if (isSupabaseConfigured) {
+      supabase
+        .from("reviews")
+        .insert([
+          {
+            id: item.id,
+            author_name: item.handle.replace(/^@/, "") || "Royal Patron",
+            author_handle: item.handle,
+            location: item.location || "India",
+            rating: Math.max(1, Math.min(5, item.rating)),
+            item_name: item.item,
+            category: item.category,
+            review_text: item.text,
+            is_approved: item.isApproved ?? true,
+            is_featured: Boolean(item.isFeatured),
+          },
+        ])
+        .then(
+          () => {},
+          (err) => console.warn("Review insert fallback:", err),
+        );
+    }
   };
 
   const updateReview = (id: string, patch: Partial<ReviewItem>) => {

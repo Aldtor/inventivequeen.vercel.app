@@ -75,22 +75,7 @@ export function serializeAdminNotes(data: ParsedAdminNotes): string {
   });
 }
 
-/**
- * Generate a pre-filled WhatsApp customer chat URL
- */
-export function createWhatsAppChatUrl(order: DbOrder, customMessage?: string): string {
-  // Clean phone number (remove spaces, dashes, leading +)
-  let phone = order.phone.replace(/[^0-9]/g, "");
-  if (phone.length === 10) {
-    phone = `91${phone}`; // Default to India country code
-  }
 
-  const defaultMsg =
-    customMessage ||
-    `Hello ${order.customer_name}!\nThis is Inventive Queen regarding your royal crochet order ${order.order_number}.\n\nStatus: ${order.status.toUpperCase()}\nTotal: ₹${order.amount_total?.toLocaleString("en-IN")}\n\nThank you for choosing our handcrafted atelier!`;
-
-  return `https://wa.me/${phone}?text=${encodeURIComponent(defaultMsg)}`;
-}
 
 /**
  * Export orders array to a downloadable CSV file

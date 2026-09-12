@@ -11,10 +11,11 @@ import {
   Gift,
   Heart,
   HelpCircle,
+  Instagram,
   Maximize2,
-  MessageCircle,
   Minus,
   Palette,
+  PenLine,
   Plus,
   Ruler,
   Share2,
@@ -27,10 +28,12 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 
-import { SiteLayout } from "@/components/site/SiteLayout";
+import { INSTAGRAM_URL, SiteLayout } from "@/components/site/SiteLayout";
 import type { Product, ProductType } from "@/lib/products";
 import { useProducts } from "@/lib/cms-products";
 import { addToCart, parsePrice } from "@/lib/cart";
+import { useReviews } from "@/lib/cms-reviews";
+import { useAuth } from "@/lib/auth";
 
 export const Route = createFileRoute("/product/$productId")({
   component: ProductDetailsPage,
@@ -120,7 +123,87 @@ function ProductDetailsPage() {
   const [customNote, setCustomNote] = useState("");
   const [added, setAdded] = useState(false);
   const [copiedLink, setCopiedLink] = useState(false);
-  const [activeTab, setActiveTab] = useState<"details" | "custom" | "care" | "shipping">("details");
+  const [activeTab, setActiveTab] = useState<"details" | "custom" | "care" | "shipping" | "reviews">("details");
+
+  // Reviews integration
+  const { approvedReviews, addReview } = useReviews();
+  const { profile, user } = useAuth();
+
+  const [isAddReviewOpen, setIsAddReviewOpen] = useState(false);
+  const [reviewRating, setReviewRating] = useState(5);
+  const [reviewHoverRating, setReviewHoverRating] = useState(0);
+  const [reviewAuthor, setReviewAuthor] = useState("");
+  const [reviewLocation, setReviewLocation] = useState("");
+  const [reviewText, setReviewText] = useState("");
+  const [isSubmittingReview, setIsSubmittingReview] = useState(false);
+
+  // Auto-populate reviewer handle if patron is signed in
+  useEffect(() => {
+    if (profile?.full_name && !reviewAuthor) {
+      setReviewAuthor(profile.full_name);
+    } else if (user?.email && !reviewAuthor) {
+      setReviewAuthor(`@${user.email.split("@")[0]}`);
+    }
+  }, [profile, user, reviewAuthor]);
+
+  // Reviews matching this specific product (or fallback to its category)
+  const productReviews = useMemo(() => {
+    if (!product) return [];
+    const pName = product.name.toLowerCase();
+    const exact = approvedReviews.filter((r) => {
+      const rItem = r.item.toLowerCase();
+      return rItem === pName || pName.includes(rItem) || rItem.includes(pName);
+    });
+    if (exact.length > 0) return exact;
+    return approvedReviews.filter((r) => r.category === product.type);
+  }, [approvedReviews, product]);
+
+  const productAvgRating = useMemo(() => {
+    if (productReviews.length === 0) return "5.0";
+    const sum = productReviews.reduce((acc, r) => acc + r.rating, 0);
+    return (sum / productReviews.length).toFixed(1);
+  }, [productReviews]);
+
+  const handleReviewSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!product) return;
+    if (!reviewText.trim()) {
+      toast.error("Please write your review thoughts.");
+      return;
+    }
+    const finalAuthor = reviewAuthor.trim() || "Cherished Patron";
+    const formattedHandle = finalAuthor.startsWith("@")
+      ? finalAuthor
+      : `@${finalAuthor.toLowerCase().replace(/\s+/g, "_")}`;
+
+    setIsSubmittingReview(true);
+    try {
+      addReview({
+        handle: formattedHandle,
+        location: reviewLocation.trim() || "India",
+        text: reviewText.trim(),
+        rating: reviewRating,
+        item: product.name,
+        category: product.type,
+        tag: "Verified Order",
+        date: "Just now",
+        isApproved: true,
+        isFeatured: false,
+      });
+
+      toast.success("Royal Review Published!", {
+        description: `Thank you for reviewing ${product.name}! Your review is now live.`,
+      });
+
+      setReviewText("");
+      setIsAddReviewOpen(false);
+      setActiveTab("reviews");
+    } catch {
+      toast.error("Failed to submit review. Please try again.");
+    } finally {
+      setIsSubmittingReview(false);
+    }
+  };
 
   // Reset image index when switching products
   useEffect(() => {
@@ -194,14 +277,10 @@ function ProductDetailsPage() {
     }
   };
 
-  const handleWhatsAppInquiry = () => {
+  const handleInstagramInquiry = () => {
     if (!product) return;
-    const text = encodeURIComponent(
-      `Hello Inventive Queen! 👑\nI am interested in ordering / customizing the "${product.name}" (${displayPrice}).\n${
-        customNote ? `My notes: ${customNote}\n` : ""
-      }Could you please share details on crafting time and custom reference options?`,
-    );
-    window.open(`https://wa.me/919876543210?text=${text}`, "_blank");
+    toast.info("Opening @inventivequeen on Instagram...");
+    window.open(INSTAGRAM_URL, "_blank");
   };
 
   // 404 State if product wasn't found
@@ -446,14 +525,40 @@ function ProductDetailsPage() {
               </div>
 
               {/* Reviews & Social Proof */}
-              <div className="flex items-center gap-3">
+              <div className="flex flex-wrap items-center gap-2 sm:gap-3">
                 <div className="flex items-center gap-1 text-amber-400">
                   {[...Array(5)].map((_, i) => (
-                    <Star key={i} className="size-4 fill-amber-400 text-amber-400" />
+                    <Star
+                      key={i}
+                      className={`size-4 ${
+                        i < Math.round(Number(productAvgRating))
+                          ? "fill-amber-400 text-amber-400"
+                          : "fill-amber-100 text-amber-200"
+                      }`}
+                    />
                   ))}
                 </div>
-                <span className="text-xs font-bold text-foreground">5.0</span>
-                <span className="text-xs text-muted-foreground">· 100% Hand-stitched with love</span>
+                <span className="text-xs font-black text-foreground">{productAvgRating}</span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setActiveTab("reviews");
+                    const tabsEl = document.getElementById("product-tabs");
+                    if (tabsEl) tabsEl.scrollIntoView({ behavior: "smooth" });
+                  }}
+                  className="text-xs font-semibold text-lilac-deep hover:underline cursor-pointer"
+                >
+                  ({productReviews.length} {productReviews.length === 1 ? "review" : "reviews"})
+                </button>
+                <span className="text-slate-300">·</span>
+                <button
+                  type="button"
+                  onClick={() => setIsAddReviewOpen(true)}
+                  className="clay inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold text-lilac-deep hover:text-primary transition-all hover:scale-105 cursor-pointer shadow-xs"
+                >
+                  <PenLine className="size-3 text-primary" />
+                  <span>Add Review</span>
+                </button>
               </div>
 
               {/* Pricing Box */}
@@ -578,14 +683,14 @@ function ProductDetailsPage() {
                   </button>
                 </div>
 
-                {/* Direct WhatsApp Consultation Button */}
+                {/* Direct Instagram Consultation Button */}
                 <button
                   type="button"
-                  onClick={handleWhatsAppInquiry}
-                  className="w-full rounded-full border border-emerald-300 bg-emerald-50/80 hover:bg-emerald-100/80 text-emerald-800 py-3 px-4 text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition-all cursor-pointer shadow-sm"
+                  onClick={handleInstagramInquiry}
+                  className="w-full rounded-full border border-pink-300 bg-pink-50/80 hover:bg-pink-100/80 text-pink-900 py-3 px-4 text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition-all cursor-pointer shadow-sm"
                 >
-                  <MessageCircle className="size-4 text-emerald-600" />
-                  <span>Chat with the Queen on WhatsApp about Customizing This</span>
+                  <Instagram className="size-4 text-pink-600" />
+                  <span>Chat with the Queen on Instagram about Customizing This</span>
                 </button>
               </div>
 
@@ -609,7 +714,7 @@ function ProductDetailsPage() {
         </section>
 
         {/* ── Product Information Tabs ── */}
-        <section className="mx-auto max-w-7xl px-4 py-12">
+        <section id="product-tabs" className="mx-auto max-w-7xl px-4 py-12 scroll-mt-24">
           <div className="liquid-glass rounded-3xl p-6 sm:p-8 shadow-xl border border-white/60">
             {/* Tab Navigation */}
             <div className="flex items-center gap-2 border-b border-border/40 pb-4 overflow-x-auto scrollbar-none">
@@ -656,6 +761,26 @@ function ProductDetailsPage() {
                 }`}
               >
                 Packaging &amp; Delivery
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveTab("reviews")}
+                className={`rounded-full px-5 py-2 text-xs sm:text-sm font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+                  activeTab === "reviews"
+                    ? "clay-primary text-white shadow-md"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                <span>Patron Reviews</span>
+                <span
+                  className={`text-[10px] px-1.5 py-0.2 rounded-full font-extrabold ${
+                    activeTab === "reviews"
+                      ? "bg-white/30 text-white"
+                      : "bg-lilac/30 text-lilac-deep"
+                  }`}
+                >
+                  {productReviews.length}
+                </span>
               </button>
             </div>
 
@@ -714,7 +839,7 @@ function ProductDetailsPage() {
                       </span>
                       <p className="text-sm font-bold text-lilac-deep">Send Your Reference</p>
                       <p className="text-xs text-muted-foreground">
-                        Place your order and send reference photos of hair, outfits, pets, or floral colour schemes via WhatsApp or email.
+                        Place your order and send reference photos of hair, outfits, pets, or floral colour schemes via Instagram DM or email.
                       </p>
                     </div>
                     <div className="p-4 rounded-2xl bg-white/40 border border-white/60 space-y-2">
@@ -784,6 +909,125 @@ function ProductDetailsPage() {
                       <strong>Damage-Free Guarantee:</strong> We pack every doll and bouquet with rigid boxes and interior cushioning. In the unlikely event of transit damage, we'll fix or replace it promptly.
                     </p>
                   </div>
+                </div>
+              )}
+
+              {activeTab === "reviews" && (
+                <div className="space-y-6">
+                  {/* Reviews Header Banner */}
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 rounded-2xl bg-white/60 border border-white/80">
+                    <div className="flex items-center gap-4">
+                      <div className="size-16 rounded-2xl bg-gradient-to-tr from-amber-100 to-amber-200 border border-amber-300 flex flex-col items-center justify-center shadow-xs">
+                        <span className="font-display text-2xl font-black text-amber-900 leading-none">
+                          {productAvgRating}
+                        </span>
+                        <div className="flex items-center gap-0.5 text-amber-500 mt-1">
+                          {[...Array(5)].map((_, i) => (
+                            <Star
+                              key={i}
+                              className={`size-2.5 ${
+                                i < Math.round(Number(productAvgRating))
+                                  ? "fill-amber-400 text-amber-400"
+                                  : "fill-amber-100 text-amber-200"
+                              }`}
+                            />
+                          ))}
+                        </div>
+                      </div>
+                      <div>
+                        <h3 className="font-display text-lg font-bold text-lilac-deep">
+                          Patron Ratings &amp; Reviews
+                        </h3>
+                        <p className="text-xs text-muted-foreground">
+                          {productReviews.length} {productReviews.length === 1 ? "verified patron review" : "verified patron reviews"} for handcrafted creations
+                        </p>
+                      </div>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() => setIsAddReviewOpen(true)}
+                      className="clay-primary liquid-btn inline-flex items-center justify-center gap-2 rounded-full py-2.5 px-5 text-xs sm:text-sm font-bold shadow-md cursor-pointer self-start sm:self-auto"
+                    >
+                      <PenLine className="size-4" />
+                      <span>Add a Review</span>
+                    </button>
+                  </div>
+
+                  {/* Reviews List */}
+                  {productReviews.length === 0 ? (
+                    <div className="text-center py-10 px-4 rounded-2xl bg-white/40 border border-dashed border-lilac-deep/30 space-y-3">
+                      <div className="size-12 mx-auto rounded-full bg-lilac/30 text-lilac-deep flex items-center justify-center">
+                        <Sparkles className="size-6 text-amber-500" />
+                      </div>
+                      <h4 className="font-display text-base font-bold text-lilac-deep">
+                        Be the First Royal Patron to Review This!
+                      </h4>
+                      <p className="text-xs text-muted-foreground max-w-sm mx-auto">
+                        Share your excitement or unboxing reaction for {product.name} to help other collectors.
+                      </p>
+                      <button
+                        type="button"
+                        onClick={() => setIsAddReviewOpen(true)}
+                        className="clay inline-flex items-center gap-2 rounded-full px-5 py-2 text-xs font-bold text-lilac-deep hover:bg-white/60 transition-all cursor-pointer"
+                      >
+                        <PenLine className="size-3.5 text-primary" />
+                        <span>Write the First Review</span>
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {productReviews.map((rev) => (
+                        <div
+                          key={rev.id}
+                          className="p-5 rounded-2xl bg-white/60 border border-white/80 shadow-xs flex flex-col justify-between space-y-3 hover:shadow-sm transition-shadow"
+                        >
+                          <div className="space-y-2">
+                            <div className="flex items-center justify-between gap-2">
+                              <div className="flex items-center gap-2.5">
+                                <div className="size-9 rounded-full bg-gradient-to-tr from-purple-200 to-pink-200 text-lilac-deep font-bold text-xs flex items-center justify-center border border-white shadow-2xs">
+                                  {rev.handle.replace("@", "").charAt(0).toUpperCase()}
+                                </div>
+                                <div>
+                                  <div className="flex items-center gap-1.5">
+                                    <p className="text-xs font-bold text-lilac-deep">{rev.handle}</p>
+                                    <span className="inline-flex items-center gap-0.5 rounded-full bg-emerald-50 px-1.5 py-0.5 text-[9px] font-bold text-emerald-700 border border-emerald-200/60">
+                                      <Check className="size-2.5" /> Verified
+                                    </span>
+                                  </div>
+                                  <p className="text-[10px] text-muted-foreground">{rev.location} · {rev.date}</p>
+                                </div>
+                              </div>
+
+                              <div className="flex items-center gap-0.5 text-amber-400">
+                                {[...Array(5)].map((_, idx) => (
+                                  <Star
+                                    key={idx}
+                                    className={`size-3.5 ${
+                                      idx < rev.rating
+                                        ? "fill-amber-400 text-amber-400"
+                                        : "fill-amber-100 text-amber-200"
+                                    }`}
+                                  />
+                                ))}
+                              </div>
+                            </div>
+
+                            <p className="text-xs text-slate-700 leading-relaxed italic">
+                              "{rev.text}"
+                            </p>
+                          </div>
+
+                          <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] text-muted-foreground">
+                            <span className="truncate max-w-[200px]">Piece: {rev.item}</span>
+                            <span className="inline-flex items-center gap-1 text-[10px] text-lilac-deep font-semibold">
+                              <Sparkles className="size-3 text-amber-500" /> Royal Atelier
+                            </span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               )}
             </div>
@@ -891,6 +1135,149 @@ function ProductDetailsPage() {
             </div>
           </div>
         </div>
+
+        {/* ── Add Review Modal ── */}
+        {isAddReviewOpen && (
+          <div
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in duration-200 overflow-y-auto"
+            onClick={() => setIsAddReviewOpen(false)}
+          >
+            <div
+              className="relative w-full max-w-lg rounded-3xl bg-white/95 backdrop-blur-xl border border-white/80 p-6 sm:p-8 shadow-2xl space-y-5 animate-in zoom-in-95 duration-200 my-8"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Modal Header */}
+              <div className="flex items-start justify-between gap-3 pb-3 border-b border-slate-100">
+                <div className="flex items-center gap-3">
+                  <div className="size-11 rounded-2xl bg-gradient-to-tr from-amber-100 to-purple-100 border border-purple-200 flex items-center justify-center text-primary shadow-xs">
+                    <PenLine className="size-5 text-lilac-deep" />
+                  </div>
+                  <div>
+                    <h3 className="font-display text-xl font-bold text-lilac-deep">
+                      Write a Royal Review
+                    </h3>
+                    <p className="text-xs text-muted-foreground">
+                      For <span className="font-bold text-foreground">{product.name}</span>
+                    </p>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => setIsAddReviewOpen(false)}
+                  className="rounded-full p-2 text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
+                  title="Close modal"
+                >
+                  <X className="size-5" />
+                </button>
+              </div>
+
+              {/* Form */}
+              <form onSubmit={handleReviewSubmit} className="space-y-4">
+                {/* Rating Picker */}
+                <div>
+                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+                    Your Rating <span className="text-rose-500">*</span>
+                  </label>
+                  <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-1.5">
+                      {[1, 2, 3, 4, 5].map((star) => {
+                        const isFilled =
+                          reviewHoverRating > 0 ? star <= reviewHoverRating : star <= reviewRating;
+                        return (
+                          <button
+                            key={star}
+                            type="button"
+                            onClick={() => setReviewRating(star)}
+                            onMouseEnter={() => setReviewHoverRating(star)}
+                            onMouseLeave={() => setReviewHoverRating(0)}
+                            className="p-1 rounded-lg hover:scale-110 active:scale-95 transition-all cursor-pointer"
+                            title={`${star} Star${star > 1 ? "s" : ""}`}
+                          >
+                            <Star
+                              className={`size-7 ${
+                                isFilled
+                                  ? "fill-amber-400 text-amber-400 filter drop-shadow-xs"
+                                  : "fill-slate-100 text-slate-300"
+                              }`}
+                            />
+                          </button>
+                        );
+                      })}
+                    </div>
+                    <span className="text-xs font-bold text-amber-800 bg-amber-50 border border-amber-200 px-2.5 py-1 rounded-full ml-2">
+                      {reviewHoverRating > 0 ? reviewHoverRating : reviewRating} of 5 Stars
+                    </span>
+                  </div>
+                </div>
+
+                {/* Name / Handle */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+                      Your Name / Handle
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="@your_insta or Name"
+                      value={reviewAuthor}
+                      onChange={(e) => setReviewAuthor(e.target.value)}
+                      className="w-full rounded-xl border border-slate-200 bg-slate-50/60 px-3.5 py-2.5 text-xs text-slate-800 placeholder-slate-400 outline-none focus:bg-white focus:border-lilac-deep focus:ring-3 focus:ring-lilac-deep/15 transition-all"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+                      City / Location
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="e.g. Mumbai, Bengaluru"
+                      value={reviewLocation}
+                      onChange={(e) => setReviewLocation(e.target.value)}
+                      className="w-full rounded-xl border border-slate-200 bg-slate-50/60 px-3.5 py-2.5 text-xs text-slate-800 placeholder-slate-400 outline-none focus:bg-white focus:border-lilac-deep focus:ring-3 focus:ring-lilac-deep/15 transition-all"
+                    />
+                  </div>
+                </div>
+
+                {/* Review Text */}
+                <div>
+                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+                    Your Review &amp; Experience <span className="text-rose-500">*</span>
+                  </label>
+                  <textarea
+                    rows={4}
+                    required
+                    placeholder="Tell us about the yarn quality, detailing, packaging, unboxing smile, or gift recipient reaction..."
+                    value={reviewText}
+                    onChange={(e) => setReviewText(e.target.value)}
+                    className="w-full rounded-xl border border-slate-200 bg-slate-50/60 p-3.5 text-xs text-slate-800 placeholder-slate-400 outline-none focus:bg-white focus:border-lilac-deep focus:ring-3 focus:ring-lilac-deep/15 transition-all resize-none"
+                  />
+                </div>
+
+                {/* Actions */}
+                <div className="pt-2 flex items-center justify-end gap-2.5">
+                  <button
+                    type="button"
+                    onClick={() => setIsAddReviewOpen(false)}
+                    className="clay rounded-full px-5 py-2.5 text-xs font-bold text-slate-600 hover:bg-slate-100 transition-colors cursor-pointer"
+                  >
+                    Cancel
+                  </button>
+
+                  <button
+                    type="submit"
+                    disabled={isSubmittingReview}
+                    className="clay-primary liquid-btn inline-flex items-center gap-2 rounded-full px-6 py-2.5 text-xs font-bold shadow-md cursor-pointer disabled:opacity-50"
+                  >
+                    <Sparkles className="size-3.5 text-amber-300" />
+                    <span>{isSubmittingReview ? "Submitting..." : "Publish Review"}</span>
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
 
         {/* ── Zoom Lightbox Modal ── */}
         {isZoomOpen && (

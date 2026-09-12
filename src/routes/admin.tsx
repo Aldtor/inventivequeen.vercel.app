@@ -32,9 +32,9 @@ import {
   List,
   Lock,
   Megaphone,
-  MessageCircle,
   Package,
   Percent,
+  Phone,
   Plus,
   Printer,
   RefreshCw,
@@ -72,7 +72,6 @@ import { useInventory, type InventoryItem } from "@/lib/cms-inventory";
 import { categories, type Product, type ProductType } from "@/lib/products";
 import { calculateDiscountPercent, formatPrice, parsePriceValue } from "@/lib/product-display";
 import {
-  createWhatsAppChatUrl,
   exportOrdersToCsv,
   getNextOrderStatus,
   parseAdminNotes,
@@ -934,7 +933,7 @@ function OrdersAdminSection({
           <h2 className="font-display text-xl font-bold text-lilac-deep">Orders Management</h2>
           <p className="text-xs text-muted-foreground">
             Advance orders through hand-crafting stages, assign courier tracking IDs, print royal
-            packing slips, and connect with customers on WhatsApp.
+            packing slips, and manage customer orders.
           </p>
         </div>
 
@@ -1095,15 +1094,13 @@ function OrdersAdminSection({
                       ))}
                     </select>
 
-                    {/* Direct WhatsApp Contact */}
+                    {/* Direct Call / Contact */}
                     <a
-                      href={createWhatsAppChatUrl(order)}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="clay rounded-full px-3 py-1 text-xs font-bold text-emerald-700 hover:bg-emerald-50 inline-flex items-center gap-1"
-                      title="Chat directly with customer on WhatsApp"
+                      href={`tel:${order.phone}`}
+                      className="clay rounded-full px-3 py-1 text-xs font-bold text-slate-700 hover:bg-slate-100 inline-flex items-center gap-1"
+                      title="Call customer directly"
                     >
-                      <MessageCircle className="size-3.5" /> WhatsApp
+                      <Phone className="size-3.5" /> Call Customer
                     </a>
 
                     {/* Printable Packing Slip */}
@@ -3282,8 +3279,7 @@ function CustomersAdminSection({ orders }: { orders: DbOrder[] }) {
             Patrons &amp; Customer CRM
           </h2>
           <p className="text-xs text-muted-foreground">
-            Customer profiles aggregated across all workshop orders, with lifetime value and 1-click
-            VIP WhatsApp messaging.
+            Customer profiles aggregated across all workshop orders, with lifetime value and direct contact options.
           </p>
         </div>
 
@@ -3346,11 +3342,6 @@ function CustomersAdminSection({ orders }: { orders: DbOrder[] }) {
           {filteredPatrons.map((patron, i) => {
             let phoneClean = patron.phone.replace(/[^\d]/g, "");
             if (phoneClean.length === 10) phoneClean = `91${phoneClean}`;
-
-            const vipMsg = encodeURIComponent(
-              `Hello ${patron.name}!\nThis is Inventive Queen atelier. Thank you for being one of our cherished patrons (${patron.totalOrders} royal orders)! We are handcrafting new seasonal designs and wanted to offer you an exclusive preview.`,
-            );
-            const waUrl = `https://wa.me/${phoneClean}?text=${vipMsg}`;
 
             return (
               <div
@@ -3415,12 +3406,11 @@ function CustomersAdminSection({ orders }: { orders: DbOrder[] }) {
                   </span>
 
                   <a
-                    href={waUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="clay rounded-full px-3 py-1 text-[11px] font-bold text-emerald-700 hover:bg-emerald-50 inline-flex items-center gap-1 shadow-sm"
+                    href={`tel:${phoneClean}`}
+                    className="clay rounded-full px-3 py-1 text-[11px] font-bold text-slate-700 hover:bg-slate-100 inline-flex items-center gap-1 shadow-sm"
+                    title={`Call patron ${patron.name}`}
                   >
-                    <MessageCircle className="size-3" /> VIP WhatsApp
+                    <Phone className="size-3" /> Call Patron
                   </a>
                 </div>
               </div>
@@ -3603,10 +3593,10 @@ function StoreSettingsAdminSection() {
           />
         </div>
 
-        {/* WhatsApp Support Number */}
+        {/* Customer Support Number */}
         <div className="sm:col-span-6">
           <label className="block font-bold text-foreground mb-1">
-            WhatsApp Concierge Support Number
+            Customer Concierge Support Number
           </label>
           <input
             type="text"

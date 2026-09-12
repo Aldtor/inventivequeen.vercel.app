@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Crown, Sparkles } from "lucide-react";
+import { Crown, Instagram, Sparkles } from "lucide-react";
 
-import { OrderCta, PageHeader, PriceCard, SiteLayout } from "@/components/site/SiteLayout";
+import { INSTAGRAM_URL, OrderCta, PageHeader, PriceCard, SiteLayout } from "@/components/site/SiteLayout";
 import dollsImg from "@/assets/dolls.jpg";
 import dollEmpty from "@/assets/doll-empty.jpg";
 import { useProducts } from "@/lib/cms-products";
@@ -74,16 +74,17 @@ function DollsPage() {
               Artisanal Dolls Coming Soon
             </h2>
             <p className="mt-3 text-sm text-muted-foreground leading-relaxed">
-              Our atelier is currently hand-crafting bespoke amigurumi doll designs with soft milk cotton yarn. You can also request a custom doll made from your reference photo!
+              Our atelier is currently hand-crafting bespoke amigurumi doll designs with soft milk cotton yarn. You can also request a custom doll made from your reference photo via Instagram!
             </p>
             <div className="mt-6 flex flex-wrap justify-center gap-3">
               <a
-                href="https://wa.me/919876543210?text=Hello%20Inventive%20Queen!%20I'd%20like%20to%20order%20a%20custom%20crochet%20doll."
+                href={INSTAGRAM_URL}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="clay-primary liquid-btn inline-flex items-center gap-2 rounded-full px-6 py-3 font-bold text-sm shadow-md"
               >
-                Order Custom Doll on WhatsApp →
+                <Instagram className="size-4" />
+                Order Custom Doll on Instagram →
               </a>
             </div>
           </div>

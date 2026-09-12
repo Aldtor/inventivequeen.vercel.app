@@ -4,14 +4,14 @@ import {
   ArrowLeft,
   ArrowRight,
   HelpCircle,
-  MessageCircle,
+  Instagram,
   RefreshCw,
   RotateCcw,
   ShieldAlert,
   ShoppingBag,
   Sparkles,
 } from "lucide-react";
-import { SiteLayout } from "@/components/site/SiteLayout";
+import { INSTAGRAM_URL, SiteLayout } from "@/components/site/SiteLayout";
 
 export const Route = createFileRoute("/payment-failed")({
   component: PaymentFailedPage,
@@ -46,12 +46,6 @@ function PaymentFailedPage() {
 
   const failureReason =
     reason || "The transaction was interrupted, timed out, or declined by the issuing bank.";
-
-  const whatsappMessage = encodeURIComponent(
-    `Hello Inventive Queen! My order ${
-      orderNumber ? `#${orderNumber}` : ""
-    } payment was unsuccessful with message: "${failureReason}". Could you please assist me?`,
-  );
 
   return (
     <SiteLayout>
@@ -154,12 +148,12 @@ function PaymentFailedPage() {
             </Link>
 
             <a
-              href={`https://wa.me/919876543210?text=${whatsappMessage}`}
+              href={INSTAGRAM_URL}
               target="_blank"
               rel="noopener noreferrer"
-              className="clay inline-flex items-center gap-2 rounded-full px-6 py-3.5 text-sm font-bold text-emerald-800 bg-emerald-50/80 border-emerald-200 hover:bg-emerald-100 transition-colors"
+              className="clay inline-flex items-center gap-2 rounded-full px-6 py-3.5 text-sm font-bold text-pink-900 bg-pink-50/80 border-pink-200 hover:bg-pink-100 transition-colors"
             >
-              <MessageCircle className="size-4 text-emerald-600" /> WhatsApp Support
+              <Instagram className="size-4 text-pink-600" /> Instagram Support
             </a>
           </div>
 

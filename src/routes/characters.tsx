@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Heart, Sparkles } from "lucide-react";
+import { Heart, Instagram, Sparkles } from "lucide-react";
 
-import { OrderCta, PageHeader, PriceCard, SiteLayout } from "@/components/site/SiteLayout";
+import { INSTAGRAM_URL, OrderCta, PageHeader, PriceCard, SiteLayout } from "@/components/site/SiteLayout";
 import whiteBearPink from "@/assets/products/plushies/product-white-bear-pink-overalls.png";
 import catPlush from "@/assets/products/categories/cat-plush.jpg";
 import { useProducts } from "@/lib/cms-products";
@@ -74,16 +74,17 @@ function CharactersPage() {
               Plushies & Characters Coming Soon
             </h2>
             <p className="mt-3 text-sm text-muted-foreground leading-relaxed">
-              Our atelier is crafting custom amigurumi animals, cute mascots, and character plushies. You can also request a completely bespoke design via WhatsApp!
+              Our atelier is crafting custom amigurumi animals, cute mascots, and character plushies. You can also request a completely bespoke design via Instagram!
             </p>
             <div className="mt-6 flex flex-wrap justify-center gap-3">
               <a
-                href="https://wa.me/919876543210?text=Hello%20Inventive%20Queen!%20I'd%20like%20to%20order%20a%20custom%20crochet%20character%20or%20plushie."
+                href={INSTAGRAM_URL}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="clay-primary liquid-btn inline-flex items-center gap-2 rounded-full px-6 py-3 font-bold text-sm shadow-md"
               >
-                Order Custom Plushie on WhatsApp →
+                <Instagram className="size-4" />
+                Order Custom Plushie on Instagram →
               </a>
             </div>
           </div>

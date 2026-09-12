@@ -736,16 +736,19 @@ create table if not exists public.reviews (
   location text not null default 'India',
   rating smallint not null default 5 check (rating >= 1 and rating <= 5),
   item_name text not null default 'Custom Creation',
-  category text not null default 'doll' check (category in ('doll', 'bouquet', 'plushie', 'keychain', 'misc')),
+  category text not null default 'doll',
   review_text text not null,
   photos text[] not null default '{}',
-  is_approved boolean not null default false,
+  is_approved boolean not null default true,
   is_featured boolean not null default false,
   artisan_reply text,
   created_at timestamptz not null default now()
 );
 
 create index if not exists idx_reviews_approved on public.reviews(is_approved, is_featured);
+create index if not exists idx_reviews_item_name on public.reviews(item_name);
+create index if not exists idx_reviews_category on public.reviews(category);
+create index if not exists idx_reviews_created on public.reviews(created_at desc);
 
 insert into public.reviews (id, author_name, author_handle, location, rating, item_name, category, review_text, is_approved, is_featured)
 values
@@ -904,8 +907,9 @@ create policy "Admins can view and manage inquiries" on public.contact_inquiries
 
 drop policy if exists "Public can view approved reviews" on public.reviews;
 create policy "Public can view approved reviews" on public.reviews for select using (is_approved = true or public.is_admin());
+drop policy if exists "Anyone can submit reviews" on public.reviews;
 drop policy if exists "Authenticated users can submit reviews" on public.reviews;
-create policy "Authenticated users can submit reviews" on public.reviews for insert with check (auth.uid() is not null or public.is_admin());
+create policy "Anyone can submit reviews" on public.reviews for insert to public with check (true);
 drop policy if exists "Admins manage all reviews" on public.reviews;
 create policy "Admins manage all reviews" on public.reviews for all using (public.is_admin()) with check (public.is_admin());
 

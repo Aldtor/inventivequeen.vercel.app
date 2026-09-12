@@ -51,8 +51,8 @@ The platform combines a high-aesthetic luxury storefront (liquid glass morphism,
 - **Interactive Multi-Photo Gallery**: High-res lightboxes with zoom for examining handmade milk-cotton stitches.
 - **Dedicated Product Subpages (`/product/$productId`)**: Rich details, size dimensions, wash & care guides, materials breakdown, and personalized customization input notes.
 - **Interactive Basket & Persistent Cart**: Real-time quantity management, subtotal calculation, coupon discounts, and instant checkout.
-- **Live Parcel & Order Tracking**: Instant tracking screen (`/orders`) with live fulfillment status (`Pending` → `Confirmed` → `Crafting` → `Shipped` → `Delivered`), tracking numbers, and direct WhatsApp customer support.
-- **Interactive WhatsApp Inquiry**: 1-click customer consultation prefilled with product metadata, item images, and custom requests.
+- **Live Parcel & Order Tracking**: Instant tracking screen (`/orders`) with live fulfillment status (`Pending` → `Confirmed` → `Crafting` → `Shipped` → `Delivered`), tracking numbers, and direct Instagram customer support.
+- **Direct Instagram Inquiries**: 1-click customer consultation with the Queen on Instagram (@inventivequeen) for custom requests.
 
 ### 💳 Payments & Checkout
 - **Razorpay Integration**: Seamless UPI (GPay, PhonePe, Paytm), credit/debit cards, and net banking support.
@@ -129,7 +129,7 @@ Tooling:           Vite 8 · ESLint · Prettier
 │   │   ├── cart.ts             # Basket state, quantity calculations & local storage sync
 │   │   ├── cms-coupons.ts      # Discount coupon validation and redemption logic
 │   │   ├── cms-products.tsx    # Live Supabase catalogue sync with local fallback
-│   │   ├── order-utils.ts      # Tracking serializations, WhatsApp helpers & CSV export
+│   │   ├── order-utils.ts      # Tracking serializations, order helpers & CSV export
 │   │   ├── security.ts         # HMAC signature validation & input sanitizers
 │   │   └── supabase.ts         # Supabase client singleton & TypeScript models
 │   ├── routes/

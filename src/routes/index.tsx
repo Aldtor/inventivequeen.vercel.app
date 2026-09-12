@@ -1,7 +1,7 @@
 import { Link, createFileRoute } from "@tanstack/react-router";
-import { Crown, Feather, Heart, Palette, Play, Quote, Sparkles, Star, Truck } from "lucide-react";
+import { Crown, Feather, Heart, Instagram, Palette, Play, Quote, Sparkles, Star, Truck } from "lucide-react";
 
-import { SiteLayout } from "@/components/site/SiteLayout";
+import { INSTAGRAM_URL, SiteLayout } from "@/components/site/SiteLayout";
 import logo from "@/assets/logo.png";
 import { useProducts } from "@/lib/cms-products";
 
@@ -388,12 +388,13 @@ function Home() {
             </p>
             <div className="mt-6 flex flex-wrap justify-center gap-3 sm:gap-4">
               <a
-                href="https://wa.me/919876543210?text=Hello%20Inventive%20Queen!%20I'd%20like%20to%20place%20a%20custom%20order."
+                href={INSTAGRAM_URL}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="clay-primary liquid-btn inline-flex items-center gap-2 rounded-full px-5 py-2.5 sm:px-6 sm:py-3 text-xs sm:text-sm font-bold shadow-md"
               >
-                Order Custom Creation on WhatsApp →
+                <Instagram className="size-4" />
+                Custom Inquiries on Instagram →
               </a>
               <Link
                 to="/how-to-order"

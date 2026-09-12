@@ -30,14 +30,14 @@ import {
   Package,
   Heart,
   HelpCircle,
-  MessageCircle,
+  Instagram,
   Palette,
   ChevronRight,
   ExternalLink,
   Trash2,
 } from "lucide-react";
 import { toast } from "sonner";
-import { SiteLayout } from "@/components/site/SiteLayout";
+import { INSTAGRAM_URL, SiteLayout } from "@/components/site/SiteLayout";
 import { useAuth } from "@/lib/auth";
 import { supabase, type DbOrder, type OrderStatus } from "@/lib/supabase";
 import { sanitizeText, validatePasswordStrength, validatePhone } from "@/lib/security";
@@ -1083,7 +1083,7 @@ function ProfilePage() {
                             />
                           </div>
                           <p className="mt-1 text-[11px] text-slate-400">
-                            Required for WhatsApp dispatch notifications and courier tracking.
+                            Required for delivery updates and courier tracking.
                           </p>
                         </div>
 
@@ -1491,13 +1491,13 @@ function ProfilePage() {
 
                               <div className="flex items-center gap-2">
                                 <a
-                                  href={`https://wa.me/919876543210?text=Hello%20Inventive%20Queen!%20I%20am%20inquiring%20about%20my%20order%20${order.order_number}.`}
+                                  href={INSTAGRAM_URL}
                                   target="_blank"
                                   rel="noreferrer"
-                                  className="inline-flex items-center gap-1.5 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-200 px-3 py-1.5 text-xs font-bold hover:bg-emerald-100 transition-colors"
+                                  className="inline-flex items-center gap-1.5 rounded-xl bg-pink-50 text-pink-700 border border-pink-200 px-3 py-1.5 text-xs font-bold hover:bg-pink-100 transition-colors"
                                 >
-                                  <MessageCircle className="size-3.5" />
-                                  <span>WhatsApp Artisan</span>
+                                  <Instagram className="size-3.5 text-pink-600" />
+                                  <span>Message on Instagram</span>
                                 </a>
 
                                 <Link

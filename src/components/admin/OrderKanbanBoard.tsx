@@ -7,8 +7,8 @@ import {
   Crown,
   ExternalLink,
   Mail,
-  MessageCircle,
   Package,
+  Phone,
   Printer,
   Sparkles,
   Trash2,
@@ -16,7 +16,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import type { DbOrder, OrderStatus } from "@/lib/supabase";
-import { createWhatsAppChatUrl, parseAdminNotes, getOrderItemImageUrl } from "@/lib/order-utils";
+import { parseAdminNotes, getOrderItemImageUrl } from "@/lib/order-utils";
 import logo from "@/assets/logo.png";
 
 interface OrderKanbanBoardProps {
@@ -232,15 +232,13 @@ export function OrderKanbanBoard({
                       {/* Action buttons */}
                       <div className="flex items-center justify-between gap-1 pt-1">
                         <div className="flex items-center gap-1">
-                          {/* WhatsApp */}
+                          {/* Call Customer */}
                           <a
-                            href={createWhatsAppChatUrl(order)}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="clay rounded-lg p-1.5 text-emerald-700 hover:bg-emerald-50"
-                            title="Chat on WhatsApp"
+                            href={`tel:${order.phone}`}
+                            className="clay rounded-lg p-1.5 text-slate-700 hover:bg-slate-50"
+                            title={`Call ${order.customer_name} (${order.phone})`}
                           >
-                            <MessageCircle className="size-3" />
+                            <Phone className="size-3" />
                           </a>
 
                           {/* Packing Slip */}

@@ -12,7 +12,6 @@ import {
   LogOut,
   Mail,
   Menu,
-  MessageCircle,
   Package,
   ShoppingBag,
   Sparkles,
@@ -419,24 +418,15 @@ function Header() {
             </div>
 
             {/* Quick Contact & Instagram */}
-            <div className="flex items-center gap-2 pt-1 pb-1">
+            <div className="pt-1 pb-1">
               <a
                 href={INSTAGRAM_URL}
                 target="_blank"
                 rel="noreferrer"
-                className="clay flex-1 inline-flex items-center justify-center gap-1.5 rounded-xl py-2 text-xs font-bold text-lilac-deep hover:bg-white/50"
+                className="clay w-full inline-flex items-center justify-center gap-2 rounded-xl py-2.5 text-xs font-bold text-lilac-deep hover:bg-white/50"
               >
-                <Instagram className="size-3.5" />
-                <span>Instagram</span>
-              </a>
-              <a
-                href="https://wa.me/919876543210?text=Hello%20Inventive%20Queen!%20I'd%20like%20to%20inquire%20about%20a%20custom%20order."
-                target="_blank"
-                rel="noopener noreferrer"
-                className="clay flex-1 inline-flex items-center justify-center gap-1.5 rounded-xl py-2 text-xs font-bold text-emerald-800 hover:bg-white/50"
-              >
-                <MessageCircle className="size-3.5 text-emerald-600" />
-                <span>WhatsApp</span>
+                <Instagram className="size-4 text-pink-600" />
+                <span>Connect on Instagram @inventivequeen</span>
               </a>
             </div>
           </div>

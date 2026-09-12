@@ -4,7 +4,6 @@ import {
   Instagram,
   Mail,
   MapPin,
-  MessageCircle,
   CheckCircle2,
   Sparkles,
   Send,
@@ -222,13 +221,13 @@ function ContactPage() {
 
                 <div className="pt-2 flex flex-wrap items-center justify-center gap-3">
                   <a
-                    href={`https://wa.me/919876543210?text=Hello%20Inventive%20Queen!%20I%20just%20submitted%20inquiry%20${inquiryCode || ""}.`}
+                    href={INSTAGRAM_URL}
                     target="_blank"
                     rel="noreferrer"
-                    className="inline-flex items-center gap-2 rounded-full bg-emerald-600 text-white px-6 py-3 text-sm font-bold shadow-md hover:bg-emerald-700 transition-all cursor-pointer"
+                    className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-pink-500 via-rose-500 to-purple-600 text-white px-6 py-3 text-sm font-bold shadow-md hover:opacity-95 transition-all cursor-pointer"
                   >
-                    <MessageCircle className="size-4" />
-                    <span>WhatsApp Artisan Directly</span>
+                    <Instagram className="size-4" />
+                    <span>Message on Instagram</span>
                   </a>
 
                   <button
