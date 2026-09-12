@@ -126,7 +126,9 @@ export default {
         // Check 0: Content-Length payload size limit (max 32KB)
         const contentLength = request.headers.get("content-length");
         if (contentLength && parseInt(contentLength, 10) > 32_768) {
-          console.warn(`[SECURITY ALERT] Payload too large: ${contentLength} bytes on ${url.pathname}`);
+          console.warn(
+            `[SECURITY ALERT] Payload too large: ${contentLength} bytes on ${url.pathname}`,
+          );
           const payloadTooLarge = new Response(
             JSON.stringify({ error: "Payload Too Large: Exceeds 32KB limit." }),
             {

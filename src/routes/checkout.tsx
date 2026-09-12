@@ -486,14 +486,11 @@ function CheckoutPage() {
             // 3. Database confirmation via Security Definer RPC (always run if server didn't confirm db update)
             if (!isDbUpdated) {
               try {
-                const { data: rpcOk, error: rpcErr } = await supabase.rpc(
-                  "confirm_order_payment",
-                  {
-                    p_order_id: orderData.id,
-                    p_payment_id: response.razorpay_payment_id || "captured",
-                    p_user_id: user.id,
-                  },
-                );
+                const { data: rpcOk, error: rpcErr } = await supabase.rpc("confirm_order_payment", {
+                  p_order_id: orderData.id,
+                  p_payment_id: response.razorpay_payment_id || "captured",
+                  p_user_id: user.id,
+                });
 
                 if (!rpcErr && rpcOk) {
                   isDbUpdated = true;

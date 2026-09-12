@@ -1,5 +1,16 @@
 import { Link, createFileRoute } from "@tanstack/react-router";
-import { Crown, Feather, Heart, Instagram, Palette, Play, Quote, Sparkles, Star, Truck } from "lucide-react";
+import {
+  Crown,
+  Feather,
+  Heart,
+  Instagram,
+  Palette,
+  Play,
+  Quote,
+  Sparkles,
+  Star,
+  Truck,
+} from "lucide-react";
 
 import { INSTAGRAM_URL, SiteLayout } from "@/components/site/SiteLayout";
 import logo from "@/assets/logo.png";
@@ -94,7 +105,6 @@ const WHY = [
   },
 ];
 
-
 const STATS = [
   { value: "500+", label: "Stitched pieces", isRating: false },
   { value: "100%", label: "Handmade", isRating: false },
@@ -178,14 +188,19 @@ function Home() {
             </div>
             <div className="mt-8 sm:mt-10 grid max-w-md grid-cols-2 gap-3 sm:gap-4 sm:grid-cols-4">
               {STATS.map((stat) => (
-                <div key={stat.label} className="liquid-glass px-2.5 py-2.5 sm:px-3 sm:py-3 text-center rounded-2xl shadow-xs">
+                <div
+                  key={stat.label}
+                  className="liquid-glass px-2.5 py-2.5 sm:px-3 sm:py-3 text-center rounded-2xl shadow-xs"
+                >
                   <p className="font-display text-xl sm:text-2xl font-extrabold text-lilac-deep inline-flex items-center justify-center gap-0.5">
                     <span>{stat.value}</span>
                     {stat.isRating && (
                       <Star className="size-3.5 sm:size-4 fill-amber-400 text-amber-400 inline" />
                     )}
                   </p>
-                  <p className="text-[10.5px] sm:text-xs text-muted-foreground mt-0.5">{stat.label}</p>
+                  <p className="text-[10.5px] sm:text-xs text-muted-foreground mt-0.5">
+                    {stat.label}
+                  </p>
                 </div>
               ))}
             </div>
@@ -266,7 +281,9 @@ function Home() {
             <span>Atelier Collections</span>
           </span>
         </div>
-        <h2 className="mt-3 text-center text-3xl sm:text-4xl font-extrabold text-lilac-deep">What I make</h2>
+        <h2 className="mt-3 text-center text-3xl sm:text-4xl font-extrabold text-lilac-deep">
+          What I make
+        </h2>
         <p className="mx-auto mt-3 sm:mt-4 max-w-xl text-center text-sm sm:text-base text-muted-foreground">
           Every category has its own pricelist page with sizes, prices and sample designs.
         </p>
@@ -286,8 +303,12 @@ function Home() {
                 <div className="absolute inset-2.5 rounded-[1.4rem] bg-gradient-to-tr from-transparent via-white/25 to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100 pointer-events-none" />
               </div>
               <div className="relative z-10 space-y-2 px-5 pb-5 sm:px-6 sm:pb-6">
-                <h3 className="font-display text-lg sm:text-xl font-bold text-lilac-deep">{cat.title}</h3>
-                <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">{cat.text}</p>
+                <h3 className="font-display text-lg sm:text-xl font-bold text-lilac-deep">
+                  {cat.title}
+                </h3>
+                <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
+                  {cat.text}
+                </p>
                 <span className="inline-block pt-1 text-xs sm:text-sm font-bold text-primary">
                   View pricelist →
                 </span>
@@ -315,8 +336,12 @@ function Home() {
                 <span className="clay-primary relative z-10 inline-flex size-11 sm:size-12 items-center justify-center rounded-2xl text-primary-foreground">
                   <item.icon className="size-5" />
                 </span>
-                <h3 className="relative z-10 mt-3 sm:mt-4 font-display text-base sm:text-lg font-bold">{item.title}</h3>
-                <p className="relative z-10 mt-1.5 sm:mt-2 text-xs sm:text-sm text-muted-foreground leading-relaxed">{item.text}</p>
+                <h3 className="relative z-10 mt-3 sm:mt-4 font-display text-base sm:text-lg font-bold">
+                  {item.title}
+                </h3>
+                <p className="relative z-10 mt-1.5 sm:mt-2 text-xs sm:text-sm text-muted-foreground leading-relaxed">
+                  {item.text}
+                </p>
               </div>
             ))}
           </div>
@@ -360,7 +385,9 @@ function Home() {
                     </div>
                     <figcaption className="relative z-10 p-2 sm:p-3 text-center text-xs sm:text-sm font-bold text-lilac-deep group-hover:text-primary transition-colors flex items-center justify-center gap-1 truncate">
                       <span className="truncate">{item.name}</span>
-                      <span className="text-xs opacity-0 group-hover:opacity-100 transition-opacity">→</span>
+                      <span className="text-xs opacity-0 group-hover:opacity-100 transition-opacity">
+                        →
+                      </span>
                     </figcaption>
                   </figure>
                 </Link>
@@ -384,7 +411,8 @@ function Home() {
               Royal Atelier — New Creations Coming Soon
             </h3>
             <p className="mt-2 text-muted-foreground text-xs sm:text-sm max-w-md mx-auto leading-relaxed">
-              Our handcrafted catalogue is currently being prepared with fresh amigurumi dolls, plushies, and everlasting flowers.
+              Our handcrafted catalogue is currently being prepared with fresh amigurumi dolls,
+              plushies, and everlasting flowers.
             </p>
             <div className="mt-6 flex flex-wrap justify-center gap-3 sm:gap-4">
               <a
@@ -459,7 +487,10 @@ function Home() {
           </h2>
           <div className="mt-8 sm:mt-12 grid gap-5 sm:gap-6 md:grid-cols-3">
             {LOVE.map((item) => (
-              <figure key={item.name} className="liquid-glass hover-lift p-5 sm:p-7 flex flex-col justify-between rounded-3xl">
+              <figure
+                key={item.name}
+                className="liquid-glass hover-lift p-5 sm:p-7 flex flex-col justify-between rounded-3xl"
+              >
                 <div>
                   <div className="relative z-10 flex items-center justify-between gap-3">
                     <div className="flex items-center gap-2.5">
@@ -467,7 +498,9 @@ function Home() {
                         {item.initials}
                       </div>
                       <div>
-                        <p className="font-display font-bold text-lilac-deep text-xs sm:text-sm">{item.name}</p>
+                        <p className="font-display font-bold text-lilac-deep text-xs sm:text-sm">
+                          {item.name}
+                        </p>
                         <p className="text-[11px] text-muted-foreground">{item.city}</p>
                       </div>
                     </div>

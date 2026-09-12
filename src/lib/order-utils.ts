@@ -75,8 +75,6 @@ export function serializeAdminNotes(data: ParsedAdminNotes): string {
   });
 }
 
-
-
 /**
  * Export orders array to a downloadable CSV file
  */

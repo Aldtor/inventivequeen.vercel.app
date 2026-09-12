@@ -61,7 +61,9 @@ const LEGAL_NAV = [
 function MoreMenu({ className = "" }: { className?: string }) {
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger className={`group inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-semibold text-muted-foreground transition-colors outline-none hover:text-lilac-deep data-[state=open]:text-lilac-deep ${className}`}>
+      <DropdownMenuTrigger
+        className={`group inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-semibold text-muted-foreground transition-colors outline-none hover:text-lilac-deep data-[state=open]:text-lilac-deep ${className}`}
+      >
         More
         <ChevronDown className="size-4 transition-transform duration-300 group-data-[state=open]:rotate-180" />
       </DropdownMenuTrigger>
@@ -109,7 +111,9 @@ function AnnouncementBar() {
         {/* Message with Glowing Crown */}
         <span className="inline-flex items-center gap-1.5 font-medium text-white/95 drop-shadow-xs text-xs sm:text-[13px]">
           <Crown className="size-3 sm:size-3.5 text-amber-300 fill-amber-300/60 drop-shadow-[0_1px_4px_rgba(251,191,36,0.6)] inline shrink-0" />
-          <span className="leading-snug">{settings.announcementText.replace(/[^\w\s!?,.()'-]/g, "").trim()}</span>
+          <span className="leading-snug">
+            {settings.announcementText.replace(/[^\w\s!?,.()'-]/g, "").trim()}
+          </span>
         </span>
 
         {/* CTA Micro-Pill */}
@@ -351,7 +355,9 @@ function Header() {
                     <Crown className="size-3.5 text-amber-600" />
                     <ChevronRight className="size-3 text-muted-foreground" />
                   </div>
-                  <span className="font-display font-bold text-xs text-lilac-deep">Crochet Dolls</span>
+                  <span className="font-display font-bold text-xs text-lilac-deep">
+                    Crochet Dolls
+                  </span>
                   <span className="text-[10px] text-muted-foreground">Bespoke amigurumi</span>
                 </Link>
 
@@ -377,7 +383,9 @@ function Header() {
                     <Flower2 className="size-3.5 text-purple-600" />
                     <ChevronRight className="size-3 text-muted-foreground" />
                   </div>
-                  <span className="font-display font-bold text-xs text-lilac-deep">Forever Flowers</span>
+                  <span className="font-display font-bold text-xs text-lilac-deep">
+                    Forever Flowers
+                  </span>
                   <span className="text-[10px] text-muted-foreground">Never-wilt bouquets</span>
                 </Link>
 
@@ -439,7 +447,6 @@ function Header() {
 function Footer() {
   return (
     <footer className="aurora-rich mt-24 border-t border-white/50">
-
       <div className="mx-auto grid max-w-6xl gap-8 px-4 py-14 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
         <div className="sm:col-span-2 md:col-span-3 lg:col-span-1">
           <div className="flex items-center gap-3">
@@ -606,7 +613,13 @@ export function PriceCard({
   const navigate = useNavigate();
   const [added, setAdded] = useState(false);
   const numPrice = parsePrice(price);
-  const productId = id || name.toLowerCase().replace(/[^\w\s-]/g, "").trim().replace(/\s+/g, "-");
+  const productId =
+    id ||
+    name
+      .toLowerCase()
+      .replace(/[^\w\s-]/g, "")
+      .trim()
+      .replace(/\s+/g, "-");
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.stopPropagation();

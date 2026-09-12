@@ -284,9 +284,7 @@ function AdminPage() {
     const totalRevenue = paidOrders.reduce((sum, o) => sum + (o.amount_total || 0), 0);
     const today = new Date().toDateString();
     const todayOrders = paidOrders.filter((o) => new Date(o.created_at).toDateString() === today);
-    const openOrders = paidOrders.filter((o) =>
-      ["confirmed", "crafting"].includes(o.status),
-    );
+    const openOrders = paidOrders.filter((o) => ["confirmed", "crafting"].includes(o.status));
 
     // Calculate top-ordered products (from verified paid orders only)
     const productCountMap: Record<string, { name: string; count: number; revenue: number }> = {};
@@ -319,7 +317,9 @@ function AdminPage() {
   const handleOrderStatusChange = async (orderId: string, newStatus: OrderStatus) => {
     try {
       const existing = orders.find((ord) => ord.id === orderId);
-      const isAdvancingToPaid = ["confirmed", "crafting", "shipped", "delivered"].includes(newStatus);
+      const isAdvancingToPaid = ["confirmed", "crafting", "shipped", "delivered"].includes(
+        newStatus,
+      );
       const isCancelling = newStatus === "cancelled";
 
       const updates: {
@@ -339,16 +339,11 @@ function AdminPage() {
         updates.payment_status = "failed";
       }
 
-      const { error } = await supabase
-        .from("orders")
-        .update(updates)
-        .eq("id", orderId);
+      const { error } = await supabase.from("orders").update(updates).eq("id", orderId);
 
       if (error) throw error;
 
-      setOrders((prev) =>
-        prev.map((ord) => (ord.id === orderId ? { ...ord, ...updates } : ord)),
-      );
+      setOrders((prev) => prev.map((ord) => (ord.id === orderId ? { ...ord, ...updates } : ord)));
       setNotice(
         `Order status changed to "${newStatus.toUpperCase()}". ${
           updates.payment_status === "paid" ? "Payment verified & marked paid! " : ""
@@ -1055,7 +1050,8 @@ function OrdersAdminSection({
                     {order.payment_status === "paid" ||
                     ["confirmed", "crafting", "shipped", "delivered"].includes(order.status) ? (
                       <span className="bg-emerald-100 text-emerald-800 px-2.5 py-0.5 rounded-full text-[10px] font-bold inline-flex items-center gap-1">
-                        <Check className="size-3" /> Paid · Razorpay ({order.payment_id || "Verified"})
+                        <Check className="size-3" /> Paid · Razorpay (
+                        {order.payment_id || "Verified"})
                       </span>
                     ) : order.payment_status === "failed" || order.status === "cancelled" ? (
                       <span className="bg-rose-100 text-rose-800 px-2.5 py-0.5 rounded-full text-[10px] font-bold inline-flex items-center gap-1">
@@ -3279,7 +3275,8 @@ function CustomersAdminSection({ orders }: { orders: DbOrder[] }) {
             Patrons &amp; Customer CRM
           </h2>
           <p className="text-xs text-muted-foreground">
-            Customer profiles aggregated across all workshop orders, with lifetime value and direct contact options.
+            Customer profiles aggregated across all workshop orders, with lifetime value and direct
+            contact options.
           </p>
         </div>
 

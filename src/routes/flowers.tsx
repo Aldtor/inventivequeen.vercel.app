@@ -1,7 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Flower2, Instagram, Sparkles } from "lucide-react";
 
-import { INSTAGRAM_URL, OrderCta, PageHeader, PriceCard, SiteLayout } from "@/components/site/SiteLayout";
+import {
+  INSTAGRAM_URL,
+  OrderCta,
+  PageHeader,
+  PriceCard,
+  SiteLayout,
+} from "@/components/site/SiteLayout";
 import bouquetRose from "@/assets/products/bouquets/product-bouquet-rose.png";
 import flowersEmpty from "@/assets/flowers-empty.jpg";
 import { useProducts } from "@/lib/cms-products";
@@ -74,7 +80,8 @@ function FlowersPage() {
               Everlasting Flowers Coming Soon
             </h2>
             <p className="mt-3 text-sm text-muted-foreground leading-relaxed">
-              Our atelier is crafting vibrant new everlasting bouquet arrangements with satin ribbons and wrapping. You can also customize your own bouquet colorway via Instagram!
+              Our atelier is crafting vibrant new everlasting bouquet arrangements with satin
+              ribbons and wrapping. You can also customize your own bouquet colorway via Instagram!
             </p>
             <div className="mt-6 flex flex-wrap justify-center gap-3">
               <a

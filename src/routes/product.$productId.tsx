@@ -34,6 +34,7 @@ import { useProducts } from "@/lib/cms-products";
 import { addToCart, parsePrice } from "@/lib/cart";
 import { useReviews } from "@/lib/cms-reviews";
 import { useAuth } from "@/lib/auth";
+import { sanitizeText } from "@/lib/security";
 
 export const Route = createFileRoute("/product/$productId")({
   component: ProductDetailsPage,
@@ -47,25 +48,29 @@ const CATEGORY_META: Record<
     label: "Crochet Dolls",
     href: "/dolls",
     tag: "Custom Keepsake Doll",
-    description: "Detailed amigurumi doll created from soft milk cotton yarn, fully customizable to your reference photo.",
+    description:
+      "Detailed amigurumi doll created from soft milk cotton yarn, fully customizable to your reference photo.",
   },
   bouquet: {
     label: "Forever Flowers",
     href: "/flowers",
     tag: "Everlasting Crochet Bouquet",
-    description: "Hand-stitched eternal flower arrangement wrapped in delicate frosted wrap with satin ribbons.",
+    description:
+      "Hand-stitched eternal flower arrangement wrapped in delicate frosted wrap with satin ribbons.",
   },
   plushie: {
     label: "Characters & Plushies",
     href: "/characters",
     tag: "Artisanal Plush Companion",
-    description: "Handmade cuddly animal plushie or mascot, crafted stitch by stitch with plush yarn.",
+    description:
+      "Handmade cuddly animal plushie or mascot, crafted stitch by stitch with plush yarn.",
   },
   keychain: {
     label: "Charms & Keychains",
     href: "/characters",
     tag: "Miniature Crochet Charm",
-    description: "Pocket-sized crochet charm fitted with a durable metal clasp, perfect for backpacks, car keys and gifts.",
+    description:
+      "Pocket-sized crochet charm fitted with a durable metal clasp, perfect for backpacks, car keys and gifts.",
   },
   misc: {
     label: "Handcrafted Keepsakes",
@@ -94,7 +99,11 @@ function ProductDetailsPage() {
 
     // 2. Slug match
     found = allProducts.find((p) => {
-      const slug = p.name.toLowerCase().replace(/[^\w\s-]/g, "").trim().replace(/\s+/g, "-");
+      const slug = p.name
+        .toLowerCase()
+        .replace(/[^\w\s-]/g, "")
+        .trim()
+        .replace(/\s+/g, "-");
       return slug === cleanId;
     });
     if (found) return found;
@@ -123,7 +132,9 @@ function ProductDetailsPage() {
   const [customNote, setCustomNote] = useState("");
   const [added, setAdded] = useState(false);
   const [copiedLink, setCopiedLink] = useState(false);
-  const [activeTab, setActiveTab] = useState<"details" | "custom" | "care" | "shipping" | "reviews">("details");
+  const [activeTab, setActiveTab] = useState<
+    "details" | "custom" | "care" | "shipping" | "reviews"
+  >("details");
 
   // Reviews integration
   const { approvedReviews, addReview } = useReviews();
@@ -171,19 +182,22 @@ function ProductDetailsPage() {
       toast.error("Please write your review thoughts.");
       return;
     }
-    const finalAuthor = reviewAuthor.trim() || "Cherished Patron";
-    const formattedHandle = finalAuthor.startsWith("@")
-      ? finalAuthor
-      : `@${finalAuthor.toLowerCase().replace(/\s+/g, "_")}`;
+    const cleanAuthor = sanitizeText(reviewAuthor.trim(), 80) || "Cherished Patron";
+    const formattedHandle = cleanAuthor.startsWith("@")
+      ? cleanAuthor
+      : `@${cleanAuthor.toLowerCase().replace(/[^\w]/g, "_").slice(0, 50)}`;
+    const safeLocation = sanitizeText(reviewLocation.trim(), 80) || "India";
+    const safeText = sanitizeText(reviewText.trim(), 2000);
+    const safeRating = Math.max(1, Math.min(5, Math.round(reviewRating)));
 
     setIsSubmittingReview(true);
     try {
       addReview({
         handle: formattedHandle,
-        location: reviewLocation.trim() || "India",
-        text: reviewText.trim(),
-        rating: reviewRating,
-        item: product.name,
+        location: safeLocation,
+        text: safeText,
+        rating: safeRating,
+        item: sanitizeText(product.name, 100),
         category: product.type,
         tag: "Verified Order",
         date: "Just now",
@@ -234,6 +248,7 @@ function ProductDetailsPage() {
   // Cart actions
   const handleAddToCart = () => {
     if (!product) return;
+    const safeNote = customNote.trim() ? sanitizeText(customNote.trim(), 500) : undefined;
     addToCart(
       {
         id: product.id,
@@ -241,7 +256,7 @@ function ProductDetailsPage() {
         price: displayPrice,
         numericPrice: numPrice || 999,
         image: images[0] || "",
-        note: customNote.trim() || undefined,
+        note: safeNote,
       },
       quantity,
     );
@@ -254,6 +269,7 @@ function ProductDetailsPage() {
 
   const handleBuyNow = () => {
     if (!product) return;
+    const safeNote = customNote.trim() ? sanitizeText(customNote.trim(), 500) : undefined;
     addToCart(
       {
         id: product.id,
@@ -261,7 +277,7 @@ function ProductDetailsPage() {
         price: displayPrice,
         numericPrice: numPrice || 999,
         image: images[0] || "",
-        note: customNote.trim() || undefined,
+        note: safeNote,
       },
       quantity,
     );
@@ -296,7 +312,8 @@ function ProductDetailsPage() {
               Product Not Found
             </h1>
             <p className="mt-3 text-sm text-muted-foreground">
-              We couldn't locate the handcrafted item you're searching for. It may have been updated or retired.
+              We couldn't locate the handcrafted item you're searching for. It may have been updated
+              or retired.
             </p>
             <div className="mt-6 flex flex-col sm:flex-row items-center justify-center gap-3">
               <Link
@@ -579,7 +596,8 @@ function ProductDetailsPage() {
                   ) : null}
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  Includes personalized hand-wrapping, protective shipping box and decorative satin ribbon.
+                  Includes personalized hand-wrapping, protective shipping box and decorative satin
+                  ribbon.
                 </p>
               </div>
 
@@ -610,7 +628,8 @@ function ProductDetailsPage() {
                 />
                 <p className="text-[11px] text-muted-foreground flex items-center gap-1">
                   <Sparkles className="size-3 text-amber-500" />
-                  You can also send your photo reference directly to the Queen after placing your order.
+                  You can also send your photo reference directly to the Queen after placing your
+                  order.
                 </p>
               </div>
 
@@ -802,13 +821,15 @@ function ProductDetailsPage() {
                     <div className="p-4 rounded-2xl bg-white/40 border border-white/60 space-y-1.5">
                       <p className="text-xs font-bold text-lilac-deep">🧶 Yarn &amp; Materials</p>
                       <p className="text-xs text-muted-foreground">
-                        Crafted from 100% Milk Cotton yarn — velvety soft to the touch, hypoallergenic, and baby-safe.
+                        Crafted from 100% Milk Cotton yarn — velvety soft to the touch,
+                        hypoallergenic, and baby-safe.
                       </p>
                     </div>
                     <div className="p-4 rounded-2xl bg-white/40 border border-white/60 space-y-1.5">
                       <p className="text-xs font-bold text-lilac-deep">☁️ Filling &amp; Safety</p>
                       <p className="text-xs text-muted-foreground">
-                        Stuffed with high-resilience A-grade micro-polyfill that retains its plush shape forever. Safety eyes securely locked.
+                        Stuffed with high-resilience A-grade micro-polyfill that retains its plush
+                        shape forever. Safety eyes securely locked.
                       </p>
                     </div>
                     <div className="p-4 rounded-2xl bg-white/40 border border-white/60 space-y-1.5">
@@ -820,7 +841,8 @@ function ProductDetailsPage() {
                     <div className="p-4 rounded-2xl bg-white/40 border border-white/60 space-y-1.5">
                       <p className="text-xs font-bold text-lilac-deep">🎀 Presentation</p>
                       <p className="text-xs text-muted-foreground">
-                        Delivered in a lovely protective gift box with handwritten note and ribbon wrap.
+                        Delivered in a lovely protective gift box with handwritten note and ribbon
+                        wrap.
                       </p>
                     </div>
                   </div>
@@ -839,7 +861,8 @@ function ProductDetailsPage() {
                       </span>
                       <p className="text-sm font-bold text-lilac-deep">Send Your Reference</p>
                       <p className="text-xs text-muted-foreground">
-                        Place your order and send reference photos of hair, outfits, pets, or floral colour schemes via Instagram DM or email.
+                        Place your order and send reference photos of hair, outfits, pets, or floral
+                        colour schemes via Instagram DM or email.
                       </p>
                     </div>
                     <div className="p-4 rounded-2xl bg-white/40 border border-white/60 space-y-2">
@@ -848,7 +871,8 @@ function ProductDetailsPage() {
                       </span>
                       <p className="text-sm font-bold text-lilac-deep">Hand-stitched Progress</p>
                       <p className="text-xs text-muted-foreground">
-                        The Queen stitches your doll or bouquet carefully. You get photo previews before packaging to ensure 100% delight!
+                        The Queen stitches your doll or bouquet carefully. You get photo previews
+                        before packaging to ensure 100% delight!
                       </p>
                     </div>
                     <div className="p-4 rounded-2xl bg-white/40 border border-white/60 space-y-2">
@@ -857,7 +881,8 @@ function ProductDetailsPage() {
                       </span>
                       <p className="text-sm font-bold text-lilac-deep">Gift Packed &amp; Shipped</p>
                       <p className="text-xs text-muted-foreground">
-                        Securely packed with delicate tissue paper, ribbons and bubble cushioning, dispatched with tracking right to your door.
+                        Securely packed with delicate tissue paper, ribbons and bubble cushioning,
+                        dispatched with tracking right to your door.
                       </p>
                     </div>
                   </div>
@@ -870,24 +895,37 @@ function ProductDetailsPage() {
                     Wash &amp; Care Guide
                   </h3>
                   <p className="text-sm text-muted-foreground">
-                    Because your crochet piece is stitched from pure milk cotton, it can last for decades with simple, gentle care:
+                    Because your crochet piece is stitched from pure milk cotton, it can last for
+                    decades with simple, gentle care:
                   </p>
                   <ul className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 text-xs text-muted-foreground">
                     <li className="flex items-start gap-2 p-3 rounded-xl bg-white/40">
                       <Check className="size-4 text-emerald-600 flex-shrink-0 mt-0.5" />
-                      <span><strong>Spot Cleaning:</strong> Use a damp microfiber cloth with mild soapy water for small spots.</span>
+                      <span>
+                        <strong>Spot Cleaning:</strong> Use a damp microfiber cloth with mild soapy
+                        water for small spots.
+                      </span>
                     </li>
                     <li className="flex items-start gap-2 p-3 rounded-xl bg-white/40">
                       <Check className="size-4 text-emerald-600 flex-shrink-0 mt-0.5" />
-                      <span><strong>Gentle Hand Wash:</strong> If needed, hand wash in cold water using baby detergent. Do not rub vigorously.</span>
+                      <span>
+                        <strong>Gentle Hand Wash:</strong> If needed, hand wash in cold water using
+                        baby detergent. Do not rub vigorously.
+                      </span>
                     </li>
                     <li className="flex items-start gap-2 p-3 rounded-xl bg-white/40">
                       <Check className="size-4 text-emerald-600 flex-shrink-0 mt-0.5" />
-                      <span><strong>Drying:</strong> Gently squeeze excess water with a clean towel. Lay flat in shade to dry. Never tumble dry.</span>
+                      <span>
+                        <strong>Drying:</strong> Gently squeeze excess water with a clean towel. Lay
+                        flat in shade to dry. Never tumble dry.
+                      </span>
                     </li>
                     <li className="flex items-start gap-2 p-3 rounded-xl bg-white/40">
                       <Check className="size-4 text-emerald-600 flex-shrink-0 mt-0.5" />
-                      <span><strong>Flower Bouquets:</strong> Dust off petals occasionally with a soft makeup brush or gentle hairdryer on cool mode.</span>
+                      <span>
+                        <strong>Flower Bouquets:</strong> Dust off petals occasionally with a soft
+                        makeup brush or gentle hairdryer on cool mode.
+                      </span>
                     </li>
                   </ul>
                 </div>
@@ -900,13 +938,17 @@ function ProductDetailsPage() {
                   </h3>
                   <div className="space-y-3 text-xs text-muted-foreground">
                     <p>
-                      <strong>Crafting Time:</strong> Every creation is handmade to order and takes 3 to 5 business days to craft with maximum precision and love.
+                      <strong>Crafting Time:</strong> Every creation is handmade to order and takes
+                      3 to 5 business days to craft with maximum precision and love.
                     </p>
                     <p>
-                      <strong>Delivery Time:</strong> Shipped via premium couriers (Delhivery, BlueDart, DTDC). Metro cities take 2–4 days; rest of India takes 4–6 days.
+                      <strong>Delivery Time:</strong> Shipped via premium couriers (Delhivery,
+                      BlueDart, DTDC). Metro cities take 2–4 days; rest of India takes 4–6 days.
                     </p>
                     <p>
-                      <strong>Damage-Free Guarantee:</strong> We pack every doll and bouquet with rigid boxes and interior cushioning. In the unlikely event of transit damage, we'll fix or replace it promptly.
+                      <strong>Damage-Free Guarantee:</strong> We pack every doll and bouquet with
+                      rigid boxes and interior cushioning. In the unlikely event of transit damage,
+                      we'll fix or replace it promptly.
                     </p>
                   </div>
                 </div>
@@ -939,7 +981,11 @@ function ProductDetailsPage() {
                           Patron Ratings &amp; Reviews
                         </h3>
                         <p className="text-xs text-muted-foreground">
-                          {productReviews.length} {productReviews.length === 1 ? "verified patron review" : "verified patron reviews"} for handcrafted creations
+                          {productReviews.length}{" "}
+                          {productReviews.length === 1
+                            ? "verified patron review"
+                            : "verified patron reviews"}{" "}
+                          for handcrafted creations
                         </p>
                       </div>
                     </div>
@@ -964,7 +1010,8 @@ function ProductDetailsPage() {
                         Be the First Royal Patron to Review This!
                       </h4>
                       <p className="text-xs text-muted-foreground max-w-sm mx-auto">
-                        Share your excitement or unboxing reaction for {product.name} to help other collectors.
+                        Share your excitement or unboxing reaction for {product.name} to help other
+                        collectors.
                       </p>
                       <button
                         type="button"
@@ -990,12 +1037,16 @@ function ProductDetailsPage() {
                                 </div>
                                 <div>
                                   <div className="flex items-center gap-1.5">
-                                    <p className="text-xs font-bold text-lilac-deep">{rev.handle}</p>
+                                    <p className="text-xs font-bold text-lilac-deep">
+                                      {rev.handle}
+                                    </p>
                                     <span className="inline-flex items-center gap-0.5 rounded-full bg-emerald-50 px-1.5 py-0.5 text-[9px] font-bold text-emerald-700 border border-emerald-200/60">
                                       <Check className="size-2.5" /> Verified
                                     </span>
                                   </div>
-                                  <p className="text-[10px] text-muted-foreground">{rev.location} · {rev.date}</p>
+                                  <p className="text-[10px] text-muted-foreground">
+                                    {rev.location} · {rev.date}
+                                  </p>
                                 </div>
                               </div>
 
@@ -1116,9 +1167,7 @@ function ProductDetailsPage() {
                 type="button"
                 onClick={handleAddToCart}
                 className={`rounded-full p-2.5 text-xs font-bold transition-all ${
-                  added
-                    ? "bg-emerald-600 text-white"
-                    : "clay text-lilac-deep hover:bg-white/60"
+                  added ? "bg-emerald-600 text-white" : "clay text-lilac-deep hover:bg-white/60"
                 }`}
                 title="Add to Basket"
               >

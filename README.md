@@ -47,6 +47,7 @@ The platform combines a high-aesthetic luxury storefront (liquid glass morphism,
 ## ✨ Key Features
 
 ### 🛍️ Client Storefront
+
 - **Artisan Showcase**: Curated catalogues for Dolls, Everlasting Bouquets, Characters & Plushies, and Keychains.
 - **Interactive Multi-Photo Gallery**: High-res lightboxes with zoom for examining handmade milk-cotton stitches.
 - **Dedicated Product Subpages (`/product/$productId`)**: Rich details, size dimensions, wash & care guides, materials breakdown, and personalized customization input notes.
@@ -55,6 +56,7 @@ The platform combines a high-aesthetic luxury storefront (liquid glass morphism,
 - **Direct Instagram Inquiries**: 1-click customer consultation with the Queen on Instagram (@inventivequeen) for custom requests.
 
 ### 💳 Payments & Checkout
+
 - **Razorpay Integration**: Seamless UPI (GPay, PhonePe, Paytm), credit/debit cards, and net banking support.
 - **Dual Verification Layer**:
   - Cryptographic server-side HMAC-SHA256 signature verification.
@@ -62,6 +64,7 @@ The platform combines a high-aesthetic luxury storefront (liquid glass morphism,
 - **Clean Failure & Cancel Handling**: Gracefully handles payment dismissals or cancellation without leaving invalid or ghost "paid" records.
 
 ### 🧵 Royal Crochet Needle Mouse Pointer
+
 - Custom-designed crochet needle with golden metallic hook and ergonomic lavender handle.
 - Pixel-precise `(1, 1)` hotspot alignment so the tip of the needle acts as the cursor.
 - Transparent antialiased 32×32 PNG assets integrated with fallback cursors.
@@ -71,6 +74,7 @@ The platform combines a high-aesthetic luxury storefront (liquid glass morphism,
 ## 🔍 Dedicated Product Subpage (`/product/$productId`)
 
 Every product across the entire website links to its own standalone subpage providing:
+
 - **Resilient URL Resolution**: Supports both exact UUIDs/IDs (`regular-doll`, `mixed-rose-grand-bouquet`) and URL slugs.
 - **Artisanal Specifications Tab**: Detailed breakdown of 100% Milk Cotton yarn, hypoallergenic polyfill, safety hardware, and sizes.
 - **Customization Guide**: Clear step-by-step instructions on submitting reference portraits for custom amigurumi dolls.
@@ -84,17 +88,17 @@ Every product across the entire website links to its own standalone subpage prov
 
 The `/admin` portal provides store administrators with an all-in-one operations hub:
 
-| Module | Description |
-| :--- | :--- |
-| **Order Kanban Board** | Drag-and-drop or 1-click status transitions through all production stages. |
-| **Order Deletion** | Safely and permanently delete any order (confirmed or unconfirmed) with modal confirmation. |
-| **Printable Packing Slips** | Auto-formatted printable slips complete with customer notes and address boxes. |
-| **Gift Note Cards** | Beautiful printable gift note templates with wax seal borders. |
-| **Product Catalogue Editor** | Add, edit, reorder, or toggle active products and badges (`Bestseller`, `New Arrival`). |
-| **Promotional Coupon CMS** | Create percentage or flat discounts, usage limits, and minimum order values. |
-| **Inventory Supplies Tracker** | Manage yarn spools, safety eyes, ribbons, and low-stock alerts. |
-| **Analytics & Revenue Charts** | Monthly revenue trends, average order value, and order status distribution. |
-| **CSV Export** | Export full order records to CSV for courier shipping logistics. |
+| Module                         | Description                                                                                 |
+| :----------------------------- | :------------------------------------------------------------------------------------------ |
+| **Order Kanban Board**         | Drag-and-drop or 1-click status transitions through all production stages.                  |
+| **Order Deletion**             | Safely and permanently delete any order (confirmed or unconfirmed) with modal confirmation. |
+| **Printable Packing Slips**    | Auto-formatted printable slips complete with customer notes and address boxes.              |
+| **Gift Note Cards**            | Beautiful printable gift note templates with wax seal borders.                              |
+| **Product Catalogue Editor**   | Add, edit, reorder, or toggle active products and badges (`Bestseller`, `New Arrival`).     |
+| **Promotional Coupon CMS**     | Create percentage or flat discounts, usage limits, and minimum order values.                |
+| **Inventory Supplies Tracker** | Manage yarn spools, safety eyes, ribbons, and low-stock alerts.                             |
+| **Analytics & Revenue Charts** | Monthly revenue trends, average order value, and order status distribution.                 |
+| **CSV Export**                 | Export full order records to CSV for courier shipping logistics.                            |
 
 ---
 
@@ -157,55 +161,65 @@ Tooling:           Vite 8 · ESLint · Prettier
 ## 🚀 Getting Started
 
 ### Prerequisites
+
 - **Node.js**: v20.x or higher
 - **npm** (or **bun** / **pnpm**)
 - A **Supabase** project (free tier works great)
 - A **Razorpay** merchant account (test or live)
 
 ### 1. Clone the repository
+
 ```bash
 git clone https://github.com/Aldtor/inventive-tech-_-ald-447386a2.git
 cd inventive-tech-_-ald-447386a2
 ```
 
 ### 2. Install dependencies
+
 ```bash
 npm install
 ```
 
 ### 3. Setup environment variables
+
 Copy `.env.example` to `.env`:
+
 ```bash
 cp .env.example .env
 ```
+
 Fill in your credentials (see [Environment Variables](#-environment-variables) below).
 
 ### 4. Setup the database
+
 Run the SQL script located in [`supabase/schema.sql`](supabase/schema.sql) inside your Supabase project's **SQL Editor**. This will:
+
 - Create tables (`profiles`, `orders`, `order_items`, `cms_products`, `admin_users`, etc.).
 - Configure Row Level Security (RLS) policies.
 - Install Security Definer RPC functions and anti-tamper triggers.
 - Populate initial products and settings.
 
 ### 5. Launch development server
+
 ```bash
 npm run dev
 ```
+
 Open your browser at `http://localhost:3000`.
 
 ---
 
 ## 🔑 Environment Variables
 
-| Variable | Scope | Description |
-| :--- | :--- | :--- |
-| `VITE_SUPABASE_URL` | Public (Client) | Your Supabase project URL (`https://xyz.supabase.co`) |
-| `VITE_SUPABASE_ANON_KEY` | Public (Client) | Public anonymous key for client requests |
-| `VITE_SUPABASE_PUBLISHABLE_KEY` | Public (Client) | Supabase publishable key |
-| `VITE_RAZORPAY_KEY_ID` | Public (Client) | Razorpay Key ID (`rzp_test_...` or `rzp_live_...`) |
-| `RAZORPAY_KEY_ID` | Private (Server) | Razorpay Key ID used by server API routes |
-| `RAZORPAY_KEY_SECRET` | Private (Server) | Secret used for HMAC-SHA256 signature verification |
-| `SUPABASE_SERVICE_ROLE_KEY` | Private (Server) | Optional: bypasses RLS for administrative operations |
+| Variable                        | Scope            | Description                                           |
+| :------------------------------ | :--------------- | :---------------------------------------------------- |
+| `VITE_SUPABASE_URL`             | Public (Client)  | Your Supabase project URL (`https://xyz.supabase.co`) |
+| `VITE_SUPABASE_ANON_KEY`        | Public (Client)  | Public anonymous key for client requests              |
+| `VITE_SUPABASE_PUBLISHABLE_KEY` | Public (Client)  | Supabase publishable key                              |
+| `VITE_RAZORPAY_KEY_ID`          | Public (Client)  | Razorpay Key ID (`rzp_test_...` or `rzp_live_...`)    |
+| `RAZORPAY_KEY_ID`               | Private (Server) | Razorpay Key ID used by server API routes             |
+| `RAZORPAY_KEY_SECRET`           | Private (Server) | Secret used for HMAC-SHA256 signature verification    |
+| `SUPABASE_SERVICE_ROLE_KEY`     | Private (Server) | Optional: bypasses RLS for administrative operations  |
 
 ---
 
@@ -235,17 +249,21 @@ The application incorporates strict multi-layered security:
 ## 📦 Building & Deployment
 
 ### Build production bundle
+
 ```bash
 npm run build
 ```
 
 ### Preview production build
+
 ```bash
 npm run preview
 ```
 
 ### Deploy to Cloudflare / Vercel
+
 The application is pre-configured with Nitro for instant zero-config deployments:
+
 - **Cloudflare Pages / Workers**: Nitro emits ready-to-deploy `.wrangler` and `.output` worker bundles.
 - **Vercel**: Import the GitHub repo; build command `npm run build` and output directory `.output` work out of the box.
 

@@ -518,7 +518,7 @@ values (
     'isStoreOpen', true,
     'storeNotice', '',
     'freeShippingThreshold', 1999,
-    'supportPhone', '919876543210',
+    'supportPhone', '',
     'instagramHandle', '@inventivequeen'
   )
 )

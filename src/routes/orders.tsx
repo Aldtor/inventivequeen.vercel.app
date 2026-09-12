@@ -508,9 +508,9 @@ function OrdersPage() {
                               Order Cancelled / Payment Not Finalized
                             </h4>
                             <p className="text-xs text-rose-800 mt-0.5 leading-relaxed">
-                              This checkout was closed or cancelled before payment completion. If amount
-                              was debited by your bank, Razorpay will automatically reverse it within
-                              3–5 business days.
+                              This checkout was closed or cancelled before payment completion. If
+                              amount was debited by your bank, Razorpay will automatically reverse
+                              it within 3–5 business days.
                             </p>
                           </div>
                         </div>

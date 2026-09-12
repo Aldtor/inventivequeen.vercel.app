@@ -99,8 +99,23 @@ export async function handleCreateRazorpayOrder(
   const { amount, currency = "INR", receipt, order_id } = body || {};
   let parsedAmount = Math.round(Number(amount));
 
+  if (!Number.isFinite(parsedAmount) || parsedAmount <= 0) {
+    return jsonResponse({ error: "Invalid order amount specified." }, 400);
+  }
+  if (parsedAmount > 10_000_000) {
+    return jsonResponse({ error: "Order amount exceeds maximum transaction threshold." }, 400);
+  }
+
+  const cleanCurrency = sanitizeText(currency || "INR", 3).toUpperCase();
+  if (cleanCurrency !== "INR") {
+    return jsonResponse({ error: "Only INR currency is supported." }, 400);
+  }
+
+  const cleanReceipt = sanitizeText(receipt, 40);
+  const cleanOrderId = sanitizeText(order_id, 40);
+
   // Integrity check: Cross-validate amount against Supabase database order record
-  if (order_id) {
+  if (cleanOrderId) {
     const supabaseUrl = getEnv("VITE_SUPABASE_URL", env);
     const supabaseKey =
       getEnv("SUPABASE_SERVICE_ROLE_KEY", env) || getEnv("VITE_SUPABASE_ANON_KEY", env);
@@ -108,7 +123,7 @@ export async function handleCreateRazorpayOrder(
     if (supabaseUrl && supabaseKey) {
       try {
         const orderCheckRes = await fetch(
-          `${supabaseUrl}/rest/v1/orders?id=eq.${encodeURIComponent(order_id)}&select=id,amount_total,payment_status`,
+          `${supabaseUrl}/rest/v1/orders?id=eq.${encodeURIComponent(cleanOrderId)}&select=id,amount_total,payment_status`,
           {
             headers: {
               apikey: supabaseKey,
@@ -150,13 +165,6 @@ export async function handleCreateRazorpayOrder(
     return jsonResponse({ error: "Amount must be at least ₹1 (100 paise)." }, 400);
   }
 
-  const cleanCurrency = String(currency).trim().toUpperCase();
-  if (cleanCurrency.length !== 3) {
-    return jsonResponse({ error: "Currency must be a 3-letter code." }, 400);
-  }
-
-  const safeReceipt = sanitizeText(receipt, 40);
-
   // Encode Basic Auth for Razorpay API
   let authHeader = "";
   if (typeof Buffer !== "undefined") {
@@ -175,7 +183,7 @@ export async function handleCreateRazorpayOrder(
       body: JSON.stringify({
         amount: parsedAmount,
         currency: cleanCurrency,
-        receipt: safeReceipt || undefined,
+        receipt: cleanReceipt || undefined,
       }),
     });
 
@@ -219,17 +227,24 @@ export async function handleVerifyPayment(request: Request, env?: unknown): Prom
     return jsonResponse({ error: "Invalid JSON payload" }, 400);
   }
 
-  const { razorpay_order_id, razorpay_payment_id, razorpay_signature, order_id, user_id } = body || {};
+  const { razorpay_order_id, razorpay_payment_id, razorpay_signature, order_id, user_id } =
+    body || {};
 
-  if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
-    return jsonResponse({ error: "Missing required payment verification tokens." }, 400);
+  const cleanRazorpayOrderId = sanitizeText(razorpay_order_id, 80);
+  const cleanRazorpayPaymentId = sanitizeText(razorpay_payment_id, 80);
+  const cleanRazorpaySignature = sanitizeText(razorpay_signature, 128);
+  const cleanOrderId = sanitizeText(order_id, 40);
+  const cleanUserId = sanitizeText(user_id, 40);
+
+  if (!cleanRazorpayOrderId || !cleanRazorpayPaymentId || !cleanRazorpaySignature) {
+    return jsonResponse({ error: "Missing or malformed payment verification tokens." }, 400);
   }
 
   // Cryptographically verify HMAC-SHA256 signature
   const isValid = await verifyRazorpaySignature(
-    String(razorpay_order_id).trim(),
-    String(razorpay_payment_id).trim(),
-    String(razorpay_signature).trim(),
+    cleanRazorpayOrderId,
+    cleanRazorpayPaymentId,
+    cleanRazorpaySignature,
     keySecret,
   );
 
@@ -246,7 +261,7 @@ export async function handleVerifyPayment(request: Request, env?: unknown): Prom
   let dbUpdated = false;
 
   // If order_id was provided, update Supabase order record via atomic confirm_order_payment RPC
-  if (order_id) {
+  if (cleanOrderId) {
     const supabaseUrl = getEnv("VITE_SUPABASE_URL", env);
     const serviceRoleKey = getEnv("SUPABASE_SERVICE_ROLE_KEY", env);
     const anonKey = getEnv("VITE_SUPABASE_ANON_KEY", env);
@@ -270,9 +285,9 @@ export async function handleVerifyPayment(request: Request, env?: unknown): Prom
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            p_order_id: order_id,
-            p_payment_id: String(razorpay_payment_id).trim(),
-            p_user_id: user_id || null,
+            p_order_id: cleanOrderId,
+            p_payment_id: cleanRazorpayPaymentId,
+            p_user_id: cleanUserId || null,
           }),
         });
 
@@ -284,7 +299,7 @@ export async function handleVerifyPayment(request: Request, env?: unknown): Prom
 
           // Priority 2: Fallback to direct PATCH if service role key or user auth is active
           const updateRes = await fetch(
-            `${supabaseUrl}/rest/v1/orders?id=eq.${encodeURIComponent(order_id)}`,
+            `${supabaseUrl}/rest/v1/orders?id=eq.${encodeURIComponent(cleanOrderId)}`,
             {
               method: "PATCH",
               headers: {
@@ -296,7 +311,7 @@ export async function handleVerifyPayment(request: Request, env?: unknown): Prom
               body: JSON.stringify({
                 payment_status: "paid",
                 status: "confirmed",
-                payment_id: String(razorpay_payment_id).trim(),
+                payment_id: cleanRazorpayPaymentId,
               }),
             },
           );
@@ -324,6 +339,6 @@ export async function handleVerifyPayment(request: Request, env?: unknown): Prom
     message: dbUpdated
       ? "Payment successfully verified and confirmed in database."
       : "Payment cryptographically verified. Client finalization required.",
-    payment_id: razorpay_payment_id,
+    payment_id: cleanRazorpayPaymentId,
   });
 }

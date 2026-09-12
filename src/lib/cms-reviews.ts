@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { isSupabaseConfigured, supabase } from "./supabase";
+import { sanitizeText } from "./security";
 
 export interface ReviewItem {
   id: string;
@@ -264,9 +265,21 @@ export function useReviews(): {
   }, []);
 
   const addReview = (newReview: Omit<ReviewItem, "id">) => {
+    const safeHandle = sanitizeText(newReview.handle, 60);
+    const safeAuthor = safeHandle.replace(/^@/, "") || "Royal Patron";
+    const safeLocation = sanitizeText(newReview.location, 80) || "India";
+    const safeText = sanitizeText(newReview.text, 2000);
+    const safeItem = sanitizeText(newReview.item, 100) || "Handcrafted Creation";
+    const safeRating = Math.max(1, Math.min(5, Math.round(newReview.rating || 5)));
+
     const item: ReviewItem = {
       ...newReview,
       id: `rev-${Date.now()}-${Math.floor(100 + Math.random() * 900)}`,
+      handle: safeHandle,
+      location: safeLocation,
+      text: safeText,
+      item: safeItem,
+      rating: safeRating,
     };
     const next = [item, ...reviews];
     setReviews(next);
@@ -278,13 +291,13 @@ export function useReviews(): {
         .insert([
           {
             id: item.id,
-            author_name: item.handle.replace(/^@/, "") || "Royal Patron",
-            author_handle: item.handle,
-            location: item.location || "India",
-            rating: Math.max(1, Math.min(5, item.rating)),
-            item_name: item.item,
+            author_name: safeAuthor,
+            author_handle: safeHandle,
+            location: safeLocation,
+            rating: safeRating,
+            item_name: safeItem,
             category: item.category,
-            review_text: item.text,
+            review_text: safeText,
             is_approved: item.isApproved ?? true,
             is_featured: Boolean(item.isFeatured),
           },

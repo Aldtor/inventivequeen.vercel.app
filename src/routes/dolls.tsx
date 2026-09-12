@@ -1,7 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Crown, Instagram, Sparkles } from "lucide-react";
 
-import { INSTAGRAM_URL, OrderCta, PageHeader, PriceCard, SiteLayout } from "@/components/site/SiteLayout";
+import {
+  INSTAGRAM_URL,
+  OrderCta,
+  PageHeader,
+  PriceCard,
+  SiteLayout,
+} from "@/components/site/SiteLayout";
 import dollsImg from "@/assets/dolls.jpg";
 import dollEmpty from "@/assets/doll-empty.jpg";
 import { useProducts } from "@/lib/cms-products";
@@ -74,7 +80,9 @@ function DollsPage() {
               Artisanal Dolls Coming Soon
             </h2>
             <p className="mt-3 text-sm text-muted-foreground leading-relaxed">
-              Our atelier is currently hand-crafting bespoke amigurumi doll designs with soft milk cotton yarn. You can also request a custom doll made from your reference photo via Instagram!
+              Our atelier is currently hand-crafting bespoke amigurumi doll designs with soft milk
+              cotton yarn. You can also request a custom doll made from your reference photo via
+              Instagram!
             </p>
             <div className="mt-6 flex flex-wrap justify-center gap-3">
               <a

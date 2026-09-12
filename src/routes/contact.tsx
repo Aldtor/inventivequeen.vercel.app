@@ -1,13 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import {
-  Crown,
-  Instagram,
-  Mail,
-  MapPin,
-  CheckCircle2,
-  Sparkles,
-  Send,
-} from "lucide-react";
+import { Crown, Instagram, Mail, MapPin, CheckCircle2, Sparkles, Send } from "lucide-react";
 import { useState, type FormEvent } from "react";
 import { toast } from "sonner";
 

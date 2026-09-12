@@ -1364,7 +1364,9 @@ function ProfilePage() {
                                 <span
                                   className={`inline-block text-[11px] font-bold rounded-full px-2.5 py-0.5 border ${
                                     order.payment_status === "paid" ||
-                                    ["confirmed", "crafting", "shipped", "delivered"].includes(order.status)
+                                    ["confirmed", "crafting", "shipped", "delivered"].includes(
+                                      order.status,
+                                    )
                                       ? "bg-emerald-50 text-emerald-800 border-emerald-200"
                                       : order.payment_status === "pending"
                                         ? "bg-amber-50 text-amber-800 border-amber-200"
@@ -1372,7 +1374,9 @@ function ProfilePage() {
                                   }`}
                                 >
                                   {order.payment_status === "paid" ||
-                                  ["confirmed", "crafting", "shipped", "delivered"].includes(order.status) ? (
+                                  ["confirmed", "crafting", "shipped", "delivered"].includes(
+                                    order.status,
+                                  ) ? (
                                     <span className="inline-flex items-center gap-1">
                                       <Check className="size-3" /> Paid via Razorpay
                                     </span>
@@ -1385,7 +1389,9 @@ function ProfilePage() {
 
                             {/* Status Timeline Bar (Only for paid orders) */}
                             {(order.payment_status === "paid" ||
-                              ["confirmed", "crafting", "shipped", "delivered"].includes(order.status)) &&
+                              ["confirmed", "crafting", "shipped", "delivered"].includes(
+                                order.status,
+                              )) &&
                             order.status !== "cancelled" ? (
                               <div className="mb-4 bg-slate-50/80 rounded-2xl p-4 border border-slate-100">
                                 <div className="flex items-center justify-between text-xs font-bold text-slate-700 mb-2">
@@ -1427,8 +1433,15 @@ function ProfilePage() {
                                 </div>
                                 <button
                                   onClick={async () => {
-                                    if (window.confirm("Remove this incomplete order from your history?")) {
-                                      await supabase.from("order_items").delete().eq("order_id", order.id);
+                                    if (
+                                      window.confirm(
+                                        "Remove this incomplete order from your history?",
+                                      )
+                                    ) {
+                                      await supabase
+                                        .from("order_items")
+                                        .delete()
+                                        .eq("order_id", order.id);
                                       await supabase.from("orders").delete().eq("id", order.id);
                                       setOrders((prev) => prev.filter((o) => o.id !== order.id));
                                     }
