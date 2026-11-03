@@ -39,14 +39,7 @@ interface DbOrderRow {
   payment_status: string;
 }
 
-const DEFAULT_SERVER_ENV_FALLBACKS: Record<string, string> = {
-  VITE_SUPABASE_URL: "https://fsttdvcntqlhnjdhogic.supabase.co",
-  VITE_SUPABASE_ANON_KEY:
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZzdHRkdmNudHFsaG5qZGhvZ2ljIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQyMzM3NDEsImV4cCI6MjA4OTgwOTc0MX0.x_TD4obU3gD4gpMUXhvYOxrbkUix_z5LVjt1vQq8tW4",
-  VITE_RAZORPAY_KEY_ID: "rzp_live_TYUEKLyErpyGRl",
-  RAZORPAY_KEY_ID: "rzp_live_TYUEKLyErpyGRl",
-  RAZORPAY_KEY_SECRET: "NM1DhHxwAPDodXV1wVQ6CRHW",
-};
+
 
 function getEnv(name: string, env?: unknown): string {
   if (env && typeof env === "object" && name in env) {
@@ -56,7 +49,7 @@ function getEnv(name: string, env?: unknown): string {
   if (typeof process !== "undefined" && process.env && process.env[name]) {
     return process.env[name]!;
   }
-  return DEFAULT_SERVER_ENV_FALLBACKS[name] || "";
+  return "";
 }
 
 function jsonResponse(body: unknown, status = 200): Response {
@@ -114,50 +107,54 @@ export async function handleCreateRazorpayOrder(
   const cleanReceipt = sanitizeText(receipt, 40);
   const cleanOrderId = sanitizeText(order_id, 40);
 
-  // Integrity check: Cross-validate amount against Supabase database order record
+  const supabaseUrl = cleanOrderId ? getEnv("VITE_SUPABASE_URL", env) : "";
+  const serviceRoleKey = cleanOrderId ? getEnv("SUPABASE_SERVICE_ROLE_KEY", env) : "";
+
+  // DB-backed orders must be priced and created through the trusted server.
   if (cleanOrderId) {
-    const supabaseUrl = getEnv("VITE_SUPABASE_URL", env);
-    const supabaseKey =
-      getEnv("SUPABASE_SERVICE_ROLE_KEY", env) || getEnv("VITE_SUPABASE_ANON_KEY", env);
+    if (!supabaseUrl || !serviceRoleKey) {
+      return jsonResponse({ error: "Server-side order verification is not configured." }, 503);
+    }
 
-    if (supabaseUrl && supabaseKey) {
-      try {
-        const orderCheckRes = await fetch(
-          `${supabaseUrl}/rest/v1/orders?id=eq.${encodeURIComponent(cleanOrderId)}&select=id,amount_total,payment_status`,
-          {
-            headers: {
-              apikey: supabaseKey,
-              Authorization: `Bearer ${supabaseKey}`,
-            },
+    try {
+      const orderCheckRes = await fetch(
+        `${supabaseUrl}/rest/v1/orders?id=eq.${encodeURIComponent(cleanOrderId)}&select=id,amount_total,payment_status`,
+        {
+          headers: {
+            apikey: serviceRoleKey,
+            Authorization: `Bearer ${serviceRoleKey}`,
           },
-        );
+        },
+      );
 
-        if (orderCheckRes.ok) {
-          const rows = (await orderCheckRes.json()) as DbOrderRow[];
-          if (rows && rows.length > 0 && rows[0]) {
-            const dbOrder = rows[0];
-            if (dbOrder.payment_status === "paid") {
-              return jsonResponse({ error: "Order has already been paid and finalized." }, 400);
-            }
-            const expectedPaise = Math.round(Number(dbOrder.amount_total) * 100);
-            if (expectedPaise > 0 && Math.abs(expectedPaise - parsedAmount) > 1) {
-              console.warn(
-                `[SECURITY ALERT] Order amount tampering detected! Client sent: ${parsedAmount}, Database requires: ${expectedPaise}`,
-              );
-              return jsonResponse(
-                { error: "Order price discrepancy detected. Integrity check failed." },
-                400,
-              );
-            }
-            parsedAmount = expectedPaise;
-          }
-        }
-      } catch (dbErr) {
-        console.warn(
-          "Could not cross-check order price from DB, falling back to validated payload:",
-          dbErr,
+      if (!orderCheckRes.ok) {
+        return jsonResponse({ error: "Could not verify the order amount." }, 503);
+      }
+
+      const rows = (await orderCheckRes.json()) as DbOrderRow[];
+      if (!rows || rows.length === 0 || !rows[0]) {
+        return jsonResponse({ error: "Order not found." }, 404);
+      }
+
+      const dbOrder = rows[0];
+      if (dbOrder.payment_status === "paid") {
+        return jsonResponse({ error: "Order has already been paid and finalized." }, 400);
+      }
+
+      const expectedPaise = Math.round(Number(dbOrder.amount_total) * 100);
+      if (!Number.isFinite(expectedPaise) || expectedPaise < 100) {
+        return jsonResponse({ error: "The stored order amount is invalid." }, 400);
+      }
+      if (Math.abs(expectedPaise - parsedAmount) > 1) {
+        return jsonResponse(
+          { error: "Order price discrepancy detected. Integrity check failed." },
+          400,
         );
       }
+      parsedAmount = expectedPaise;
+    } catch (dbErr) {
+      console.error("Could not verify order price from DB:", dbErr);
+      return jsonResponse({ error: "Could not verify the order amount." }, 503);
     }
   }
 
@@ -183,7 +180,7 @@ export async function handleCreateRazorpayOrder(
       body: JSON.stringify({
         amount: parsedAmount,
         currency: cleanCurrency,
-        receipt: cleanReceipt || undefined,
+        receipt: cleanOrderId || cleanReceipt || undefined,
       }),
     });
 
@@ -194,6 +191,43 @@ export async function handleCreateRazorpayOrder(
       const errMsg =
         data?.error?.description || data?.error?.message || "Failed to create Razorpay order";
       return jsonResponse({ error: errMsg }, rzpRes.status === 401 ? 401 : 500);
+    }
+
+    if (cleanOrderId) {
+      if (!data.id) {
+        return jsonResponse({ error: "Payment gateway returned no order identifier." }, 502);
+      }
+
+      let orderUpdateRes: Response;
+      try {
+        orderUpdateRes = await fetch(
+          `${supabaseUrl}/rest/v1/orders?id=eq.${encodeURIComponent(cleanOrderId)}&payment_status=neq.paid`,
+          {
+            method: "PATCH",
+            headers: {
+              apikey: serviceRoleKey,
+              Authorization: `Bearer ${serviceRoleKey}`,
+              "Content-Type": "application/json",
+              Prefer: "return=representation",
+            },
+            body: JSON.stringify({ razorpay_order_id: data.id }),
+          },
+        );
+      } catch (dbErr) {
+        console.error("Could not bind Razorpay order to database order:", dbErr);
+        return jsonResponse({ error: "Could not finalize payment order setup." }, 503);
+      }
+
+      if (!orderUpdateRes.ok) {
+        const updateErr = await orderUpdateRes.text();
+        console.error("Could not bind Razorpay order to database order:", orderUpdateRes.status, updateErr);
+        return jsonResponse({ error: "Could not finalize payment order setup." }, 503);
+      }
+
+      const updatedRows = (await orderUpdateRes.json()) as unknown[];
+      if (!Array.isArray(updatedRows) || updatedRows.length === 0) {
+        return jsonResponse({ error: "Order is no longer available for payment." }, 409);
+      }
     }
 
     return jsonResponse({
@@ -260,75 +294,57 @@ export async function handleVerifyPayment(request: Request, env?: unknown): Prom
 
   let dbUpdated = false;
 
-  // If order_id was provided, update Supabase order record via atomic confirm_order_payment RPC
+  // Finalize a verified payment only through the server-only RPC.
   if (cleanOrderId) {
     const supabaseUrl = getEnv("VITE_SUPABASE_URL", env);
     const serviceRoleKey = getEnv("SUPABASE_SERVICE_ROLE_KEY", env);
-    const anonKey = getEnv("VITE_SUPABASE_ANON_KEY", env);
-    const incomingAuth = request.headers.get("Authorization");
 
-    // Prefer service role key, else forward caller's authenticated user bearer token
-    const authBearer = serviceRoleKey
-      ? `Bearer ${serviceRoleKey}`
-      : incomingAuth || (anonKey ? `Bearer ${anonKey}` : "");
+    if (!supabaseUrl || !serviceRoleKey) {
+      return jsonResponse(
+        { error: "Payment was verified, but server-side order confirmation is not configured." },
+        503,
+      );
+    }
 
-    const apiKey = anonKey || serviceRoleKey || "";
+    try {
+      const rpcRes = await fetch(`${supabaseUrl}/rest/v1/rpc/confirm_order_payment`, {
+        method: "POST",
+        headers: {
+          apikey: serviceRoleKey,
+          Authorization: `Bearer ${serviceRoleKey}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          p_order_id: cleanOrderId,
+          p_payment_id: cleanRazorpayPaymentId,
+          p_razorpay_order_id: cleanRazorpayOrderId,
+          p_user_id: cleanUserId || null,
+        }),
+      });
 
-    if (supabaseUrl && apiKey) {
-      try {
-        // Priority 1: Call confirm_order_payment RPC (SECURITY DEFINER with trigger override)
-        const rpcRes = await fetch(`${supabaseUrl}/rest/v1/rpc/confirm_order_payment`, {
-          method: "POST",
-          headers: {
-            apikey: apiKey,
-            Authorization: authBearer,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            p_order_id: cleanOrderId,
-            p_payment_id: cleanRazorpayPaymentId,
-            p_user_id: cleanUserId || null,
-          }),
-        });
-
-        if (rpcRes.ok) {
-          dbUpdated = true;
-        } else {
-          const rpcErr = await rpcRes.text();
-          console.warn("confirm_order_payment RPC returned non-200:", rpcRes.status, rpcErr);
-
-          // Priority 2: Fallback to direct PATCH if service role key or user auth is active
-          const updateRes = await fetch(
-            `${supabaseUrl}/rest/v1/orders?id=eq.${encodeURIComponent(cleanOrderId)}`,
-            {
-              method: "PATCH",
-              headers: {
-                apikey: apiKey,
-                Authorization: authBearer,
-                "Content-Type": "application/json",
-                Prefer: "return=representation",
-              },
-              body: JSON.stringify({
-                payment_status: "paid",
-                status: "confirmed",
-                payment_id: cleanRazorpayPaymentId,
-              }),
-            },
-          );
-
-          if (updateRes.ok) {
-            const updatedRows = (await updateRes.json()) as unknown[];
-            if (Array.isArray(updatedRows) && updatedRows.length > 0) {
-              dbUpdated = true;
-            }
-          } else {
-            const errText = await updateRes.text();
-            console.error("Failed to update order status in Supabase fallback:", errText);
-          }
-        }
-      } catch (dbErr) {
-        console.error("Database connection error during payment confirmation:", dbErr);
+      if (!rpcRes.ok) {
+        const rpcErr = await rpcRes.text();
+        console.error("confirm_order_payment RPC failed:", rpcRes.status, rpcErr);
+        return jsonResponse(
+          { error: "Payment was verified, but order confirmation failed.", verified: true },
+          503,
+        );
       }
+
+      const rpcUpdated = (await rpcRes.json()) as boolean;
+      if (!rpcUpdated) {
+        return jsonResponse(
+          { error: "Payment was verified, but the order could not be updated.", verified: true },
+          409,
+        );
+      }
+      dbUpdated = true;
+    } catch (dbErr) {
+      console.error("Database connection error during payment confirmation:", dbErr);
+      return jsonResponse(
+        { error: "Payment was verified, but order confirmation failed.", verified: true },
+        503,
+      );
     }
   }
 
